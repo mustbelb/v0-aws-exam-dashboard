@@ -25,6 +25,7 @@ export function QuestionCard({ question, options, onSubmit, isLoading }: Questio
   const handleSubmit = () => {
     if (selectedOption) {
       onSubmit(selectedOption)
+      setSelectedOption("")
     }
   }
 
@@ -67,7 +68,9 @@ export function QuestionCard({ question, options, onSubmit, isLoading }: Questio
                   <RadioGroupItem value={option.id} id={option.id} className="mt-1" />
                   <div className="flex-1">
                     <div className="font-medium">{option.id.toUpperCase()}.</div>
-                    <div className="text-sm leading-relaxed text-muted-foreground mt-1">{option.text}</div>
+                    <div className="text-sm leading-relaxed text-muted-foreground mt-1">
+                      {option.text}
+                    </div>
                   </div>
                 </Label>
               </div>
@@ -75,7 +78,12 @@ export function QuestionCard({ question, options, onSubmit, isLoading }: Questio
           </div>
         </RadioGroup>
 
-        <Button onClick={handleSubmit} disabled={!selectedOption} className="w-full" size="lg">
+        <Button 
+          onClick={handleSubmit} 
+          disabled={!selectedOption} 
+          className="w-full" 
+          size="lg"
+        >
           Submit Answer
         </Button>
       </CardContent>

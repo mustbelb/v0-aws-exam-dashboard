@@ -3,10 +3,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown } from "lucide-react"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { CheckCircle2, XCircle, Lightbulb } from "lucide-react"
 
-interface FeedbackProps {
+interface FeedbackDisplayProps {
   isCorrect: boolean
   correctAnswer: string
   selectedAnswer: string
@@ -25,67 +30,96 @@ export function FeedbackDisplay({
   explanations,
   examTip,
   onNextQuestion,
-}: FeedbackProps) {
+}: FeedbackDisplayProps) {
   return (
-    <Card className={`border-2 ${isCorrect ? "border-success" : "border-destructive"}`}>
+    <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            {isCorrect ? (
-              <>
-                <Badge className="bg-success text-success-foreground">Correct ✓</Badge>
-                <span>Well done!</span>
-              </>
-            ) : (
-              <>
-                <Badge variant="destructive">Incorrect ✗</Badge>
-                <span>Let's review</span>
-              </>
-            )}
-          </CardTitle>
+        <div className="flex items-center gap-3">
+          {isCorrect ? (
+            <>
+              <CheckCircle2 className="h-8 w-8 text-green-500" />
+              <div>
+                <CardTitle className="text-green-500">Correct!</CardTitle>
+                <p className="text-sm text-muted-foreground">Great job!</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <XCircle className="h-8 w-8 text-destructive" />
+              <div>
+                <CardTitle className="text-destructive">Incorrect</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  The correct answer was{" "}
+                  <Badge variant="outline" className="ml-1">
+                    {correctAnswer.toUpperCase()}
+                  </Badge>
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+
+      <CardContent className="space-y-6">
         {/* Correct Answer Explanation */}
-        <Collapsible defaultOpen>
-          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg bg-success/10 p-4 text-left font-medium hover:bg-success/20 transition-colors">
-            <span>✓ Why {correctAnswer.toUpperCase()} is correct</span>
-            <ChevronDown className="h-4 w-4 transition-transform ui-expanded:rotate-180" />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="px-4 pt-3 pb-1">
-            <p className="text-sm leading-relaxed text-muted-foreground">{explanations.correct}</p>
-          </CollapsibleContent>
-        </Collapsible>
-
-        {/* Wrong Answers Explanations */}
-        {explanations.wrongAnswers.map((item) => (
-          <Collapsible key={item.id}>
-            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg bg-muted p-4 text-left font-medium hover:bg-muted/80 transition-colors">
-              <span className={item.id === selectedAnswer && !isCorrect ? "text-destructive" : ""}>
-                ✗ Why {item.id.toUpperCase()} is wrong
-                {item.id === selectedAnswer && !isCorrect && " (Your answer)"}
-              </span>
-              <ChevronDown className="h-4 w-4 transition-transform ui-expanded:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-4 pt-3 pb-1">
-              <p className="text-sm leading-relaxed text-muted-foreground">{item.reason}</p>
-            </CollapsibleContent>
-          </Collapsible>
-        ))}
-
-        {/* Exam Tip */}
-        <div className="rounded-lg border-l-4 border-primary bg-primary/5 p-4">
-          <div className="flex items-start gap-2">
-            <span className="text-lg">💡</span>
-            <div>
-              <h4 className="font-semibold text-sm mb-1">Exam Tip</h4>
-              <p className="text-sm leading-relaxed text-muted-foreground">{examTip}</p>
-            </div>
-          </div>
+        <div className="space-y-2">
+          <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+            Why {correctAnswer.toUpperCase()} is correct
+          </h4>
+          <p className="text-sm leading-relaxed">{explanations.correct}</p>
         </div>
 
-        <Button onClick={onNextQuestion} size="lg" className="w-full">
-          Next Question →
+        {/* Wrong Answer Explanations */}
+        {explanations.wrongAnswers.length > 0 && (
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="wrong-answers">
+              <AccordionTrigger className="text-sm">
+                Why the other options are incorrect
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 pt-2">
+                  {explanations.wrongAnswers.map((wrong) => (
+                    <div key={wrong.id} className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={wrong.id === selectedAnswer.toLowerCase() ? "destructive" : "outline"}
+                          className="font-mono"
+                        >
+                          {wrong.id.toUpperCase()}
+                        </Badge>
+                        {wrong.id === selectedAnswer.toLowerCase() && (
+                          <span className="text-xs text-muted-foreground">(Your answer)</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed pl-2">
+                        {wrong.reason}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
+
+        {/* Exam Tip */}
+        {examTip && (
+          <div className="rounded-lg bg-primary/5 border border-primary/20 p-4">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold text-sm mb-1">Exam Tip</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {examTip}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Next Question Button */}
+        <Button onClick={onNextQuestion} className="w-full" size="lg">
+          Next Question
         </Button>
       </CardContent>
     </Card>

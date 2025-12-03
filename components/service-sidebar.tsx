@@ -1,9 +1,12 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 
 interface ServiceSidebarProps {
   serviceName: string
   icon: string
+  description?: string
   stats: {
     questionsAnswered: number
     correctRate: number
@@ -11,7 +14,12 @@ interface ServiceSidebarProps {
   }
 }
 
-export function ServiceSidebar({ serviceName, icon, stats }: ServiceSidebarProps) {
+export function ServiceSidebar({ 
+  serviceName, 
+  icon, 
+  description,
+  stats 
+}: ServiceSidebarProps) {
   return (
     <div className="space-y-4">
       <Card>
@@ -49,21 +57,18 @@ export function ServiceSidebar({ serviceName, icon, stats }: ServiceSidebarProps
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">About {serviceName}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {serviceName === "Lambda" &&
-              "AWS Lambda is a serverless compute service that runs your code in response to events and automatically manages compute resources."}
-            {serviceName === "S3" &&
-              "Amazon S3 is object storage built to store and retrieve any amount of data from anywhere with industry-leading scalability and durability."}
-            {serviceName === "DynamoDB" &&
-              "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability."}
-          </p>
-        </CardContent>
-      </Card>
+      {description && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">About {serviceName}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {description}
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
