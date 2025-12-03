@@ -237,35 +237,115 @@ export function PracticeClient({
             case "character":
               accumulated += data.character
               // Detect format and use appropriate partial parser
+              let partial: PartialQuestion
               if (accumulated.trim().startsWith('{')) {
-                const partial = parsePartialJSON(accumulated)
-                setPartialQuestion(partial)
+                partial = parsePartialJSON(accumulated)
               } else {
-                const partial = parsePartialPlainText(accumulated)
-                setPartialQuestion(partial)
+                partial = parsePartialPlainText(accumulated)
+              }
+              setPartialQuestion(partial)
+              
+              // Check if we have enough to enable interaction
+              if (!currentQuestion && partial.question && 
+                  partial.options?.A && partial.options?.B && 
+                  partial.options?.C && partial.options?.D) {
+                
+                let correctAnswer = ''
+                if (accumulated.trim().startsWith('{')) {
+                  const correctMatch = accumulated.match(/"correct"\s*:\s*"([A-Da-d])"/i)
+                  if (correctMatch) {
+                    correctAnswer = correctMatch[1].toUpperCase()
+                  }
+                } else {
+                  const correctMatch = accumulated.match(/\nCORRECT[:\s]*\n?([A-Da-d])/i)
+                  if (correctMatch) {
+                    correctAnswer = correctMatch[1].toUpperCase()
+                  }
+                }
+                
+                if (correctAnswer) {
+                  console.log('[Practice] All options ready, enabling early interaction')
+                  const earlyQuestion: Question = {
+                    question: partial.question,
+                    options: {
+                      A: partial.options.A,
+                      B: partial.options.B,
+                      C: partial.options.C,
+                      D: partial.options.D
+                    },
+                    correct: correctAnswer,
+                    explanation: { correct: '', A: '', B: '', C: '', D: '' },
+                    examTip: ''
+                  }
+                  setCurrentQuestion(earlyQuestion)
+                  setPartialQuestion(null)
+                  setIsStreaming(false)
+                  startTimeRef.current = Date.now()
+                }
               }
               break
 
             case "chunk":
               accumulated += data.content
               // Detect format and use appropriate partial parser
+              let partialChunk: PartialQuestion
               if (accumulated.trim().startsWith('{')) {
-                const partialChunk = parsePartialJSON(accumulated)
-                setPartialQuestion(partialChunk)
+                partialChunk = parsePartialJSON(accumulated)
               } else {
-                const partialChunk = parsePartialPlainText(accumulated)
-                setPartialQuestion(partialChunk)
+                partialChunk = parsePartialPlainText(accumulated)
+              }
+              setPartialQuestion(partialChunk)
+              
+              // Check if we have enough to enable interaction (all 4 options + can detect correct answer)
+              if (!currentQuestion && partialChunk.question && 
+                  partialChunk.options?.A && partialChunk.options?.B && 
+                  partialChunk.options?.C && partialChunk.options?.D) {
+                
+                // Try to extract correct answer early
+                let correctAnswer = ''
+                if (accumulated.trim().startsWith('{')) {
+                  const correctMatch = accumulated.match(/"correct"\s*:\s*"([A-Da-d])"/i)
+                  if (correctMatch) {
+                    correctAnswer = correctMatch[1].toUpperCase()
+                  }
+                } else {
+                  const correctMatch = accumulated.match(/\nCORRECT[:\s]*\n?([A-Da-d])/i)
+                  if (correctMatch) {
+                    correctAnswer = correctMatch[1].toUpperCase()
+                  }
+                }
+                
+                if (correctAnswer) {
+                  console.log('[Practice] All options ready, enabling early interaction')
+                  // Create early question object (explanations will be empty, filled later)
+                  const earlyQuestion: Question = {
+                    question: partialChunk.question,
+                    options: {
+                      A: partialChunk.options.A,
+                      B: partialChunk.options.B,
+                      C: partialChunk.options.C,
+                      D: partialChunk.options.D
+                    },
+                    correct: correctAnswer,
+                    explanation: { correct: '', A: '', B: '', C: '', D: '' },
+                    examTip: ''
+                  }
+                  setCurrentQuestion(earlyQuestion)
+                  setPartialQuestion(null)
+                  setIsStreaming(false) // Stop showing streaming UI
+                  startTimeRef.current = Date.now()
+                  // Keep accumulating in background for explanations
+                }
               }
               break
 
             case "complete":
               console.log('[Practice] Stream complete, accumulated length:', accumulated.length)
-              console.log('[Practice] Content preview:', accumulated.substring(0, 100))
               eventSource.close()
               setIsStreaming(false)
               setIsLoading(false)
 
-              // Parse the response - detect format and parse accordingly
+              // Parse the full response to get explanations
               try {
                 let cleanContent = accumulated.trim()
                 
@@ -281,16 +361,15 @@ export function PracticeClient({
                 }
                 cleanContent = cleanContent.trim()
 
-                let question: Question | null = null
+                let fullQuestion: Question | null = null
 
-                // Check if it's JSON (starts with {) or plain text (starts with QUESTION:)
+                // Check if it's JSON or plain text
                 if (cleanContent.startsWith('{')) {
-                  // Parse as JSON
-                  console.log('[Practice] Detected JSON format')
+                  console.log('[Practice] Parsing complete JSON')
                   const parsed = JSON.parse(cleanContent)
                   
                   if (parsed.question && parsed.options && parsed.correct) {
-                    question = {
+                    fullQuestion = {
                       question: parsed.question,
                       options: {
                         A: parsed.options.A || parsed.options.a || '',
@@ -310,22 +389,28 @@ export function PracticeClient({
                     }
                   }
                 } else {
-                  // Parse as plain text
-                  console.log('[Practice] Detected plain text format')
-                  question = parsePlainTextQuestion(cleanContent)
+                  console.log('[Practice] Parsing complete plain text')
+                  fullQuestion = parsePlainTextQuestion(cleanContent)
                 }
 
-                if (question) {
-                  console.log('[Practice] Successfully parsed question')
-                  setCurrentQuestion(question)
+                if (fullQuestion) {
+                  // Update with full explanations (user may have already started answering)
+                  setCurrentQuestion(fullQuestion)
                   setPartialQuestion(null)
-                  startTimeRef.current = Date.now()
-                } else {
+                  if (startTimeRef.current === 0) {
+                    startTimeRef.current = Date.now()
+                  }
+                  console.log('[Practice] Full question with explanations ready')
+                } else if (!currentQuestion) {
+                  // Only error if we don't already have a working question
                   throw new Error('Failed to parse question from response')
                 }
               } catch (parseError) {
                 console.error('[Practice] Parse failed:', parseError)
-                setError("Failed to parse question. Please try again.")
+                if (!currentQuestion) {
+                  setError("Failed to parse question. Please try again.")
+                }
+                // If we already have a question displayed, just log the error
               }
               break
 
