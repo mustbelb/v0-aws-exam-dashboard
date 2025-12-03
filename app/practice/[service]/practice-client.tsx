@@ -68,10 +68,20 @@ export function PracticeClient({
   // Parser for plain text format from Lambda
   const parsePlainTextQuestion = (text: string): Question | null => {
     try {
+      console.log('[Parser] Raw text length:', text.length)
+      console.log('[Parser] Raw text preview:', text.substring(0, 500))
+      
+      // More flexible extraction - handles various whitespace and formatting
       const extractSection = (label: string): string => {
-        const regex = new RegExp(`${label}:\\s*([\\s\\S]*?)(?=(?:QUESTION:|OPTION_[A-D]:|CORRECT:|EXPLANATION_[A-Z_]+:|EXAM_TIP:|$))`, 'i')
+        // Match the label followed by content until the next label or end
+        const regex = new RegExp(
+          `${label}[:\\s]*\\n?([\\s\\S]*?)(?=\\n(?:QUESTION|OPTION_[A-D]|CORRECT|EXPLANATION_(?:CORRECT|[A-D])|EXAM_TIP)[:\\s]|$)`,
+          'i'
+        )
         const match = text.match(regex)
-        return match ? match[1].trim() : ''
+        const result = match ? match[1].trim() : ''
+        console.log(`[Parser] ${label}:`, result.substring(0, 100))
+        return result
       }
 
       const question = extractSection('QUESTION')
@@ -79,7 +89,7 @@ export function PracticeClient({
       const optionB = extractSection('OPTION_B')
       const optionC = extractSection('OPTION_C')
       const optionD = extractSection('OPTION_D')
-      const correct = extractSection('CORRECT').toUpperCase().trim()
+      const correct = extractSection('CORRECT').toUpperCase().trim().charAt(0) // Just get first char (A, B, C, or D)
       const explanationCorrect = extractSection('EXPLANATION_CORRECT')
       const explanationA = extractSection('EXPLANATION_A')
       const explanationB = extractSection('EXPLANATION_B')
@@ -87,8 +97,18 @@ export function PracticeClient({
       const explanationD = extractSection('EXPLANATION_D')
       const examTip = extractSection('EXAM_TIP')
 
+      console.log('[Parser] Parsed values:', {
+        hasQuestion: !!question,
+        hasOptionA: !!optionA,
+        hasOptionB: !!optionB,
+        hasOptionC: !!optionC,
+        hasOptionD: !!optionD,
+        correct
+      })
+
       if (!question || !optionA || !optionB || !optionC || !optionD || !correct) {
-        console.error('Missing required fields in parsed question')
+        console.error('[Parser] Missing required fields')
+        console.error('[Parser] Full text:', text)
         return null
       }
 
@@ -111,7 +131,8 @@ export function PracticeClient({
         examTip
       }
     } catch (e) {
-      console.error('Error parsing plain text question:', e)
+      console.error('[Parser] Error parsing plain text question:', e)
+      console.error('[Parser] Full text:', text)
       return null
     }
   }
@@ -324,20 +345,21 @@ export function PracticeClient({
             {/* Loading state - show streaming content */}
             {isLoading && (
               <div className="space-y-4">
-                <QuestionCard
-                  question=""
-                  options={[]}
-                  onSubmit={() => {}}
-                  isLoading={true}
-                />
-                {streamingContent && (
-                  <div className="bg-muted/50 p-4 rounded-lg border min-h-[100px] max-h-[300px] overflow-y-auto">
-                    <p className="text-xs text-muted-foreground mb-2">Generating question...</p>
-                    <pre className="whitespace-pre-wrap text-sm text-foreground font-mono leading-relaxed">
+                {streamingContent ? (
+                  <div className="bg-card p-6 rounded-lg border shadow-sm">
+                    <p className="text-sm font-medium text-primary mb-3">✨ Generating your question...</p>
+                    <pre className="whitespace-pre-wrap text-sm text-foreground font-mono leading-relaxed bg-muted/30 p-4 rounded-md max-h-[500px] overflow-y-auto">
                       {streamingContent}
-                      <span className="animate-pulse">|</span>
+                      <span className="animate-pulse text-primary">|</span>
                     </pre>
                   </div>
+                ) : (
+                  <QuestionCard
+                    question=""
+                    options={[]}
+                    onSubmit={() => {}}
+                    isLoading={true}
+                  />
                 )}
               </div>
             )}
