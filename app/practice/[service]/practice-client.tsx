@@ -280,6 +280,7 @@ export function PracticeClient({
                   setCurrentQuestion(earlyQuestion)
                   setPartialQuestion(null)
                   setIsStreaming(false)
+                  setIsLoading(false) // Important: allow QuestionCard to render
                   startTimeRef.current = Date.now()
                 }
               }
@@ -332,7 +333,8 @@ export function PracticeClient({
                   }
                   setCurrentQuestion(earlyQuestion)
                   setPartialQuestion(null)
-                  setIsStreaming(false) // Stop showing streaming UI
+                  setIsStreaming(false)
+                  setIsLoading(false) // Important: allow QuestionCard to render
                   startTimeRef.current = Date.now()
                   // Keep accumulating in background for explanations
                 }
