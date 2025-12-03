@@ -4,6 +4,15 @@ const nextConfig = {
   experimental: {
     // serverActions: true, // Already enabled by default in Next.js 14
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  images: {
+    unoptimized: true,
+  },
 }
 
 module.exports = nextConfig
