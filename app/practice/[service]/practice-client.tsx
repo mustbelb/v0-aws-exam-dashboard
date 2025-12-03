@@ -79,12 +79,16 @@ export function PracticeClient({
     })
 
     try {
-      const eventSource = new EventSource(`/api/question/generate?${params}`)
+      const streamUrl = `/api/question/generate?${params.toString()}`
+      console.log('[Practice] Starting stream:', streamUrl)
+      
+      const eventSource = new EventSource(streamUrl)
       let accumulated = ""
 
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
+          console.log('[Practice] Received event type:', data.type)
 
           switch (data.type) {
             case "character":
@@ -98,6 +102,7 @@ export function PracticeClient({
               break
 
             case "complete":
+              console.log('[Practice] Stream complete, accumulated length:', accumulated.length)
               eventSource.close()
               setIsLoading(false)
 
@@ -136,11 +141,24 @@ export function PracticeClient({
         }
       }
 
-      eventSource.onerror = () => {
+      eventSource.onerror = (error) => {
+        console.error('[Practice] EventSource error:', error)
         eventSource.close()
         setIsLoading(false)
-        setError("Connection failed. Please try again.")
+        setStreamingContent("")
+        setError("Connection error. Please try again.")
       }
+
+      // Timeout after 120 seconds
+      setTimeout(() => {
+        if (eventSource.readyState !== EventSource.CLOSED) {
+          console.log('[Practice] Stream timeout, closing')
+          eventSource.close()
+          setIsLoading(false)
+          setStreamingContent("")
+          setError("Request timed out. Please try again.")
+        }
+      }, 120000)
     } catch (e) {
       setIsLoading(false)
       setError("Failed to start question generation")
@@ -259,14 +277,25 @@ export function PracticeClient({
               </div>
             )}
 
-            {/* Loading state */}
+            {/* Loading state - show streaming content */}
             {isLoading && (
-              <QuestionCard
-                question=""
-                options={[]}
-                onSubmit={() => {}}
-                isLoading={true}
-              />
+              <div className="space-y-4">
+                <QuestionCard
+                  question=""
+                  options={[]}
+                  onSubmit={() => {}}
+                  isLoading={true}
+                />
+                {streamingContent && (
+                  <div className="bg-muted/50 p-4 rounded-lg border min-h-[100px] max-h-[300px] overflow-y-auto">
+                    <p className="text-xs text-muted-foreground mb-2">Generating question...</p>
+                    <pre className="whitespace-pre-wrap text-sm text-foreground font-mono leading-relaxed">
+                      {streamingContent}
+                      <span className="animate-pulse">|</span>
+                    </pre>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Question display */}
