@@ -65,6 +65,57 @@ export function PracticeClient({
   )
   const startTimeRef = useRef<number>(0)
 
+  // Parser for plain text format from Lambda
+  const parsePlainTextQuestion = (text: string): Question | null => {
+    try {
+      const extractSection = (label: string): string => {
+        const regex = new RegExp(`${label}:\\s*([\\s\\S]*?)(?=(?:QUESTION:|OPTION_[A-D]:|CORRECT:|EXPLANATION_[A-Z_]+:|EXAM_TIP:|$))`, 'i')
+        const match = text.match(regex)
+        return match ? match[1].trim() : ''
+      }
+
+      const question = extractSection('QUESTION')
+      const optionA = extractSection('OPTION_A')
+      const optionB = extractSection('OPTION_B')
+      const optionC = extractSection('OPTION_C')
+      const optionD = extractSection('OPTION_D')
+      const correct = extractSection('CORRECT').toUpperCase().trim()
+      const explanationCorrect = extractSection('EXPLANATION_CORRECT')
+      const explanationA = extractSection('EXPLANATION_A')
+      const explanationB = extractSection('EXPLANATION_B')
+      const explanationC = extractSection('EXPLANATION_C')
+      const explanationD = extractSection('EXPLANATION_D')
+      const examTip = extractSection('EXAM_TIP')
+
+      if (!question || !optionA || !optionB || !optionC || !optionD || !correct) {
+        console.error('Missing required fields in parsed question')
+        return null
+      }
+
+      return {
+        question,
+        options: {
+          A: optionA,
+          B: optionB,
+          C: optionC,
+          D: optionD
+        },
+        correct,
+        explanation: {
+          correct: explanationCorrect,
+          A: explanationA,
+          B: explanationB,
+          C: explanationC,
+          D: explanationD
+        },
+        examTip
+      }
+    } catch (e) {
+      console.error('Error parsing plain text question:', e)
+      return null
+    }
+  }
+
   const generateQuestion = useCallback(async () => {
     setIsLoading(true)
     setStreamingContent("")
@@ -106,24 +157,17 @@ export function PracticeClient({
               eventSource.close()
               setIsLoading(false)
 
-              // Parse the accumulated JSON
+              // Parse the plain text format into Question object
               try {
-                // Clean up the accumulated string (remove markdown code blocks if present)
-                let cleanJson = accumulated.trim()
-                if (cleanJson.startsWith("```json")) {
-                  cleanJson = cleanJson.slice(7)
+                const question = parsePlainTextQuestion(accumulated)
+                if (question) {
+                  setCurrentQuestion(question)
+                  setStreamingContent("") // Clear streaming content once parsed
+                  startTimeRef.current = Date.now()
+                } else {
+                  console.error("Failed to parse question from text")
+                  setError("Failed to parse question. Please try again.")
                 }
-                if (cleanJson.startsWith("```")) {
-                  cleanJson = cleanJson.slice(3)
-                }
-                if (cleanJson.endsWith("```")) {
-                  cleanJson = cleanJson.slice(0, -3)
-                }
-                cleanJson = cleanJson.trim()
-
-                const question = JSON.parse(cleanJson) as Question
-                setCurrentQuestion(question)
-                startTimeRef.current = Date.now()
               } catch (e) {
                 console.error("Failed to parse question:", e)
                 setError("Failed to parse question. Please try again.")
