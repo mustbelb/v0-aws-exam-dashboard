@@ -114,6 +114,100 @@ export function PracticeClient({
     return partial
   }
 
+  // Plain text parser for QUESTION:/OPTION_A: format
+  const parsePlainTextQuestion = (text: string): Question | null => {
+    try {
+      const extractSection = (label: string): string => {
+        const regex = new RegExp(
+          `${label}[:\\s]*\\n?([\\s\\S]*?)(?=\\n(?:QUESTION|OPTION_[A-D]|CORRECT|EXPLANATION_(?:CORRECT|[A-D])|EXAM_TIP)[:\\s]|$)`,
+          'i'
+        )
+        const match = text.match(regex)
+        return match ? match[1].trim() : ''
+      }
+
+      const question = extractSection('QUESTION')
+      const optionA = extractSection('OPTION_A')
+      const optionB = extractSection('OPTION_B')
+      const optionC = extractSection('OPTION_C')
+      const optionD = extractSection('OPTION_D')
+      const correctRaw = extractSection('CORRECT')
+      const correct = correctRaw.toUpperCase().trim().charAt(0)
+      const explanationCorrect = extractSection('EXPLANATION_CORRECT')
+      const explanationA = extractSection('EXPLANATION_A')
+      const explanationB = extractSection('EXPLANATION_B')
+      const explanationC = extractSection('EXPLANATION_C')
+      const explanationD = extractSection('EXPLANATION_D')
+      const examTip = extractSection('EXAM_TIP')
+
+      console.log('[PlainTextParser] Parsed:', {
+        hasQuestion: !!question,
+        hasOptionA: !!optionA,
+        hasOptionB: !!optionB,
+        hasOptionC: !!optionC,
+        hasOptionD: !!optionD,
+        correct
+      })
+
+      if (!question || !optionA || !optionB || !optionC || !optionD || !correct) {
+        console.error('[PlainTextParser] Missing required fields')
+        return null
+      }
+
+      return {
+        question,
+        options: { A: optionA, B: optionB, C: optionC, D: optionD },
+        correct,
+        explanation: {
+          correct: explanationCorrect,
+          A: explanationA,
+          B: explanationB,
+          C: explanationC,
+          D: explanationD
+        },
+        examTip
+      }
+    } catch (e) {
+      console.error('[PlainTextParser] Error:', e)
+      return null
+    }
+  }
+
+  // Progressive plain text parser for streaming display
+  const parsePartialPlainText = (text: string): PartialQuestion => {
+    const partial: PartialQuestion = {}
+    
+    // Extract question
+    const questionMatch = text.match(/QUESTION[:\s]*\n?([\s\S]*?)(?=\nOPTION_A[:\s]|$)/i)
+    if (questionMatch) {
+      partial.question = questionMatch[1].trim()
+    }
+    
+    partial.options = {}
+    
+    const optionAMatch = text.match(/OPTION_A[:\s]*\n?([\s\S]*?)(?=\nOPTION_B[:\s]|$)/i)
+    if (optionAMatch) {
+      partial.options.A = optionAMatch[1].trim()
+    }
+    
+    const optionBMatch = text.match(/OPTION_B[:\s]*\n?([\s\S]*?)(?=\nOPTION_C[:\s]|$)/i)
+    if (optionBMatch) {
+      partial.options.B = optionBMatch[1].trim()
+    }
+    
+    const optionCMatch = text.match(/OPTION_C[:\s]*\n?([\s\S]*?)(?=\nOPTION_D[:\s]|$)/i)
+    if (optionCMatch) {
+      partial.options.C = optionCMatch[1].trim()
+    }
+    
+    const optionDMatch = text.match(/OPTION_D[:\s]*\n?([\s\S]*?)(?=\nCORRECT[:\s]|$)/i)
+    if (optionDMatch) {
+      partial.options.D = optionDMatch[1].trim()
+    }
+    
+    return partial
+  }
+
   const generateQuestion = useCallback(async () => {
     setIsLoading(true)
     setIsStreaming(true)
@@ -142,27 +236,40 @@ export function PracticeClient({
           switch (data.type) {
             case "character":
               accumulated += data.character
-              // Update partial question display every few characters
-              const partial = parsePartialJSON(accumulated)
-              setPartialQuestion(partial)
+              // Detect format and use appropriate partial parser
+              if (accumulated.trim().startsWith('{')) {
+                const partial = parsePartialJSON(accumulated)
+                setPartialQuestion(partial)
+              } else {
+                const partial = parsePartialPlainText(accumulated)
+                setPartialQuestion(partial)
+              }
               break
 
             case "chunk":
               accumulated += data.content
-              // Update partial question display
-              const partialChunk = parsePartialJSON(accumulated)
-              setPartialQuestion(partialChunk)
+              // Detect format and use appropriate partial parser
+              if (accumulated.trim().startsWith('{')) {
+                const partialChunk = parsePartialJSON(accumulated)
+                setPartialQuestion(partialChunk)
+              } else {
+                const partialChunk = parsePartialPlainText(accumulated)
+                setPartialQuestion(partialChunk)
+              }
               break
 
             case "complete":
               console.log('[Practice] Stream complete, accumulated length:', accumulated.length)
+              console.log('[Practice] Content preview:', accumulated.substring(0, 100))
               eventSource.close()
               setIsStreaming(false)
               setIsLoading(false)
 
-              // Parse the complete JSON
+              // Parse the response - detect format and parse accordingly
               try {
                 let cleanContent = accumulated.trim()
+                
+                // Remove markdown code blocks if present
                 if (cleanContent.startsWith("```json")) {
                   cleanContent = cleanContent.slice(7)
                 }
@@ -174,33 +281,47 @@ export function PracticeClient({
                 }
                 cleanContent = cleanContent.trim()
 
-                const parsed = JSON.parse(cleanContent)
-                
-                if (parsed.question && parsed.options && parsed.correct) {
-                  const question: Question = {
-                    question: parsed.question,
-                    options: {
-                      A: parsed.options.A || parsed.options.a || '',
-                      B: parsed.options.B || parsed.options.b || '',
-                      C: parsed.options.C || parsed.options.c || '',
-                      D: parsed.options.D || parsed.options.d || ''
-                    },
-                    correct: parsed.correct.toUpperCase(),
-                    explanation: {
-                      correct: parsed.explanation?.correct || '',
-                      A: parsed.explanation?.A || parsed.explanation?.a || '',
-                      B: parsed.explanation?.B || parsed.explanation?.b || '',
-                      C: parsed.explanation?.C || parsed.explanation?.c || '',
-                      D: parsed.explanation?.D || parsed.explanation?.d || ''
-                    },
-                    examTip: parsed.examTip || parsed.exam_tip || ''
+                let question: Question | null = null
+
+                // Check if it's JSON (starts with {) or plain text (starts with QUESTION:)
+                if (cleanContent.startsWith('{')) {
+                  // Parse as JSON
+                  console.log('[Practice] Detected JSON format')
+                  const parsed = JSON.parse(cleanContent)
+                  
+                  if (parsed.question && parsed.options && parsed.correct) {
+                    question = {
+                      question: parsed.question,
+                      options: {
+                        A: parsed.options.A || parsed.options.a || '',
+                        B: parsed.options.B || parsed.options.b || '',
+                        C: parsed.options.C || parsed.options.c || '',
+                        D: parsed.options.D || parsed.options.d || ''
+                      },
+                      correct: parsed.correct.toUpperCase(),
+                      explanation: {
+                        correct: parsed.explanation?.correct || '',
+                        A: parsed.explanation?.A || parsed.explanation?.a || '',
+                        B: parsed.explanation?.B || parsed.explanation?.b || '',
+                        C: parsed.explanation?.C || parsed.explanation?.c || '',
+                        D: parsed.explanation?.D || parsed.explanation?.d || ''
+                      },
+                      examTip: parsed.examTip || parsed.exam_tip || ''
+                    }
                   }
+                } else {
+                  // Parse as plain text
+                  console.log('[Practice] Detected plain text format')
+                  question = parsePlainTextQuestion(cleanContent)
+                }
+
+                if (question) {
                   console.log('[Practice] Successfully parsed question')
                   setCurrentQuestion(question)
                   setPartialQuestion(null)
                   startTimeRef.current = Date.now()
                 } else {
-                  throw new Error('Missing required fields')
+                  throw new Error('Failed to parse question from response')
                 }
               } catch (parseError) {
                 console.error('[Practice] Parse failed:', parseError)
