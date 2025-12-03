@@ -2,14 +2,21 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect, notFound } from "next/navigation"
 import { PracticeClient } from "./practice-client"
-import { getServiceById } from "@/lib/services"
+import { getServiceById, type CertificationType } from "@/lib/services"
 
 interface PracticePageProps {
   params: Promise<{ service: string }>
+  searchParams: Promise<{ certification?: string }>
 }
 
-export default async function PracticePage({ params }: PracticePageProps) {
+export default async function PracticePage({ params, searchParams }: PracticePageProps) {
   const { service: serviceId } = await params
+  const { certification: certParam } = await searchParams
+  
+  // Default to SAA-C03 if not specified
+  const certification: CertificationType = (certParam === 'DVA-C02' || certParam === 'SAA-C03') 
+    ? certParam 
+    : 'SAA-C03'
   
   // Validate service exists
   const service = getServiceById(serviceId)
@@ -73,6 +80,7 @@ export default async function PracticePage({ params }: PracticePageProps) {
       subscriptionStatus={subscriptionStatus}
       service={service}
       serviceProgress={serviceProgress}
+      certification={certification}
     />
   )
 }

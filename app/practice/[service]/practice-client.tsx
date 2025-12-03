@@ -9,7 +9,7 @@ import { ServiceSidebar } from "@/components/service-sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ArrowLeft, Loader2 } from "lucide-react"
-import type { ServiceDefinition } from "@/lib/services"
+import type { ServiceDefinition, CertificationType } from "@/lib/services"
 
 interface PracticeClientProps {
   user: {
@@ -25,6 +25,7 @@ interface PracticeClientProps {
     correctRate: number
     lastPracticed: string | null
   }
+  certification: CertificationType
 }
 
 interface Question {
@@ -62,7 +63,8 @@ export function PracticeClient({
   isActive,
   subscriptionStatus,
   service,
-  serviceProgress
+  serviceProgress,
+  certification
 }: PracticeClientProps) {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
   const [partialQuestion, setPartialQuestion] = useState<PartialQuestion | null>(null)
@@ -219,7 +221,8 @@ export function PracticeClient({
 
     const params = new URLSearchParams({
       service: service.id,
-      userId: user.id
+      userId: user.id,
+      certification: certification
     })
 
     try {
@@ -450,7 +453,7 @@ export function PracticeClient({
       setIsLoading(false)
       setError("Failed to start question generation")
     }
-  }, [service.id, user.id])
+  }, [service.id, user.id, certification])
 
   const handleSubmit = async (answer: string) => {
     if (!currentQuestion) return
@@ -530,6 +533,11 @@ export function PracticeClient({
 
         {/* Page Title */}
         <div className="mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
+              {certification === 'SAA-C03' ? '🏗️ Solutions Architect' : '💻 Developer'} Associate
+            </span>
+          </div>
           <h2 className="text-3xl font-bold text-balance flex items-center gap-3">
             <span className="text-4xl">{service.icon}</span>
             {service.name} Practice

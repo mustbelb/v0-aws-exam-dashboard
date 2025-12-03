@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Header } from "@/components/header"
 import { ProgressOverview } from "@/components/progress-overview"
 import { ServiceGrid } from "@/components/service-grid"
+import { certifications, type CertificationType } from "@/lib/services"
 
 interface DashboardClientProps {
   user: {
@@ -36,6 +37,7 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const [progress, setProgress] = useState<ProgressData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedCert, setSelectedCert] = useState<CertificationType>('SAA-C03')
 
   useEffect(() => {
     async function fetchProgress() {
@@ -75,6 +77,35 @@ export function DashboardClient({
           </p>
         </div>
 
+        {/* Certification Selector */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-medium">Select Certification</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+            {certifications.map((cert) => (
+              <button
+                key={cert.id}
+                onClick={() => setSelectedCert(cert.id)}
+                className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  selectedCert === cert.id
+                    ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                    : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{cert.icon}</span>
+                  <div>
+                    <p className="font-semibold">{cert.name}</p>
+                    <p className="text-xs text-muted-foreground">{cert.id}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {cert.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Subscription Banner (if not active) */}
         {!isActive && (
           <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
@@ -97,8 +128,16 @@ export function DashboardClient({
 
         {/* Service Selection */}
         <div className="space-y-4">
-          <h3 className="text-2xl font-semibold">Choose a Service to Practice</h3>
-          <ServiceGrid progressMap={serviceProgressMap} />
+          <h3 className="text-2xl font-semibold">
+            Choose a Service to Practice
+          </h3>
+          <p className="text-muted-foreground">
+            Showing services for {certifications.find(c => c.id === selectedCert)?.fullName}
+          </p>
+          <ServiceGrid 
+            progressMap={serviceProgressMap} 
+            certification={selectedCert}
+          />
         </div>
       </main>
     </div>

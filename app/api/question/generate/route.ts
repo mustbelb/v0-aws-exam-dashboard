@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const service = searchParams.get('service')
     const topic = searchParams.get('topic')
     const userId = searchParams.get('userId')
+    const certification = searchParams.get('certification') || 'SAA-C03'
 
     if (!service) {
       return new Response(
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
     // Build query params for Lambda
     const params = new URLSearchParams()
     params.append('service', service)
+    params.append('certification', certification)
     if (topic) params.append('topic', topic)
     if (userId) params.append('userId', userId)
 
