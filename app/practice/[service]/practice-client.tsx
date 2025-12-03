@@ -7,7 +7,8 @@ import { QuestionCard } from "@/components/question-card"
 import { FeedbackDisplay } from "@/components/feedback-display"
 import { ServiceSidebar } from "@/components/service-sidebar"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import type { ServiceDefinition } from "@/lib/services"
 
 interface PracticeClientProps {
@@ -45,6 +46,17 @@ interface Question {
   examTip: string
 }
 
+// Partial question for progressive display during streaming
+interface PartialQuestion {
+  question?: string
+  options?: {
+    A?: string
+    B?: string
+    C?: string
+    D?: string
+  }
+}
+
 export function PracticeClient({
   user,
   isActive,
@@ -53,11 +65,12 @@ export function PracticeClient({
   serviceProgress
 }: PracticeClientProps) {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
+  const [partialQuestion, setPartialQuestion] = useState<PartialQuestion | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState("")
   const [isCorrect, setIsCorrect] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [streamingContent, setStreamingContent] = useState("")
+  const [isStreaming, setIsStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [questionsAnswered, setQuestionsAnswered] = useState(serviceProgress.questionsAnswered)
   const [correctCount, setCorrectCount] = useState(
@@ -65,83 +78,48 @@ export function PracticeClient({
   )
   const startTimeRef = useRef<number>(0)
 
-  // Parser for plain text format from Lambda
-  const parsePlainTextQuestion = (text: string): Question | null => {
-    try {
-      console.log('[Parser] Raw text length:', text.length)
-      console.log('[Parser] Raw text preview:', text.substring(0, 500))
-      
-      // More flexible extraction - handles various whitespace and formatting
-      const extractSection = (label: string): string => {
-        // Match the label followed by content until the next label or end
-        const regex = new RegExp(
-          `${label}[:\\s]*\\n?([\\s\\S]*?)(?=\\n(?:QUESTION|OPTION_[A-D]|CORRECT|EXPLANATION_(?:CORRECT|[A-D])|EXAM_TIP)[:\\s]|$)`,
-          'i'
-        )
-        const match = text.match(regex)
-        const result = match ? match[1].trim() : ''
-        console.log(`[Parser] ${label}:`, result.substring(0, 100))
-        return result
-      }
-
-      const question = extractSection('QUESTION')
-      const optionA = extractSection('OPTION_A')
-      const optionB = extractSection('OPTION_B')
-      const optionC = extractSection('OPTION_C')
-      const optionD = extractSection('OPTION_D')
-      const correct = extractSection('CORRECT').toUpperCase().trim().charAt(0) // Just get first char (A, B, C, or D)
-      const explanationCorrect = extractSection('EXPLANATION_CORRECT')
-      const explanationA = extractSection('EXPLANATION_A')
-      const explanationB = extractSection('EXPLANATION_B')
-      const explanationC = extractSection('EXPLANATION_C')
-      const explanationD = extractSection('EXPLANATION_D')
-      const examTip = extractSection('EXAM_TIP')
-
-      console.log('[Parser] Parsed values:', {
-        hasQuestion: !!question,
-        hasOptionA: !!optionA,
-        hasOptionB: !!optionB,
-        hasOptionC: !!optionC,
-        hasOptionD: !!optionD,
-        correct
-      })
-
-      if (!question || !optionA || !optionB || !optionC || !optionD || !correct) {
-        console.error('[Parser] Missing required fields')
-        console.error('[Parser] Full text:', text)
-        return null
-      }
-
-      return {
-        question,
-        options: {
-          A: optionA,
-          B: optionB,
-          C: optionC,
-          D: optionD
-        },
-        correct,
-        explanation: {
-          correct: explanationCorrect,
-          A: explanationA,
-          B: explanationB,
-          C: explanationC,
-          D: explanationD
-        },
-        examTip
-      }
-    } catch (e) {
-      console.error('[Parser] Error parsing plain text question:', e)
-      console.error('[Parser] Full text:', text)
-      return null
+  // Progressive JSON parser - extracts partial data as it streams
+  const parsePartialJSON = (text: string): PartialQuestion => {
+    const partial: PartialQuestion = {}
+    
+    // Try to extract question text
+    const questionMatch = text.match(/"question"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+    if (questionMatch) {
+      partial.question = questionMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
     }
+    
+    // Try to extract options
+    partial.options = {}
+    
+    const optionAMatch = text.match(/"A"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+    if (optionAMatch) {
+      partial.options.A = optionAMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
+    }
+    
+    const optionBMatch = text.match(/"B"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+    if (optionBMatch) {
+      partial.options.B = optionBMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
+    }
+    
+    const optionCMatch = text.match(/"C"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+    if (optionCMatch) {
+      partial.options.C = optionCMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
+    }
+    
+    const optionDMatch = text.match(/"D"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+    if (optionDMatch) {
+      partial.options.D = optionDMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
+    }
+    
+    return partial
   }
 
   const generateQuestion = useCallback(async () => {
     setIsLoading(true)
-    setStreamingContent("")
+    setIsStreaming(true)
     setError(null)
     setCurrentQuestion(null)
+    setPartialQuestion(null)
     setShowFeedback(false)
     setSelectedAnswer("")
 
@@ -160,27 +138,30 @@ export function PracticeClient({
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
-          console.log('[Practice] Received event type:', data.type)
 
           switch (data.type) {
             case "character":
               accumulated += data.character
-              setStreamingContent(accumulated)
+              // Update partial question display every few characters
+              const partial = parsePartialJSON(accumulated)
+              setPartialQuestion(partial)
               break
 
             case "chunk":
               accumulated += data.content
-              setStreamingContent(accumulated)
+              // Update partial question display
+              const partialChunk = parsePartialJSON(accumulated)
+              setPartialQuestion(partialChunk)
               break
 
             case "complete":
               console.log('[Practice] Stream complete, accumulated length:', accumulated.length)
               eventSource.close()
+              setIsStreaming(false)
               setIsLoading(false)
 
-              // Parse the response - try JSON first, then fall back to plain text
+              // Parse the complete JSON
               try {
-                // Clean up the accumulated string (remove markdown code blocks if present)
                 let cleanContent = accumulated.trim()
                 if (cleanContent.startsWith("```json")) {
                   cleanContent = cleanContent.slice(7)
@@ -193,10 +174,8 @@ export function PracticeClient({
                 }
                 cleanContent = cleanContent.trim()
 
-                // Try to parse as JSON first
                 const parsed = JSON.parse(cleanContent)
                 
-                // Validate the parsed object has required fields
                 if (parsed.question && parsed.options && parsed.correct) {
                   const question: Question = {
                     question: parsed.question,
@@ -216,58 +195,50 @@ export function PracticeClient({
                     },
                     examTip: parsed.examTip || parsed.exam_tip || ''
                   }
-                  console.log('[Practice] Successfully parsed JSON question')
+                  console.log('[Practice] Successfully parsed question')
                   setCurrentQuestion(question)
-                  setStreamingContent("") // Clear streaming content once parsed
+                  setPartialQuestion(null)
                   startTimeRef.current = Date.now()
                 } else {
-                  throw new Error('Missing required fields in JSON')
+                  throw new Error('Missing required fields')
                 }
-              } catch (jsonError) {
-                console.error('[Practice] JSON parse failed, trying plain text:', jsonError)
-                // Fall back to plain text parser
-                const question = parsePlainTextQuestion(accumulated)
-                if (question) {
-                  setCurrentQuestion(question)
-                  setStreamingContent("")
-                  startTimeRef.current = Date.now()
-                } else {
-                  console.error("[Practice] Both parsers failed")
-                  setError("Failed to parse question. Please try again.")
-                }
+              } catch (parseError) {
+                console.error('[Practice] Parse failed:', parseError)
+                setError("Failed to parse question. Please try again.")
               }
               break
 
             case "error":
               eventSource.close()
+              setIsStreaming(false)
               setIsLoading(false)
               setError(data.error || "An error occurred")
               break
           }
         } catch (e) {
-          console.error("Parse error:", e)
+          console.error("Event parse error:", e)
         }
       }
 
       eventSource.onerror = (error) => {
         console.error('[Practice] EventSource error:', error)
         eventSource.close()
+        setIsStreaming(false)
         setIsLoading(false)
-        setStreamingContent("")
         setError("Connection error. Please try again.")
       }
 
-      // Timeout after 120 seconds
       setTimeout(() => {
         if (eventSource.readyState !== EventSource.CLOSED) {
           console.log('[Practice] Stream timeout, closing')
           eventSource.close()
+          setIsStreaming(false)
           setIsLoading(false)
-          setStreamingContent("")
           setError("Request timed out. Please try again.")
         }
       }, 120000)
     } catch (e) {
+      setIsStreaming(false)
       setIsLoading(false)
       setError("Failed to start question generation")
     }
@@ -287,7 +258,6 @@ export function PracticeClient({
       setCorrectCount(prev => prev + 1)
     }
 
-    // Submit to backend
     try {
       await fetch("/api/question/submit", {
         method: "POST",
@@ -364,7 +334,7 @@ export function PracticeClient({
           {/* Main Content */}
           <div>
             {/* Initial state - no question yet */}
-            {!currentQuestion && !isLoading && !error && (
+            {!currentQuestion && !isLoading && !error && !partialQuestion && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">
                   Ready to test your {service.name} knowledge?
@@ -385,29 +355,85 @@ export function PracticeClient({
               </div>
             )}
 
-            {/* Loading state - show streaming content */}
-            {isLoading && (
-              <div className="space-y-4">
-                {streamingContent ? (
-                  <div className="bg-card p-6 rounded-lg border shadow-sm">
-                    <p className="text-sm font-medium text-primary mb-3">✨ Generating your question...</p>
-                    <pre className="whitespace-pre-wrap text-sm text-foreground font-mono leading-relaxed bg-muted/30 p-4 rounded-md max-h-[500px] overflow-y-auto">
-                      {streamingContent}
-                      <span className="animate-pulse text-primary">|</span>
-                    </pre>
+            {/* Streaming state - show progressive question card */}
+            {isStreaming && partialQuestion && (
+              <Card className="w-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-2 text-sm text-primary mb-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Generating question...</span>
                   </div>
-                ) : (
-                  <QuestionCard
-                    question=""
-                    options={[]}
-                    onSubmit={() => {}}
-                    isLoading={true}
-                  />
-                )}
-              </div>
+                  <div className="text-lg font-medium leading-relaxed min-h-[60px]">
+                    {partialQuestion.question || (
+                      <span className="text-muted-foreground">Loading question...</span>
+                    )}
+                    {isStreaming && partialQuestion.question && !partialQuestion.options?.D && (
+                      <span className="animate-pulse text-primary">|</span>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {['A', 'B', 'C', 'D'].map((letter) => {
+                    const optionText = partialQuestion.options?.[letter as keyof typeof partialQuestion.options]
+                    const isCurrentlyStreaming = isStreaming && 
+                      optionText && 
+                      !partialQuestion.options?.[
+                        letter === 'A' ? 'B' : letter === 'B' ? 'C' : letter === 'C' ? 'D' : 'D'
+                      as keyof typeof partialQuestion.options]
+                    
+                    return (
+                      <div
+                        key={letter}
+                        className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                          optionText 
+                            ? 'border-border bg-card' 
+                            : 'border-dashed border-muted bg-muted/30'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className={`font-semibold ${optionText ? 'text-foreground' : 'text-muted-foreground'}`}>
+                            {letter}.
+                          </span>
+                          <span className={optionText ? 'text-foreground' : 'text-muted-foreground'}>
+                            {optionText || '...'}
+                            {isCurrentlyStreaming && <span className="animate-pulse text-primary">|</span>}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                  
+                  <Button disabled className="w-full mt-4" size="lg">
+                    Waiting for options...
+                  </Button>
+                </CardContent>
+              </Card>
             )}
 
-            {/* Question display */}
+            {/* Initial loading before any content */}
+            {isLoading && !partialQuestion && (
+              <Card className="w-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-2 text-sm text-primary mb-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Connecting...</span>
+                  </div>
+                  <div className="h-6 bg-muted animate-pulse rounded w-3/4" />
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {['A', 'B', 'C', 'D'].map((letter) => (
+                    <div key={letter} className="p-4 rounded-lg border-2 border-dashed border-muted bg-muted/30">
+                      <div className="flex items-start gap-3">
+                        <span className="font-semibold text-muted-foreground">{letter}.</span>
+                        <div className="h-4 bg-muted animate-pulse rounded w-full" />
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Completed question display */}
             {currentQuestion && !showFeedback && !isLoading && (
               <QuestionCard
                 question={currentQuestion.question}
