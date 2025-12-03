@@ -374,12 +374,10 @@ export function PracticeClient({
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {['A', 'B', 'C', 'D'].map((letter) => {
-                    const optionText = partialQuestion.options?.[letter as keyof typeof partialQuestion.options]
-                    const isCurrentlyStreaming = isStreaming && 
-                      optionText && 
-                      !partialQuestion.options?.[
-                        letter === 'A' ? 'B' : letter === 'B' ? 'C' : letter === 'C' ? 'D' : 'D'
-                      as keyof typeof partialQuestion.options]
+                    const optionText = partialQuestion.options?.[letter as 'A' | 'B' | 'C' | 'D']
+                    const nextLetter = letter === 'A' ? 'B' : letter === 'B' ? 'C' : letter === 'C' ? 'D' : null
+                    const hasNextOption = nextLetter ? partialQuestion.options?.[nextLetter as 'A' | 'B' | 'C' | 'D'] : true
+                    const isCurrentlyStreaming = isStreaming && optionText && !hasNextOption
                     
                     return (
                       <div
