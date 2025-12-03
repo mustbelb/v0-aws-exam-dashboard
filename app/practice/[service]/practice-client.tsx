@@ -178,20 +178,63 @@ export function PracticeClient({
               eventSource.close()
               setIsLoading(false)
 
-              // Parse the plain text format into Question object
+              // Parse the response - try JSON first, then fall back to plain text
               try {
-                const question = parsePlainTextQuestion(accumulated)
-                if (question) {
+                // Clean up the accumulated string (remove markdown code blocks if present)
+                let cleanContent = accumulated.trim()
+                if (cleanContent.startsWith("```json")) {
+                  cleanContent = cleanContent.slice(7)
+                }
+                if (cleanContent.startsWith("```")) {
+                  cleanContent = cleanContent.slice(3)
+                }
+                if (cleanContent.endsWith("```")) {
+                  cleanContent = cleanContent.slice(0, -3)
+                }
+                cleanContent = cleanContent.trim()
+
+                // Try to parse as JSON first
+                const parsed = JSON.parse(cleanContent)
+                
+                // Validate the parsed object has required fields
+                if (parsed.question && parsed.options && parsed.correct) {
+                  const question: Question = {
+                    question: parsed.question,
+                    options: {
+                      A: parsed.options.A || parsed.options.a || '',
+                      B: parsed.options.B || parsed.options.b || '',
+                      C: parsed.options.C || parsed.options.c || '',
+                      D: parsed.options.D || parsed.options.d || ''
+                    },
+                    correct: parsed.correct.toUpperCase(),
+                    explanation: {
+                      correct: parsed.explanation?.correct || '',
+                      A: parsed.explanation?.A || parsed.explanation?.a || '',
+                      B: parsed.explanation?.B || parsed.explanation?.b || '',
+                      C: parsed.explanation?.C || parsed.explanation?.c || '',
+                      D: parsed.explanation?.D || parsed.explanation?.d || ''
+                    },
+                    examTip: parsed.examTip || parsed.exam_tip || ''
+                  }
+                  console.log('[Practice] Successfully parsed JSON question')
                   setCurrentQuestion(question)
                   setStreamingContent("") // Clear streaming content once parsed
                   startTimeRef.current = Date.now()
                 } else {
-                  console.error("Failed to parse question from text")
+                  throw new Error('Missing required fields in JSON')
+                }
+              } catch (jsonError) {
+                console.error('[Practice] JSON parse failed, trying plain text:', jsonError)
+                // Fall back to plain text parser
+                const question = parsePlainTextQuestion(accumulated)
+                if (question) {
+                  setCurrentQuestion(question)
+                  setStreamingContent("")
+                  startTimeRef.current = Date.now()
+                } else {
+                  console.error("[Practice] Both parsers failed")
                   setError("Failed to parse question. Please try again.")
                 }
-              } catch (e) {
-                console.error("Failed to parse question:", e)
-                setError("Failed to parse question. Please try again.")
               }
               break
 
