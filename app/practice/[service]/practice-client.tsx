@@ -92,6 +92,11 @@ export function PracticeClient({
               setStreamingContent(accumulated)
               break
 
+            case "chunk":
+              accumulated += data.content
+              setStreamingContent(accumulated)
+              break
+
             case "complete":
               eventSource.close()
               setIsLoading(false)
