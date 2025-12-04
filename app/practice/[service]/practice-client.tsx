@@ -2,13 +2,14 @@
 
 import { useState, useRef, useCallback } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { QuestionCard } from "@/components/question-card"
 import { FeedbackDisplay } from "@/components/feedback-display"
 import { ServiceSidebar } from "@/components/service-sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, PartyPopper, Zap } from "lucide-react"
 import type { ServiceDefinition, CertificationType } from "@/lib/services"
 
 interface PracticeClientProps {
@@ -29,6 +30,7 @@ interface PracticeClientProps {
 }
 
 interface Question {
+  questionId?: string
   question: string
   options: {
     A: string
@@ -66,6 +68,7 @@ export function PracticeClient({
   serviceProgress,
   certification
 }: PracticeClientProps) {
+  const router = useRouter()
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
   const [partialQuestion, setPartialQuestion] = useState<PartialQuestion | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
@@ -78,19 +81,85 @@ export function PracticeClient({
   const [correctCount, setCorrectCount] = useState(
     Math.round((serviceProgress.correctRate / 100) * serviceProgress.questionsAnswered)
   )
+  
+  // Bank exhausted state
+  const [bankExhausted, setBankExhausted] = useState(false)
+  const [showExhaustedMessage, setShowExhaustedMessage] = useState(false)
+  const [useStreamingMode, setUseStreamingMode] = useState(false)
+  const [totalQuestionsInBank, setTotalQuestionsInBank] = useState(0)
+  
   const startTimeRef = useRef<number>(0)
 
+  // ===========================================
+  // PRIMARY: Fetch from DynamoDB question bank
+  // ===========================================
+  const fetchQuestionFromBank = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    setCurrentQuestion(null)
+    setShowFeedback(false)
+    setSelectedAnswer("")
+
+    try {
+      const params = new URLSearchParams({
+        service: service.id,
+        certification: certification
+      })
+
+      const response = await fetch(`/api/question/next?${params.toString()}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (data.bankEmpty) {
+          // No questions exist for this service at all
+          setError("No questions available for this service yet. Try another service or check back later.")
+          setIsLoading(false)
+          return
+        }
+        throw new Error(data.error || "Failed to fetch question")
+      }
+
+      // Check if bank is exhausted for this user
+      if (data.bankExhausted) {
+        setBankExhausted(true)
+        setShowExhaustedMessage(true)
+        setTotalQuestionsInBank(data.totalQuestions || 0)
+        setIsLoading(false)
+        return
+      }
+
+      // Success - instant question!
+      setCurrentQuestion({
+        questionId: data.questionId,
+        question: data.question,
+        options: data.options,
+        correct: data.correct,
+        explanation: data.explanation,
+        examTip: data.examTip
+      })
+      startTimeRef.current = Date.now()
+      setIsLoading(false)
+
+    } catch (e) {
+      console.error("Error fetching from bank:", e)
+      setError("Failed to load question. Please try again.")
+      setIsLoading(false)
+    }
+  }, [service.id, certification])
+
+  // ===========================================
+  // FALLBACK: Stream question from AI (when bank exhausted)
+  // ===========================================
+  
   // Progressive JSON parser - extracts partial data as it streams
   const parsePartialJSON = (text: string): PartialQuestion => {
     const partial: PartialQuestion = {}
     
-    // Try to extract question text
     const questionMatch = text.match(/"question"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
     if (questionMatch) {
       partial.question = questionMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
     }
     
-    // Try to extract options
     partial.options = {}
     
     const optionAMatch = text.match(/"A"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
@@ -142,17 +211,7 @@ export function PracticeClient({
       const explanationD = extractSection('EXPLANATION_D')
       const examTip = extractSection('EXAM_TIP')
 
-      console.log('[PlainTextParser] Parsed:', {
-        hasQuestion: !!question,
-        hasOptionA: !!optionA,
-        hasOptionB: !!optionB,
-        hasOptionC: !!optionC,
-        hasOptionD: !!optionD,
-        correct
-      })
-
       if (!question || !optionA || !optionB || !optionC || !optionD || !correct) {
-        console.error('[PlainTextParser] Missing required fields')
         return null
       }
 
@@ -179,7 +238,6 @@ export function PracticeClient({
   const parsePartialPlainText = (text: string): PartialQuestion => {
     const partial: PartialQuestion = {}
     
-    // Extract question
     const questionMatch = text.match(/QUESTION[:\s]*\n?([\s\S]*?)(?=\nOPTION_A[:\s]|$)/i)
     if (questionMatch) {
       partial.question = questionMatch[1].trim()
@@ -210,7 +268,7 @@ export function PracticeClient({
     return partial
   }
 
-  const generateQuestion = useCallback(async () => {
+  const generateQuestionStreaming = useCallback(async () => {
     setIsLoading(true)
     setIsStreaming(true)
     setError(null)
@@ -239,7 +297,6 @@ export function PracticeClient({
           switch (data.type) {
             case "character":
               accumulated += data.character
-              // Detect format and use appropriate partial parser
               let partial: PartialQuestion
               if (accumulated.trim().startsWith('{')) {
                 partial = parsePartialJSON(accumulated)
@@ -248,7 +305,6 @@ export function PracticeClient({
               }
               setPartialQuestion(partial)
               
-              // Check if we have enough to enable interaction
               if (!currentQuestion && partial.question && 
                   partial.options?.A && partial.options?.B && 
                   partial.options?.C && partial.options?.D) {
@@ -267,7 +323,6 @@ export function PracticeClient({
                 }
                 
                 if (correctAnswer) {
-                  console.log('[Practice] All options ready, enabling early interaction')
                   const earlyQuestion: Question = {
                     question: partial.question,
                     options: {
@@ -283,7 +338,7 @@ export function PracticeClient({
                   setCurrentQuestion(earlyQuestion)
                   setPartialQuestion(null)
                   setIsStreaming(false)
-                  setIsLoading(false) // Important: allow QuestionCard to render
+                  setIsLoading(false)
                   startTimeRef.current = Date.now()
                 }
               }
@@ -291,7 +346,6 @@ export function PracticeClient({
 
             case "chunk":
               accumulated += data.content
-              // Detect format and use appropriate partial parser
               let partialChunk: PartialQuestion
               if (accumulated.trim().startsWith('{')) {
                 partialChunk = parsePartialJSON(accumulated)
@@ -300,12 +354,10 @@ export function PracticeClient({
               }
               setPartialQuestion(partialChunk)
               
-              // Check if we have enough to enable interaction (all 4 options + can detect correct answer)
               if (!currentQuestion && partialChunk.question && 
                   partialChunk.options?.A && partialChunk.options?.B && 
                   partialChunk.options?.C && partialChunk.options?.D) {
                 
-                // Try to extract correct answer early
                 let correctAnswer = ''
                 if (accumulated.trim().startsWith('{')) {
                   const correctMatch = accumulated.match(/"correct"\s*:\s*"([A-Da-d])"/i)
@@ -320,8 +372,6 @@ export function PracticeClient({
                 }
                 
                 if (correctAnswer) {
-                  console.log('[Practice] All options ready, enabling early interaction')
-                  // Create early question object (explanations will be empty, filled later)
                   const earlyQuestion: Question = {
                     question: partialChunk.question,
                     options: {
@@ -337,24 +387,20 @@ export function PracticeClient({
                   setCurrentQuestion(earlyQuestion)
                   setPartialQuestion(null)
                   setIsStreaming(false)
-                  setIsLoading(false) // Important: allow QuestionCard to render
+                  setIsLoading(false)
                   startTimeRef.current = Date.now()
-                  // Keep accumulating in background for explanations
                 }
               }
               break
 
             case "complete":
-              console.log('[Practice] Stream complete, accumulated length:', accumulated.length)
               eventSource.close()
               setIsStreaming(false)
               setIsLoading(false)
 
-              // Parse the full response to get explanations
               try {
                 let cleanContent = accumulated.trim()
                 
-                // Remove markdown code blocks if present
                 if (cleanContent.startsWith("```json")) {
                   cleanContent = cleanContent.slice(7)
                 }
@@ -368,9 +414,7 @@ export function PracticeClient({
 
                 let fullQuestion: Question | null = null
 
-                // Check if it's JSON or plain text
                 if (cleanContent.startsWith('{')) {
-                  console.log('[Practice] Parsing complete JSON')
                   const parsed = JSON.parse(cleanContent)
                   
                   if (parsed.question && parsed.options && parsed.correct) {
@@ -394,20 +438,16 @@ export function PracticeClient({
                     }
                   }
                 } else {
-                  console.log('[Practice] Parsing complete plain text')
                   fullQuestion = parsePlainTextQuestion(cleanContent)
                 }
 
                 if (fullQuestion) {
-                  // Update with full explanations (user may have already started answering)
                   setCurrentQuestion(fullQuestion)
                   setPartialQuestion(null)
                   if (startTimeRef.current === 0) {
                     startTimeRef.current = Date.now()
                   }
-                  console.log('[Practice] Full question with explanations ready')
                 } else if (!currentQuestion) {
-                  // Only error if we don't already have a working question
                   throw new Error('Failed to parse question from response')
                 }
               } catch (parseError) {
@@ -415,7 +455,6 @@ export function PracticeClient({
                 if (!currentQuestion) {
                   setError("Failed to parse question. Please try again.")
                 }
-                // If we already have a question displayed, just log the error
               }
               break
 
@@ -441,7 +480,6 @@ export function PracticeClient({
 
       setTimeout(() => {
         if (eventSource.readyState !== EventSource.CLOSED) {
-          console.log('[Practice] Stream timeout, closing')
           eventSource.close()
           setIsStreaming(false)
           setIsLoading(false)
@@ -453,7 +491,30 @@ export function PracticeClient({
       setIsLoading(false)
       setError("Failed to start question generation")
     }
-  }, [service.id, user.id, certification])
+  }, [service.id, user.id, certification, currentQuestion])
+
+  // ===========================================
+  // Main function to get next question
+  // ===========================================
+  const getNextQuestion = useCallback(() => {
+    if (useStreamingMode) {
+      generateQuestionStreaming()
+    } else {
+      fetchQuestionFromBank()
+    }
+  }, [useStreamingMode, generateQuestionStreaming, fetchQuestionFromBank])
+
+  // Handle continuing with streaming after bank exhausted
+  const handleContinueWithStreaming = () => {
+    setShowExhaustedMessage(false)
+    setUseStreamingMode(true)
+    generateQuestionStreaming()
+  }
+
+  // Handle trying another service
+  const handleTryAnotherService = () => {
+    router.push('/dashboard')
+  }
 
   const handleSubmit = async (answer: string) => {
     if (!currentQuestion) return
@@ -474,7 +535,9 @@ export function PracticeClient({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          questionId: currentQuestion.questionId,
           service: service.id,
+          certification: certification,
           topic: null,
           questionText: currentQuestion.question,
           correctAnswer: currentQuestion.correct,
@@ -488,7 +551,7 @@ export function PracticeClient({
   }
 
   const handleNextQuestion = () => {
-    generateQuestion()
+    getNextQuestion()
   }
 
   // Format options for QuestionCard component
@@ -537,6 +600,12 @@ export function PracticeClient({
             <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
               {certification === 'SAA-C03' ? '🏗️ Solutions Architect' : '💻 Developer'} Associate
             </span>
+            {useStreamingMode && (
+              <span className="text-xs font-medium px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-600 flex items-center gap-1">
+                <Zap className="h-3 w-3" />
+                Live Generation
+              </span>
+            )}
           </div>
           <h2 className="text-3xl font-bold text-balance flex items-center gap-3">
             <span className="text-4xl">{service.icon}</span>
@@ -550,12 +619,12 @@ export function PracticeClient({
           {/* Main Content */}
           <div>
             {/* Initial state - no question yet */}
-            {!currentQuestion && !isLoading && !error && !partialQuestion && (
+            {!currentQuestion && !isLoading && !error && !partialQuestion && !showExhaustedMessage && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">
                   Ready to test your {service.name} knowledge?
                 </p>
-                <Button onClick={generateQuestion} size="lg">
+                <Button onClick={getNextQuestion} size="lg">
                   Start Practice
                 </Button>
               </div>
@@ -565,10 +634,39 @@ export function PracticeClient({
             {error && (
               <div className="text-center py-12">
                 <p className="text-destructive mb-4">{error}</p>
-                <Button onClick={generateQuestion} variant="outline">
+                <Button onClick={getNextQuestion} variant="outline">
                   Try Again
                 </Button>
               </div>
+            )}
+
+            {/* Bank Exhausted Message */}
+            {showExhaustedMessage && (
+              <Card className="border-2 border-primary/20 bg-primary/5">
+                <CardContent className="pt-6 text-center">
+                  <PartyPopper className="h-12 w-12 mx-auto mb-4 text-primary" />
+                  
+                  <h3 className="text-xl font-semibold mb-2">
+                    🎉 You've completed all {totalQuestionsInBank} {service.name} questions!
+                  </h3>
+                  
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    Questions will now be generated in real-time until the next batch 
+                    update. This may take a few seconds per question.
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button onClick={handleContinueWithStreaming} className="gap-2">
+                      <Zap className="h-4 w-4" />
+                      Continue with Live Questions
+                    </Button>
+                    
+                    <Button variant="outline" onClick={handleTryAnotherService} className="gap-2">
+                      Try Another Service
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {/* Streaming state - show progressive question card */}
@@ -624,13 +722,13 @@ export function PracticeClient({
               </Card>
             )}
 
-            {/* Initial loading before any content */}
-            {isLoading && !partialQuestion && (
+            {/* Initial loading state (instant fetch) */}
+            {isLoading && !isStreaming && !partialQuestion && (
               <Card className="w-full">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2 text-sm text-primary mb-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Connecting...</span>
+                    <span>Loading question...</span>
                   </div>
                   <div className="h-6 bg-muted animate-pulse rounded w-3/4" />
                 </CardHeader>

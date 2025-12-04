@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
     
-    // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
@@ -19,7 +18,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { 
+      questionId,
       service, 
+      certification = 'DVA-C02',
       topic, 
       questionText, 
       correctAnswer, 
@@ -27,7 +28,6 @@ export async function POST(request: NextRequest) {
       timeTakenSeconds 
     } = body
 
-    // Validate required fields
     if (!service || !questionText || !correctAnswer || !userAnswer) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -35,21 +35,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create hash of question for deduplication
     const questionHash = crypto
       .createHash('sha256')
       .update(questionText)
       .digest('hex')
       .substring(0, 32)
 
-    const answeredCorrectly = userAnswer === correctAnswer
+    const answeredCorrectly = userAnswer.toUpperCase() === correctAnswer.toUpperCase()
 
-    // Insert into user_question_history
     const { error: insertError } = await supabase
       .from('user_question_history')
       .insert({
         user_id: user.id,
+        question_id: questionId || questionHash,
         service,
+        certification,
         topic: topic || null,
         question_hash: questionHash,
         question_text: questionText,
@@ -60,7 +60,6 @@ export async function POST(request: NextRequest) {
       })
 
     if (insertError) {
-      // If duplicate question, that's okay - just log it
       if (insertError.code === '23505') {
         console.log('User already answered this question')
       } else {
@@ -72,16 +71,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update progress using RPC function
     const { error: progressError } = await supabase.rpc('increment_progress', {
       p_user_id: user.id,
       p_service: service,
+      p_certification: certification,
       p_correct: answeredCorrectly
     })
 
     if (progressError) {
       console.error('Progress update error:', progressError)
-      // Don't fail the request - answer was still saved
     }
 
     return NextResponse.json({

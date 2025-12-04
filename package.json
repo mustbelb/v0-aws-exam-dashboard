@@ -9,6 +9,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "latest",
+    "@aws-sdk/lib-dynamodb": "latest",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-avatar": "latest",
     "@radix-ui/react-dropdown-menu": "latest",
@@ -20,7 +22,7 @@
     "@supabase/supabase-js": "^2.47.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "crypto": "latest",
+    "crypto": "1.0.1",
     "lucide-react": "^0.454.0",
     "next": "^14.2.21",
     "react": "^18.3.1",
