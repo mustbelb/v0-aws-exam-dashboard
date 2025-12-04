@@ -6,17 +6,17 @@ import { getServiceById, type CertificationType } from "@/lib/services"
 
 interface PracticePageProps {
   params: Promise<{ service: string }>
-  searchParams: Promise<{ certification?: string }>
+  searchParams: Promise<{ cert?: string }>
 }
 
 export default async function PracticePage({ params, searchParams }: PracticePageProps) {
   const { service: serviceId } = await params
-  const { certification: certParam } = await searchParams
+  const { cert: certParam } = await searchParams
   
-  // Default to SAA-C03 if not specified
+  // Default to DVA-C02 if not specified
   const certification: CertificationType = (certParam === 'DVA-C02' || certParam === 'SAA-C03') 
     ? certParam 
-    : 'SAA-C03'
+    : 'DVA-C02'
   
   // Validate service exists
   const service = getServiceById(serviceId)
@@ -26,7 +26,7 @@ export default async function PracticePage({ params, searchParams }: PracticePag
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
+  
   if (!user) {
     redirect('/auth/login')
   }
@@ -34,24 +34,25 @@ export default async function PracticePage({ params, searchParams }: PracticePag
   // Check subscription status
   let isActive = false
   let subscriptionStatus = "none"
-
+  
   const { data: sub } = await supabase
     .from("subscriptions")
     .select("status")
     .eq("user_id", user.id)
     .single()
-
+  
   if (sub) {
     isActive = sub.status === "active" || sub.status === "trialing"
     subscriptionStatus = sub.status
   }
 
-  // Get service-specific progress
+  // Get service-specific progress for this certification
   const { data: progress } = await supabase
     .from("user_progress")
     .select("*")
     .eq("user_id", user.id)
     .eq("service", serviceId)
+    .eq("certification", certification)
     .single()
 
   // Create safe user object
