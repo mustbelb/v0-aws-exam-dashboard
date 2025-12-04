@@ -49,7 +49,7 @@ export function ServiceGrid({ certification, progressMap }: ServiceGridProps) {
             {/* Service Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {/* Random Tile - First in each category */}
-              <Link href={`/practice/random/${category.id}`}>
+              <Link href={`/practice/random/${category.id}?cert=${certification}`}>
                 <Card className="group transition-all hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 h-full border-dashed border-2 border-primary/30 bg-primary/5">
                   <CardContent className="flex flex-col items-center gap-3 p-6">
                     <div className="relative">
@@ -76,7 +76,7 @@ export function ServiceGrid({ certification, progressMap }: ServiceGridProps) {
                 const progress = progressMap?.get(service.id) || 0
                 
                 return (
-                  <Link key={service.id} href={`/practice/${service.id}`}>
+                  <Link key={service.id} href={`/practice/${service.id}?cert=${certification}`}>
                     <Card className="group transition-all hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 h-full">
                       <CardContent className="flex flex-col items-center gap-3 p-6">
                         <span className="text-5xl" role="img" aria-label={service.name}>
