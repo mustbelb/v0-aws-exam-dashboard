@@ -16,7 +16,14 @@ export interface ServiceDefinition {
   icon: string
   topics: string[]
   description: string
-  certifications: CertificationType[] // Which exams this service appears on
+  certifications: CertificationType[]
+}
+
+export interface CategoryDefinition {
+  id: string
+  name: string
+  icon: string
+  serviceIds: string[]
 }
 
 // Certification definitions
@@ -34,6 +41,76 @@ export const certifications: CertificationInfo[] = [
     fullName: 'AWS Certified Developer - Associate',
     description: 'Develop, deploy, and debug cloud-based applications using AWS',
     icon: '💻'
+  }
+]
+
+// Category definitions for random mode
+export const categories: CategoryDefinition[] = [
+  {
+    id: 'compute',
+    name: 'Compute',
+    icon: '🖥️',
+    serviceIds: ['ec2', 'lambda', 'ecs', 'eks', 'elastic-beanstalk', 'auto-scaling']
+  },
+  {
+    id: 'storage',
+    name: 'Storage',
+    icon: '💾',
+    serviceIds: ['s3', 'ebs', 'efs', 's3-glacier', 'fsx', 'storage-gateway']
+  },
+  {
+    id: 'database',
+    name: 'Database',
+    icon: '🗄️',
+    serviceIds: ['dynamodb', 'rds', 'aurora', 'elasticache', 'redshift']
+  },
+  {
+    id: 'networking',
+    name: 'Networking',
+    icon: '🌐',
+    serviceIds: ['vpc', 'route53', 'cloudfront', 'elb', 'api-gateway', 'direct-connect', 'global-accelerator']
+  },
+  {
+    id: 'security',
+    name: 'Security & Identity',
+    icon: '🔐',
+    serviceIds: ['iam', 'cognito', 'kms', 'secrets-manager', 'waf', 'shield', 'acm']
+  },
+  {
+    id: 'integration',
+    name: 'Application Integration',
+    icon: '🔗',
+    serviceIds: ['sqs', 'sns', 'eventbridge', 'step-functions', 'kinesis']
+  },
+  {
+    id: 'management',
+    name: 'Management & Monitoring',
+    icon: '📊',
+    serviceIds: ['cloudwatch', 'cloudtrail', 'cloudformation', 'systems-manager', 'config', 'x-ray']
+  },
+  {
+    id: 'developer-tools',
+    name: 'Developer Tools',
+    icon: '🛠️',
+    serviceIds: ['codepipeline', 'codebuild', 'codedeploy', 'codecommit', 'ecr', 'sam']
+  },
+  {
+    id: 'analytics',
+    name: 'Analytics',
+    icon: '📈',
+    serviceIds: ['athena', 'glue', 'emr']
+  },
+  {
+    id: 'machine-learning',
+    name: 'Machine Learning',
+    icon: '🤖',
+    serviceIds: ['sagemaker', 'rekognition']
+  },
+  {
+    id: 'migration',
+    name: 'Migration & Transfer',
+    icon: '🚚',
+    serviceIds: ['dms', 'snow-family', 'datasync']
   }
 ]
 
@@ -923,30 +1000,42 @@ export function getServiceTopics(id: string): string[] {
   return getServiceById(id)?.topics || []
 }
 
+// Category helpers
+export function getCategoryById(id: string): CategoryDefinition | undefined {
+  return categories.find(c => c.id === id)
+}
+
+export function getServicesInCategory(categoryId: string, certId: CertificationType): ServiceDefinition[] {
+  const category = getCategoryById(categoryId)
+  if (!category) return []
+  
+  return services.filter(
+    s => category.serviceIds.includes(s.id) && s.certifications.includes(certId)
+  )
+}
+
+export function getRandomServiceFromCategory(categoryId: string, certId: CertificationType): ServiceDefinition | null {
+  const eligibleServices = getServicesInCategory(categoryId, certId)
+  if (eligibleServices.length === 0) return null
+  
+  return eligibleServices[Math.floor(Math.random() * eligibleServices.length)]
+}
+
+export function getCategoriesForCertification(certId: CertificationType): CategoryDefinition[] {
+  return categories.filter(category => {
+    const servicesInCategory = getServicesInCategory(category.id, certId)
+    return servicesInCategory.length > 0
+  })
+}
+
 // Get services grouped by category for display
 export function getServicesByCategory(certId: CertificationType): Record<string, ServiceDefinition[]> {
-  const certServices = getServicesForCertification(certId)
-  
-  const categories: Record<string, string[]> = {
-    'Compute': ['ec2', 'lambda', 'ecs', 'eks', 'elastic-beanstalk', 'auto-scaling'],
-    'Storage': ['s3', 'ebs', 'efs', 's3-glacier', 'fsx', 'storage-gateway'],
-    'Database': ['dynamodb', 'rds', 'aurora', 'elasticache', 'redshift'],
-    'Networking': ['vpc', 'route53', 'cloudfront', 'elb', 'api-gateway', 'direct-connect', 'global-accelerator'],
-    'Security & Identity': ['iam', 'cognito', 'kms', 'secrets-manager', 'waf', 'shield', 'acm'],
-    'Application Integration': ['sqs', 'sns', 'eventbridge', 'step-functions', 'kinesis'],
-    'Management & Monitoring': ['cloudwatch', 'cloudtrail', 'cloudformation', 'systems-manager', 'config', 'x-ray'],
-    'Developer Tools': ['codepipeline', 'codebuild', 'codedeploy', 'codecommit', 'ecr', 'sam'],
-    'Analytics': ['athena', 'glue', 'emr'],
-    'Machine Learning': ['sagemaker', 'rekognition'],
-    'Migration & Transfer': ['dms', 'snow-family', 'datasync']
-  }
-  
   const result: Record<string, ServiceDefinition[]> = {}
   
-  for (const [category, serviceIds] of Object.entries(categories)) {
-    const servicesInCategory = certServices.filter(s => serviceIds.includes(s.id))
+  for (const category of categories) {
+    const servicesInCategory = getServicesInCategory(category.id, certId)
     if (servicesInCategory.length > 0) {
-      result[category] = servicesInCategory
+      result[category.name] = servicesInCategory
     }
   }
   
