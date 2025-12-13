@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useRef, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -7,9 +6,11 @@ import { Header } from "@/components/header"
 import { QuestionCard } from "@/components/question-card"
 import { FeedbackDisplay } from "@/components/feedback-display"
 import { ServiceSidebar } from "@/components/service-sidebar"
+import { ExplainerModal } from "@/components/explainer-modal"  // NEW
+import { getExplainerForService } from "@/lib/explainer-mapping"  // NEW
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { ArrowLeft, Loader2, PartyPopper, Zap } from "lucide-react"
+import { ArrowLeft, Loader2, PartyPopper, Zap, Lightbulb } from "lucide-react"
 import type { ServiceDefinition, CertificationType } from "@/lib/services"
 
 interface PracticeClientProps {
@@ -88,6 +89,10 @@ export function PracticeClient({
   const [useStreamingMode, setUseStreamingMode] = useState(false)
   const [totalQuestionsInBank, setTotalQuestionsInBank] = useState(0)
   
+  // NEW: Explainer modal state
+  const [showExplainer, setShowExplainer] = useState(false)
+  const [currentExplainerId, setCurrentExplainerId] = useState<string | null>(null)
+  
   const startTimeRef = useRef<number>(0)
 
   // ===========================================
@@ -99,7 +104,8 @@ export function PracticeClient({
     setCurrentQuestion(null)
     setShowFeedback(false)
     setSelectedAnswer("")
-
+    setShowExplainer(false)  // NEW: Reset explainer state
+    
     try {
       const params = new URLSearchParams({
         service: service.id,
@@ -111,7 +117,6 @@ export function PracticeClient({
 
       if (!response.ok) {
         if (data.bankEmpty) {
-          // No questions exist for this service at all
           setError("No questions available for this service yet. Try another service or check back later.")
           setIsLoading(false)
           return
@@ -119,7 +124,6 @@ export function PracticeClient({
         throw new Error(data.error || "Failed to fetch question")
       }
 
-      // Check if bank is exhausted for this user
       if (data.bankExhausted) {
         setBankExhausted(true)
         setShowExhaustedMessage(true)
@@ -128,7 +132,6 @@ export function PracticeClient({
         return
       }
 
-      // Success - instant question!
       setCurrentQuestion({
         questionId: data.questionId,
         question: data.question,
@@ -139,7 +142,6 @@ export function PracticeClient({
       })
       startTimeRef.current = Date.now()
       setIsLoading(false)
-
     } catch (e) {
       console.error("Error fetching from bank:", e)
       setError("Failed to load question. Please try again.")
@@ -151,7 +153,6 @@ export function PracticeClient({
   // FALLBACK: Stream question from AI (when bank exhausted)
   // ===========================================
   
-  // Progressive JSON parser - extracts partial data as it streams
   const parsePartialJSON = (text: string): PartialQuestion => {
     const partial: PartialQuestion = {}
     
@@ -185,7 +186,6 @@ export function PracticeClient({
     return partial
   }
 
-  // Plain text parser for QUESTION:/OPTION_A: format
   const parsePlainTextQuestion = (text: string): Question | null => {
     try {
       const extractSection = (label: string): string => {
@@ -234,7 +234,6 @@ export function PracticeClient({
     }
   }
 
-  // Progressive plain text parser for streaming display
   const parsePartialPlainText = (text: string): PartialQuestion => {
     const partial: PartialQuestion = {}
     
@@ -276,6 +275,7 @@ export function PracticeClient({
     setPartialQuestion(null)
     setShowFeedback(false)
     setSelectedAnswer("")
+    setShowExplainer(false)  // NEW: Reset explainer state
 
     const params = new URLSearchParams({
       service: service.id,
@@ -486,6 +486,7 @@ export function PracticeClient({
           setError("Request timed out. Please try again.")
         }
       }, 120000)
+
     } catch (e) {
       setIsStreaming(false)
       setIsLoading(false)
@@ -504,18 +505,19 @@ export function PracticeClient({
     }
   }, [useStreamingMode, generateQuestionStreaming, fetchQuestionFromBank])
 
-  // Handle continuing with streaming after bank exhausted
   const handleContinueWithStreaming = () => {
     setShowExhaustedMessage(false)
     setUseStreamingMode(true)
     generateQuestionStreaming()
   }
 
-  // Handle trying another service
   const handleTryAnotherService = () => {
     router.push('/dashboard')
   }
 
+  // ===========================================
+  // UPDATED: Handle submit with explainer trigger
+  // ===========================================
   const handleSubmit = async (answer: string) => {
     if (!currentQuestion) return
 
@@ -525,9 +527,20 @@ export function PracticeClient({
     setSelectedAnswer(answer)
     setIsCorrect(correct)
     setShowFeedback(true)
+
     setQuestionsAnswered(prev => prev + 1)
     if (correct) {
       setCorrectCount(prev => prev + 1)
+    }
+
+    // NEW: Set up explainer for wrong answers
+    if (!correct) {
+      const explainerId = getExplainerForService(service.id)
+      if (explainerId) {
+        setCurrentExplainerId(explainerId)
+        // Don't show immediately - let user see feedback first
+        // They can click "Learn More" or we auto-show after delay
+      }
     }
 
     try {
@@ -550,7 +563,21 @@ export function PracticeClient({
     }
   }
 
+  // NEW: Handle showing explainer
+  const handleShowExplainer = () => {
+    if (currentExplainerId) {
+      setShowExplainer(true)
+    }
+  }
+
+  // NEW: Handle closing explainer and moving to next question
+  const handleExplainerClose = () => {
+    setShowExplainer(false)
+  }
+
   const handleNextQuestion = () => {
+    setShowExplainer(false)
+    setCurrentExplainerId(null)
     getNextQuestion()
   }
 
@@ -755,16 +782,47 @@ export function PracticeClient({
               />
             )}
 
-            {/* Feedback display */}
+            {/* Feedback display - UPDATED with Learn More button */}
             {showFeedback && currentQuestion && (
-              <FeedbackDisplay
-                isCorrect={isCorrect}
-                correctAnswer={currentQuestion.correct}
-                selectedAnswer={selectedAnswer}
-                explanations={formattedExplanations}
-                examTip={currentQuestion.examTip}
-                onNextQuestion={handleNextQuestion}
-              />
+              <div className="space-y-4">
+                <FeedbackDisplay
+                  isCorrect={isCorrect}
+                  correctAnswer={currentQuestion.correct}
+                  selectedAnswer={selectedAnswer}
+                  explanations={formattedExplanations}
+                  examTip={currentQuestion.examTip}
+                  onNextQuestion={handleNextQuestion}
+                />
+                
+                {/* NEW: Learn More button for wrong answers */}
+                {!isCorrect && currentExplainerId && (
+                  <Card className="border-2 border-yellow-500/30 bg-yellow-500/5">
+                    <CardContent className="py-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                            <Lightbulb className="w-5 h-5 text-yellow-500" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">Want to understand this better?</p>
+                            <p className="text-sm text-muted-foreground">
+                              View an interactive explainer for {service.name}
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={handleShowExplainer}
+                          variant="outline"
+                          className="border-yellow-500/50 hover:bg-yellow-500/10"
+                        >
+                          <Lightbulb className="w-4 h-4 mr-2" />
+                          Learn More
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             )}
           </div>
 
@@ -783,6 +841,17 @@ export function PracticeClient({
           </aside>
         </div>
       </main>
+
+      {/* NEW: Explainer Modal */}
+      {showExplainer && currentExplainerId && (
+        <ExplainerModal
+          explainerId={currentExplainerId}
+          question={currentQuestion}
+          selectedAnswer={selectedAnswer}
+          onClose={handleExplainerClose}
+          onNextQuestion={handleNextQuestion}
+        />
+      )}
     </div>
   )
 }
