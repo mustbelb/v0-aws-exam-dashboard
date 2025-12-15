@@ -947,6 +947,900 @@ export function RequestResponseTransformationsExplainer() {
   )
 }
 
+// ============================================================================
+// WEBSOCKET APIS EXPLAINER (Medium)
+// ============================================================================
+export function WebSocketApisExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "WebSocket APIs", description: "Real-time two-way communication between clients and backend. Full-duplex connections." },
+    { title: "Route Selection", description: "Routes defined by $request.body.action or $connect, $disconnect, $default." },
+    { title: "Connection Management", description: "Connections persisted up to 10 minutes idle. Use @connections API to send messages." },
+    { title: "Use Cases", description: "Chat applications, live dashboards, gaming, real-time notifications." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">WebSocket APIs</h1>
+        <p className="text-slate-400">Real-time bidirectional communication</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* WebSocket flow */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-blue-500 rounded-lg p-4 text-white text-center">
+              <div className="text-2xl">👤</div>
+              <div className="text-xs">Client</div>
+            </div>
+            <div className="flex-1 mx-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex-1 h-1 bg-green-500 rounded"></div>
+                <span className="text-xs text-green-400">↔ bidirectional</span>
+                <div className="flex-1 h-1 bg-green-500 rounded"></div>
+              </div>
+              <div className="text-center text-xs text-slate-400">wss://api-id.execute-api.region.amazonaws.com/stage</div>
+            </div>
+            <div className="bg-purple-500 rounded-lg p-4 text-white text-center">
+              <div className="text-2xl">🌐</div>
+              <div className="text-xs">API GW</div>
+            </div>
+            <div className="mx-4 text-slate-400">→</div>
+            <div className="bg-orange-500 rounded-lg p-4 text-white text-center">
+              <div className="text-2xl">λ</div>
+              <div className="text-xs">Lambda</div>
+            </div>
+          </div>
+
+          {/* Routes */}
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="bg-green-500/20 rounded p-2 text-center">
+              <div className="text-xs text-green-400 font-medium">$connect</div>
+              <div className="text-[10px] text-slate-400">Connection open</div>
+            </div>
+            <div className="bg-red-500/20 rounded p-2 text-center">
+              <div className="text-xs text-red-400 font-medium">$disconnect</div>
+              <div className="text-[10px] text-slate-400">Connection close</div>
+            </div>
+            <div className="bg-blue-500/20 rounded p-2 text-center">
+              <div className="text-xs text-blue-400 font-medium">$default</div>
+              <div className="text-[10px] text-slate-400">Fallback route</div>
+            </div>
+            <div className="bg-purple-500/20 rounded p-2 text-center">
+              <div className="text-xs text-purple-400 font-medium">sendMessage</div>
+              <div className="text-[10px] text-slate-400">Custom route</div>
+            </div>
+          </div>
+
+          {/* Callback URL */}
+          <div className="bg-slate-800 rounded p-3 text-center">
+            <div className="text-xs text-slate-400 mb-1">Send to client:</div>
+            <div className="font-mono text-xs text-orange-400">POST @connections/&#123;connectionId&#125;</div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>WebSocket APIs support REST APIs only (not HTTP APIs)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>10-minute idle timeout, 2-hour max connection duration</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use @connections API to send messages to connected clients</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Routes: $connect, $disconnect, $default, custom</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// CORS EXPLAINER (Light)
+// ============================================================================
+export function ApiGatewayCORSExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [corsEnabled, setCorsEnabled] = useState(true)
+
+  const steps = [
+    { title: "What is CORS?", description: "Cross-Origin Resource Sharing - allows APIs to be called from different domains." },
+    { title: "Preflight Requests", description: "Browser sends OPTIONS request first. API must respond with CORS headers." },
+    { title: "CORS Headers", description: "Access-Control-Allow-Origin, Allow-Methods, Allow-Headers are required." },
+    { title: "Configuration", description: "Enable CORS in API Gateway console or return headers from Lambda." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">API Gateway CORS</h1>
+        <p className="text-slate-400">Cross-Origin Resource Sharing</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center mb-6">
+          <button onClick={() => setCorsEnabled(!corsEnabled)} className={`px-4 py-2 rounded-lg ${corsEnabled ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+            CORS: {corsEnabled ? "Enabled" : "Disabled"}
+          </button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-blue-500 rounded p-3 text-white text-center">
+              <div className="text-lg">🌐</div>
+              <div className="text-xs">example.com</div>
+            </div>
+            <div className="flex-1 mx-4 text-center">
+              <div className="text-xs text-slate-400 mb-1">OPTIONS (preflight)</div>
+              <div className="h-1 bg-slate-600 rounded mb-2"></div>
+              <div className={`text-xs ${corsEnabled ? "text-green-400" : "text-red-400"}`}>
+                {corsEnabled ? "200 OK + CORS headers" : "No CORS headers!"}
+              </div>
+            </div>
+            <div className="bg-purple-500 rounded p-3 text-white text-center">
+              <div className="text-lg">🔌</div>
+              <div className="text-xs">api.other.com</div>
+            </div>
+          </div>
+
+          {corsEnabled && (
+            <div className="bg-slate-800 rounded p-3 font-mono text-xs">
+              <div className="text-green-400">Access-Control-Allow-Origin: https://example.com</div>
+              <div className="text-blue-400">Access-Control-Allow-Methods: GET, POST, PUT</div>
+              <div className="text-purple-400">Access-Control-Allow-Headers: Content-Type</div>
+            </div>
+          )}
+
+          {!corsEnabled && (
+            <div className="bg-red-500/20 rounded p-3 text-center text-red-400 text-sm">
+              Browser blocks cross-origin request!
+            </div>
+          )}
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>CORS is browser security - server must send headers</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Preflight OPTIONS request for non-simple requests</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Lambda proxy: return CORS headers from Lambda code</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Enable CORS in API Gateway for non-proxy integrations</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// INTEGRATION TYPES EXPLAINER (Medium)
+// ============================================================================
+export function IntegrationTypesExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [integrationType, setIntegrationType] = useState("AWS_PROXY")
+
+  const steps = [
+    { title: "Integration Types", description: "How API Gateway connects to backend services. Proxy vs non-proxy patterns." },
+    { title: "AWS_PROXY (Lambda Proxy)", description: "Passes entire request to Lambda. Most common for serverless. No mapping templates." },
+    { title: "AWS (Lambda Custom)", description: "Allows request/response transformation with mapping templates." },
+    { title: "HTTP/HTTP_PROXY", description: "Forward to HTTP endpoints. Proxy passes through, HTTP allows transformation." }
+  ]
+
+  const types = {
+    AWS_PROXY: { name: "Lambda Proxy", desc: "Pass-through to Lambda", transform: false },
+    AWS: { name: "Lambda Custom", desc: "With mapping templates", transform: true },
+    HTTP_PROXY: { name: "HTTP Proxy", desc: "Pass-through to HTTP", transform: false },
+    HTTP: { name: "HTTP Custom", desc: "Transform HTTP requests", transform: true },
+    MOCK: { name: "Mock", desc: "Return static response", transform: false }
+  }
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">API Gateway Integration Types</h1>
+        <p className="text-slate-400">Connecting to backend services</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          {Object.entries(types).map(([key, val]) => (
+            <button key={key} onClick={() => setIntegrationType(key)} className={`px-3 py-1 rounded text-xs ${integrationType === key ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>
+              {val.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-center gap-4">
+            <div className="bg-blue-500 rounded p-3 text-white text-center">
+              <div className="text-lg">📱</div>
+              <div className="text-xs">Client</div>
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="bg-purple-500 rounded p-3 text-white text-center">
+              <div className="text-lg">🌐</div>
+              <div className="text-xs">API GW</div>
+            </div>
+            <div className={`px-4 py-2 rounded ${types[integrationType as keyof typeof types].transform ? "bg-orange-500" : "bg-slate-700"}`}>
+              <div className="text-xs text-white">
+                {types[integrationType as keyof typeof types].transform ? "Transform" : "Pass-through"}
+              </div>
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="bg-green-500 rounded p-3 text-white text-center">
+              <div className="text-lg">{integrationType.includes("MOCK") ? "📄" : integrationType.includes("HTTP") ? "🔗" : "λ"}</div>
+              <div className="text-xs">Backend</div>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-slate-800 rounded">
+            <div className="text-sm text-slate-300">
+              <strong className="text-white">{types[integrationType as keyof typeof types].name}:</strong>{" "}
+              {types[integrationType as keyof typeof types].desc}
+            </div>
+            <div className="mt-2 text-xs">
+              <span className={types[integrationType as keyof typeof types].transform ? "text-orange-400" : "text-green-400"}>
+                {types[integrationType as keyof typeof types].transform ? "✓ Mapping templates supported" : "✗ No transformation"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>AWS_PROXY: most common for Lambda, no mapping templates</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>PROXY integrations = pass-through, no transformation</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Non-proxy (AWS, HTTP) = VTL mapping templates available</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>MOCK = return canned responses without backend</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// USAGE PLANS EXPLAINER (Light)
+// ============================================================================
+export function UsagePlansExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What are Usage Plans?", description: "Define throttling limits and quotas for API consumers. Associate with API keys." },
+    { title: "Throttling", description: "Rate limit: requests per second. Burst limit: max concurrent requests." },
+    { title: "Quotas", description: "Maximum requests per day/week/month. Prevents excessive usage." },
+    { title: "API Key Association", description: "Link API keys to usage plans. Different keys can have different limits." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">API Gateway Usage Plans</h1>
+        <p className="text-slate-400">Throttling and quotas for API consumers</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            {/* Free Tier */}
+            <div className="bg-slate-800 border border-green-500/50 rounded p-3">
+              <div className="text-green-400 font-medium mb-2">Free Tier</div>
+              <div className="text-xs text-slate-300 space-y-1">
+                <div>Rate: 10 req/s</div>
+                <div>Burst: 20 req</div>
+                <div>Quota: 1,000/day</div>
+              </div>
+            </div>
+            {/* Pro Tier */}
+            <div className="bg-slate-800 border border-blue-500/50 rounded p-3">
+              <div className="text-blue-400 font-medium mb-2">Pro Tier</div>
+              <div className="text-xs text-slate-300 space-y-1">
+                <div>Rate: 100 req/s</div>
+                <div>Burst: 200 req</div>
+                <div>Quota: 50,000/day</div>
+              </div>
+            </div>
+            {/* Enterprise */}
+            <div className="bg-slate-800 border border-purple-500/50 rounded p-3">
+              <div className="text-purple-400 font-medium mb-2">Enterprise</div>
+              <div className="text-xs text-slate-300 space-y-1">
+                <div>Rate: 1,000 req/s</div>
+                <div>Burst: 2,000 req</div>
+                <div>Quota: Unlimited</div>
+              </div>
+            </div>
+          </div>
+
+          {/* API Keys association */}
+          <div className="p-3 bg-slate-800 rounded">
+            <div className="text-xs text-slate-400 mb-2">API Keys → Usage Plans</div>
+            <div className="flex gap-2">
+              <div className="bg-green-500/20 rounded px-2 py-1 text-xs text-green-400">key-free-123</div>
+              <div className="bg-blue-500/20 rounded px-2 py-1 text-xs text-blue-400">key-pro-456</div>
+              <div className="bg-purple-500/20 rounded px-2 py-1 text-xs text-purple-400">key-ent-789</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Usage plans combine throttling (rate/burst) and quotas</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>API keys are NOT for authentication, only tracking</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>One API key can be in multiple usage plans</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Quotas reset at start of period (day/week/month)</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// PRIVATE APIS EXPLAINER (Medium)
+// ============================================================================
+export function PrivateApisExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What are Private APIs?", description: "APIs only accessible from within a VPC. Not exposed to public internet." },
+    { title: "VPC Endpoints", description: "Create Interface VPC Endpoint for execute-api service. Private DNS resolution." },
+    { title: "Resource Policy", description: "Must configure resource policy to allow access from VPC or specific endpoints." },
+    { title: "Use Cases", description: "Internal microservices, B2B APIs, secure internal tools." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Private REST APIs</h1>
+        <p className="text-slate-400">VPC-only API access</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Architecture */}
+          <div className="border-2 border-blue-500/30 rounded-lg p-4">
+            <div className="text-xs text-blue-400 mb-4">VPC</div>
+            <div className="flex items-center justify-between">
+              <div className="bg-blue-500 rounded p-3 text-white text-center">
+                <div className="text-lg">🖥️</div>
+                <div className="text-xs">EC2</div>
+              </div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-purple-500 rounded p-3 text-white text-center">
+                <div className="text-lg">🔌</div>
+                <div className="text-xs">VPC Endpoint</div>
+                <div className="text-[10px] text-purple-200">execute-api</div>
+              </div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-orange-500 rounded p-3 text-white text-center">
+                <div className="text-lg">🌐</div>
+                <div className="text-xs">Private API</div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-center">
+              <div className="bg-red-500/20 rounded px-3 py-1 text-red-400 text-xs">
+                ✗ Not accessible from internet
+              </div>
+            </div>
+          </div>
+
+          {/* Resource Policy */}
+          <div className="mt-4 bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">Resource Policy:</div>
+            <pre className="text-[10px] text-green-400 font-mono">{`"Condition": {
+  "StringEquals": {
+    "aws:sourceVpce": "vpce-1234567890abcdef0"
+  }
+}`}</pre>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Requires Interface VPC Endpoint for execute-api</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Resource policy MUST allow VPC/endpoint access</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Enable private DNS for standard API URL resolution</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Private APIs only available for REST API type</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// CUSTOM DOMAINS EXPLAINER (Light)
+// ============================================================================
+export function CustomDomainsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Custom Domain Names", description: "Use your own domain instead of the default API Gateway URL." },
+    { title: "Certificate Required", description: "Must have ACM certificate. Regional API: same region. Edge: us-east-1." },
+    { title: "Base Path Mapping", description: "Map different API stages to paths on your domain." },
+    { title: "DNS Configuration", description: "Point CNAME/A record to API Gateway domain name." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Custom Domain Names</h1>
+        <p className="text-slate-400">Using your own domain with API Gateway</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Before/After */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-red-500/20 rounded p-3">
+              <div className="text-xs text-red-400 mb-2">Default URL</div>
+              <div className="font-mono text-xs text-slate-300 break-all">
+                abc123.execute-api.us-east-1.amazonaws.com/prod
+              </div>
+            </div>
+            <div className="bg-green-500/20 rounded p-3">
+              <div className="text-xs text-green-400 mb-2">Custom Domain</div>
+              <div className="font-mono text-xs text-slate-300">
+                api.mycompany.com/v1
+              </div>
+            </div>
+          </div>
+
+          {/* Setup */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="bg-blue-500 text-white rounded px-2 py-1">1</span>
+              <span className="text-slate-300">ACM Certificate for api.mycompany.com</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="bg-blue-500 text-white rounded px-2 py-1">2</span>
+              <span className="text-slate-300">Create Custom Domain in API Gateway</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="bg-blue-500 text-white rounded px-2 py-1">3</span>
+              <span className="text-slate-300">Base path mapping: /v1 → prod stage</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="bg-blue-500 text-white rounded px-2 py-1">4</span>
+              <span className="text-slate-300">DNS: CNAME to d-xxx.execute-api.region.amazonaws.com</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Edge-optimized: ACM certificate in us-east-1</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Regional: ACM certificate in same region as API</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Base path mapping links domain paths to API stages</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use Route 53 alias record for edge-optimized APIs</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// LOGGING EXPLAINER (Light)
+// ============================================================================
+export function ApiGatewayLoggingExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "CloudWatch Logs", description: "Execution logs for debugging. Access logs for analytics. Both optional." },
+    { title: "Execution Logs", description: "Detailed logs showing request/response, errors, integration latency." },
+    { title: "Access Logs", description: "Structured logs for each request. Customizable format (JSON, CLF, etc)." },
+    { title: "X-Ray Tracing", description: "End-to-end request tracing. See latency across API Gateway, Lambda, etc." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">API Gateway Logging</h1>
+        <p className="text-slate-400">CloudWatch and X-Ray integration</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            {/* Execution Logs */}
+            <div className="bg-blue-500/20 border border-blue-500/50 rounded p-3">
+              <div className="text-blue-400 font-medium text-sm mb-2">Execution Logs</div>
+              <div className="text-xs text-slate-300 space-y-1">
+                <div>• Request/Response data</div>
+                <div>• Error messages</div>
+                <div>• Integration latency</div>
+              </div>
+            </div>
+            {/* Access Logs */}
+            <div className="bg-green-500/20 border border-green-500/50 rounded p-3">
+              <div className="text-green-400 font-medium text-sm mb-2">Access Logs</div>
+              <div className="text-xs text-slate-300 space-y-1">
+                <div>• Caller IP, method</div>
+                <div>• Response status</div>
+                <div>• Custom format</div>
+              </div>
+            </div>
+            {/* X-Ray */}
+            <div className="bg-orange-500/20 border border-orange-500/50 rounded p-3">
+              <div className="text-orange-400 font-medium text-sm mb-2">X-Ray Tracing</div>
+              <div className="text-xs text-slate-300 space-y-1">
+                <div>• End-to-end trace</div>
+                <div>• Service map</div>
+                <div>• Latency analysis</div>
+              </div>
+            </div>
+          </div>
+
+          {/* IAM Role */}
+          <div className="p-3 bg-slate-800 rounded text-center text-xs">
+            <span className="text-yellow-400">Requires:</span>
+            <span className="text-slate-300 ml-2">CloudWatch Logs IAM role on API Gateway</span>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Must configure CloudWatch IAM role at account level</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Execution logs: detailed debugging (can be expensive)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Access logs: customizable format for analytics</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>X-Ray: enable active tracing at stage level</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// MOCK INTEGRATION EXPLAINER (Light)
+// ============================================================================
+export function MockIntegrationExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Mock Integration", description: "Return static responses without backend. Useful for development and testing." },
+    { title: "How It Works", description: "API Gateway generates response directly. No Lambda or HTTP backend needed." },
+    { title: "Response Templates", description: "Use mapping templates to define mock response body, headers, status." },
+    { title: "Use Cases", description: "API prototyping, frontend development, testing client error handling." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Mock Integration</h1>
+        <p className="text-slate-400">Static responses without backend</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Flow */}
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="bg-blue-500 rounded p-3 text-white text-center">
+              <div className="text-lg">📱</div>
+              <div className="text-xs">Client</div>
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="bg-purple-500 rounded p-3 text-white text-center">
+              <div className="text-lg">🌐</div>
+              <div className="text-xs">API Gateway</div>
+            </div>
+            <div className="bg-green-500 rounded px-3 py-1 text-white text-xs">MOCK</div>
+            <div className="text-slate-400">→</div>
+            <div className="bg-green-500 rounded p-3 text-white text-center">
+              <div className="text-lg">📄</div>
+              <div className="text-xs">Static Response</div>
+            </div>
+          </div>
+
+          {/* Example */}
+          <div className="bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">Mock Response Template:</div>
+            <pre className="text-xs text-green-400 font-mono">{`{
+  "message": "Hello from mock",
+  "timestamp": "$context.requestTime",
+  "path": "$context.resourcePath"
+}`}</pre>
+          </div>
+
+          <div className="mt-4 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-center text-xs text-yellow-400">
+            No backend costs during development!
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Mock = no backend integration needed</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use mapping templates for dynamic values ($context)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Great for API prototyping and frontend development</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Can return different responses based on request data</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// OPENAPI SWAGGER EXPLAINER (Light)
+// ============================================================================
+export function OpenAPISwaggerExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "OpenAPI Integration", description: "Import/export API definitions using OpenAPI 3.0 or Swagger 2.0 spec." },
+    { title: "Import API", description: "Create complete API from OpenAPI file. Includes resources, methods, models." },
+    { title: "Export API", description: "Export existing API to OpenAPI format. Include API Gateway extensions." },
+    { title: "Extensions", description: "x-amazon-apigateway-* extensions for integrations, authorizers, validators." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">OpenAPI / Swagger</h1>
+        <p className="text-slate-400">API definition import and export</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Import/Export */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-green-500/20 border border-green-500/50 rounded p-3 text-center">
+              <div className="text-lg mb-1">📥</div>
+              <div className="text-green-400 font-medium text-sm">Import</div>
+              <div className="text-xs text-slate-400">OpenAPI → API Gateway</div>
+            </div>
+            <div className="bg-blue-500/20 border border-blue-500/50 rounded p-3 text-center">
+              <div className="text-lg mb-1">📤</div>
+              <div className="text-blue-400 font-medium text-sm">Export</div>
+              <div className="text-xs text-slate-400">API Gateway → OpenAPI</div>
+            </div>
+          </div>
+
+          {/* Example extension */}
+          <div className="bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">API Gateway Extension:</div>
+            <pre className="text-xs text-green-400 font-mono">{`x-amazon-apigateway-integration:
+  type: aws_proxy
+  uri: arn:aws:lambda:...
+  httpMethod: POST`}</pre>
+          </div>
+
+          {/* Formats */}
+          <div className="mt-4 flex justify-center gap-2">
+            <div className="bg-slate-700 rounded px-3 py-1 text-xs text-slate-300">OpenAPI 3.0</div>
+            <div className="bg-slate-700 rounded px-3 py-1 text-xs text-slate-300">Swagger 2.0</div>
+            <div className="bg-slate-700 rounded px-3 py-1 text-xs text-slate-300">YAML / JSON</div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Supports OpenAPI 3.0 and Swagger 2.0</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>x-amazon-apigateway-* extensions for AWS-specific config</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Export with or without API Gateway extensions</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use for API versioning and documentation</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
 // Export all explainers
 export const apiGatewayExplainers = {
   "rest-vs-http-apis": RestVsHttpApisExplainer,
@@ -954,5 +1848,14 @@ export const apiGatewayExplainers = {
   "authentication-methods": AuthenticationMethodsExplainer,
   "throttling-rate-limiting": ThrottlingRateLimitingExplainer,
   "api-caching": ApiCachingExplainer,
-  "request-response-transformations": RequestResponseTransformationsExplainer
+  "request-response-transformations": RequestResponseTransformationsExplainer,
+  "websocket-apis": WebSocketApisExplainer,
+  "api-gateway-cors": ApiGatewayCORSExplainer,
+  "integration-types": IntegrationTypesExplainer,
+  "usage-plans": UsagePlansExplainer,
+  "private-apis": PrivateApisExplainer,
+  "custom-domains": CustomDomainsExplainer,
+  "api-gateway-logging": ApiGatewayLoggingExplainer,
+  "mock-integration": MockIntegrationExplainer,
+  "openapi-swagger": OpenAPISwaggerExplainer,
 }
