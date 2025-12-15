@@ -1385,6 +1385,607 @@ export function DynamoDBAutoScalingExplainer() {
 }
 
 // ============================================================================
+// DYNAMODB CONDITIONAL WRITES EXPLAINER (Medium)
+// ============================================================================
+export function DynamoDBConditionalWritesExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [writeType, setWriteType] = useState<"unconditional" | "conditional">("conditional")
+
+  const steps = [
+    {
+      title: "Conditional Expressions",
+      description: "Add conditions to write operations. Only succeeds if condition evaluates to true."
+    },
+    {
+      title: "Optimistic Locking",
+      description: "Use version numbers to prevent overwriting concurrent changes. Check version before update."
+    },
+    {
+      title: "Atomic Counters",
+      description: "Increment/decrement values atomically with SET counter = counter + :inc without conditions."
+    },
+    {
+      title: "Common Patterns",
+      description: "attribute_not_exists for creates, attribute_exists for updates, version checks for locking."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">DynamoDB Conditional Writes</h1>
+        <p className="text-slate-400">Preventing race conditions with conditional expressions</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setWriteType("unconditional")} className={`px-4 py-2 rounded-lg ${writeType === "unconditional" ? "bg-red-500 text-white" : "bg-slate-700 text-slate-300"}`}>Unconditional</button>
+          <button onClick={() => setWriteType("conditional")} className={`px-4 py-2 rounded-lg ${writeType === "conditional" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Conditional</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="bg-purple-500 rounded p-2 text-white text-xs">User A</div>
+              <div className="flex-1 mx-2 h-0.5 bg-purple-500"></div>
+              <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
+              <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
+              <div className={`rounded p-2 text-white text-xs ${writeType === "conditional" ? "bg-green-500" : "bg-green-500"}`}>✓</div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="bg-orange-500 rounded p-2 text-white text-xs">User B</div>
+              <div className="flex-1 mx-2 h-0.5 bg-orange-500"></div>
+              <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
+              <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
+              <div className={`rounded p-2 text-white text-xs ${writeType === "conditional" ? "bg-red-500" : "bg-green-500"}`}>
+                {writeType === "conditional" ? "✗" : "✓ (overwrites!)"}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">{writeType === "conditional" ? "With Condition" : "Without Condition"}</div>
+            <pre className="text-xs text-green-400 font-mono overflow-x-auto">
+{writeType === "conditional" ? `UpdateItem:
+  Key: {id: "123"}
+  UpdateExpression: "SET price = :p"
+  ConditionExpression: "version = :v"
+  ExpressionAttributeValues:
+    ":p": 99.99, ":v": 5` : `UpdateItem:
+  Key: {id: "123"}
+  UpdateExpression: "SET price = :p"
+  ExpressionAttributeValues:
+    ":p": 99.99
+// No condition - last write wins!`}
+            </pre>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>attribute_not_exists(pk) - ensure item doesn&apos;t exist (safe create)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>attribute_exists(pk) - ensure item exists before update</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Optimistic locking with version numbers prevents lost updates</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>ConditionalCheckFailedException when condition fails</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// DYNAMODB BATCH OPERATIONS EXPLAINER (Medium)
+// ============================================================================
+export function DynamoDBBatchOperationsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [operation, setOperation] = useState<"get" | "write">("get")
+
+  const steps = [
+    {
+      title: "Batch Operations",
+      description: "BatchGetItem and BatchWriteItem process multiple items in single request. More efficient than individual calls."
+    },
+    {
+      title: "BatchGetItem",
+      description: "Read up to 100 items across multiple tables. Returns items in parallel. Max 16 MB response."
+    },
+    {
+      title: "BatchWriteItem",
+      description: "Write up to 25 items (put or delete) across tables. No update support. Max 16 MB request."
+    },
+    {
+      title: "Handling Failures",
+      description: "Partial failures return UnprocessedItems/Keys. Implement exponential backoff retry for these items."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">DynamoDB Batch Operations</h1>
+        <p className="text-slate-400">Efficient multi-item reads and writes</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setOperation("get")} className={`px-4 py-2 rounded-lg ${operation === "get" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>BatchGetItem</button>
+          <button onClick={() => setOperation("write")} className={`px-4 py-2 rounded-lg ${operation === "write" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>BatchWriteItem</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-slate-800 rounded p-3">
+              <div className="text-sm font-medium text-white mb-2">{operation === "get" ? "BatchGetItem" : "BatchWriteItem"}</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• Max items: {operation === "get" ? "100" : "25"}</li>
+                <li>• Max size: 16 MB</li>
+                <li>• Cross-table: ✓</li>
+                <li>• {operation === "get" ? "Parallel reads" : "Put + Delete only"}</li>
+              </ul>
+            </div>
+            <div className="bg-slate-800 rounded p-3">
+              <div className="text-sm font-medium text-white mb-2">Single Item API</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• 1 item per call</li>
+                <li>• More round trips</li>
+                <li>• Higher latency</li>
+                <li>• Simpler error handling</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">Response with Unprocessed Items</div>
+            <pre className="text-xs text-green-400 font-mono overflow-x-auto">
+{operation === "get" ? `{
+  "Responses": {
+    "Users": [{...}, {...}],
+    "Orders": [{...}]
+  },
+  "UnprocessedKeys": {
+    "Users": { "Keys": [{pk: "user#999"}] }
+  }  // Retry these!
+}` : `{
+  "UnprocessedItems": {
+    "Products": [
+      { "PutRequest": { "Item": {...} } }
+    ]
+  }  // Retry with exponential backoff
+}`}
+            </pre>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>BatchGetItem: 100 items, BatchWriteItem: 25 items</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>BatchWriteItem: Put and Delete only - no Update</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Always handle UnprocessedItems/UnprocessedKeys</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use exponential backoff for retries</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// DYNAMODB QUERY VS SCAN EXPLAINER (Medium)
+// ============================================================================
+export function DynamoDBQueryScanExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [operation, setOperation] = useState<"query" | "scan">("query")
+
+  const steps = [
+    {
+      title: "Query vs Scan",
+      description: "Query finds items by partition key (required) and optionally sort key. Scan reads entire table."
+    },
+    {
+      title: "Query Efficiency",
+      description: "Query is efficient - reads only items matching the partition key. Use KeyConditionExpression."
+    },
+    {
+      title: "Scan Considerations",
+      description: "Scan reads every item in table. Expensive for large tables. Consider parallel scan for large datasets."
+    },
+    {
+      title: "Best Practices",
+      description: "Design for queries, not scans. Use GSIs for different access patterns. Filter after read."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">DynamoDB Query vs Scan</h1>
+        <p className="text-slate-400">Efficient data retrieval strategies</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setOperation("query")} className={`px-4 py-2 rounded-lg ${operation === "query" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Query</button>
+          <button onClick={() => setOperation("scan")} className={`px-4 py-2 rounded-lg ${operation === "scan" ? "bg-red-500 text-white" : "bg-slate-700 text-slate-300"}`}>Scan</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="text-sm text-slate-400 mb-3">Table: Orders (1M items)</div>
+
+          <div className="grid grid-cols-5 gap-1 mb-4">
+            {Array(25).fill(0).map((_, i) => (
+              <div key={i} className={`h-8 rounded text-xs flex items-center justify-center ${
+                operation === "query"
+                  ? (i % 5 === 0 ? "bg-green-500 text-white" : "bg-slate-700 text-slate-500")
+                  : "bg-red-500/80 text-white"
+              }`}>
+                {operation === "query" && i % 5 === 0 ? "✓" : ""}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className={`p-3 rounded-lg ${operation === "query" ? "bg-green-500/20 border border-green-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white mb-2">Query</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• Partition key required</li>
+                <li>• Reads: ~1,000 items</li>
+                <li>• Cost: 1 RCU per 4KB</li>
+                <li>• Time: ~10ms</li>
+              </ul>
+            </div>
+            <div className={`p-3 rounded-lg ${operation === "scan" ? "bg-red-500/20 border border-red-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white mb-2">Scan</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• Reads ALL items</li>
+                <li>• Reads: 1,000,000 items</li>
+                <li>• Cost: Very high RCU</li>
+                <li>• Time: Minutes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Query requires partition key, Scan reads entire table</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>FilterExpression applies AFTER items read (still consumes RCU)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use GSI for different query patterns, not Scan</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Parallel Scan for one-time exports of large tables</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// DYNAMODB ITEM SIZE EXPLAINER (Light)
+// ============================================================================
+export function DynamoDBItemSizeExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [itemSize, setItemSize] = useState(200)
+
+  const steps = [
+    {
+      title: "Item Size Limits",
+      description: "Maximum item size is 400 KB including attribute names. Plan data model to stay within limits."
+    },
+    {
+      title: "Calculating Size",
+      description: "Size = attribute names + values. Numbers are variable-length. Strings are UTF-8 bytes."
+    },
+    {
+      title: "Large Items",
+      description: "For large objects, store in S3 and save reference in DynamoDB. Common pattern for images/files."
+    },
+    {
+      title: "Size Impact",
+      description: "Larger items = more RCUs/WCUs. 1 WCU = 1 KB write, 1 RCU = 4 KB read."
+    }
+  ]
+
+  const sizeStatus = itemSize <= 400 ? "OK" : "TOO LARGE"
+  const wcuNeeded = Math.ceil(itemSize / 1)
+  const rcuNeeded = Math.ceil(itemSize / 4)
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">DynamoDB Item Size</h1>
+        <p className="text-slate-400">Understanding item size limits and capacity</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-700/50 rounded-xl p-4 mb-6">
+          <label className="text-sm text-slate-400 block mb-2">Item Size (KB)</label>
+          <input type="range" min="1" max="500" value={itemSize} onChange={(e) => setItemSize(Number(e.target.value))} className="w-full" />
+          <div className="text-center text-white font-mono mt-1">{itemSize} KB</div>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="relative h-8 bg-slate-800 rounded-full overflow-hidden mb-4">
+            <div className={`h-full transition-all ${itemSize <= 400 ? "bg-green-500" : "bg-red-500"}`} style={{ width: `${Math.min(100, (itemSize / 400) * 100)}%` }}></div>
+            <div className="absolute inset-0 flex items-center justify-center text-xs text-white">
+              {itemSize} KB / 400 KB max
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className={`p-3 rounded-lg text-center ${itemSize <= 400 ? "bg-green-500/20" : "bg-red-500/20"}`}>
+              <div className="text-xs text-slate-400">Status</div>
+              <div className={`text-lg font-bold ${itemSize <= 400 ? "text-green-400" : "text-red-400"}`}>{sizeStatus}</div>
+            </div>
+            <div className="bg-slate-800 p-3 rounded-lg text-center">
+              <div className="text-xs text-slate-400">WCU per Write</div>
+              <div className="text-lg font-mono text-blue-400">{wcuNeeded}</div>
+            </div>
+            <div className="bg-slate-800 p-3 rounded-lg text-center">
+              <div className="text-xs text-slate-400">RCU per Read</div>
+              <div className="text-lg font-mono text-purple-400">{rcuNeeded}</div>
+            </div>
+          </div>
+
+          {itemSize > 400 && (
+            <div className="mt-4 bg-yellow-500/20 border border-yellow-500 rounded p-3 text-yellow-400 text-sm">
+              💡 Store large data in S3 and reference in DynamoDB
+            </div>
+          )}
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Max item size: 400 KB (including attribute names)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>1 WCU = 1 KB write, 1 RCU = 4 KB strongly consistent read</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Store large objects in S3, reference in DynamoDB</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Short attribute names reduce item size</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// DYNAMODB BACKUP RESTORE EXPLAINER (Light)
+// ============================================================================
+export function DynamoDBBackupRestoreExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [backupType, setBackupType] = useState<"ondemand" | "pitr">("pitr")
+
+  const steps = [
+    {
+      title: "Backup Options",
+      description: "On-demand backups for snapshots, Point-in-time Recovery (PITR) for continuous backup with 35-day retention."
+    },
+    {
+      title: "Point-in-Time Recovery",
+      description: "Restore to any second within last 35 days. Enabled per table. Protects against accidental writes/deletes."
+    },
+    {
+      title: "On-Demand Backups",
+      description: "Manual snapshots retained indefinitely. Good for compliance, before migrations. No performance impact."
+    },
+    {
+      title: "Restore Process",
+      description: "Restores create NEW table (can&apos;t overwrite). Restore time depends on table size."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">DynamoDB Backup & Restore</h1>
+        <p className="text-slate-400">Protecting data with PITR and on-demand backups</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setBackupType("pitr")} className={`px-4 py-2 rounded-lg ${backupType === "pitr" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Point-in-Time Recovery</button>
+          <button onClick={() => setBackupType("ondemand")} className={`px-4 py-2 rounded-lg ${backupType === "ondemand" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>On-Demand Backup</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {backupType === "pitr" ? (
+            <div>
+              <div className="text-sm text-slate-400 mb-3">35-Day Rolling Window</div>
+              <div className="relative h-8 bg-slate-800 rounded mb-4">
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-green-500/30 rounded-l"></div>
+                <div className="absolute inset-0 flex items-center px-2">
+                  <div className="flex-1 h-1 bg-gradient-to-r from-green-500 to-green-500/20"></div>
+                </div>
+                <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">35 days ago</div>
+              </div>
+              <div className="text-center text-sm text-green-400">Restore to any second in the window</div>
+            </div>
+          ) : (
+            <div>
+              <div className="text-sm text-slate-400 mb-3">Manual Snapshots</div>
+              <div className="flex gap-4 justify-center">
+                <div className="bg-blue-500/20 rounded p-3 text-center">
+                  <div className="text-2xl">📸</div>
+                  <div className="text-xs text-slate-400">Jan 1</div>
+                </div>
+                <div className="bg-blue-500/20 rounded p-3 text-center">
+                  <div className="text-2xl">📸</div>
+                  <div className="text-xs text-slate-400">Feb 15</div>
+                </div>
+                <div className="bg-blue-500/20 rounded p-3 text-center">
+                  <div className="text-2xl">📸</div>
+                  <div className="text-xs text-slate-400">Mar 1</div>
+                </div>
+              </div>
+              <div className="text-center text-sm text-blue-400 mt-3">Retained indefinitely until deleted</div>
+            </div>
+          )}
+
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div className={`p-3 rounded-lg ${backupType === "pitr" ? "bg-green-500/20 border border-green-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white">PITR</div>
+              <ul className="text-xs text-slate-400 space-y-1 mt-2">
+                <li>• 35-day retention</li>
+                <li>• Per-second granularity</li>
+                <li>• Automatic, continuous</li>
+                <li>• Storage cost applies</li>
+              </ul>
+            </div>
+            <div className={`p-3 rounded-lg ${backupType === "ondemand" ? "bg-blue-500/20 border border-blue-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white">On-Demand</div>
+              <ul className="text-xs text-slate-400 space-y-1 mt-2">
+                <li>• Infinite retention</li>
+                <li>• Manual trigger</li>
+                <li>• No performance impact</li>
+                <li>• Good for compliance</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>PITR: 35-day retention, restore to any second</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>On-demand: manual, retained indefinitely</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Restore always creates NEW table</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>No performance impact during backup</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 export const dynamodbExplainers = {
@@ -1398,4 +1999,9 @@ export const dynamodbExplainers = {
   "dynamodb-global-tables": DynamoDBGlobalTablesExplainer,
   "dynamodb-sort-keys": DynamoDBSortKeysExplainer,
   "dynamodb-auto-scaling": DynamoDBAutoScalingExplainer,
+  "dynamodb-conditional-writes": DynamoDBConditionalWritesExplainer,
+  "dynamodb-batch-operations": DynamoDBBatchOperationsExplainer,
+  "dynamodb-query-scan": DynamoDBQueryScanExplainer,
+  "dynamodb-item-size": DynamoDBItemSizeExplainer,
+  "dynamodb-backup-restore": DynamoDBBackupRestoreExplainer,
 }
