@@ -808,6 +808,718 @@ export function IAMConditionsExplainer() {
 }
 
 // ============================================================================
+// SERVICE CONTROL POLICIES EXPLAINER (Medium)
+// ============================================================================
+export function IAMSCPsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What are SCPs?", description: "Service Control Policies - permission guardrails for AWS Organizations. Limit what member accounts can do." },
+    { title: "How SCPs Work", description: "SCPs don't grant permissions - they set maximum available permissions. Like a ceiling." },
+    { title: "Inheritance", description: "SCPs cascade down the organization tree. Account inherits from all parent OUs." },
+    { title: "Management Account", description: "SCPs do NOT affect the management (master) account. Management always has full access." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Service Control Policies (SCPs)</h1>
+        <p className="text-slate-400">Organization-wide permission guardrails</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Org hierarchy */}
+          <div className="flex flex-col items-center">
+            <div className="bg-yellow-500 rounded p-2 text-black text-xs font-medium">Root</div>
+            <div className="w-px h-4 bg-slate-600"></div>
+            <div className="flex gap-8">
+              <div className="flex flex-col items-center">
+                <div className="bg-blue-500 rounded p-2 text-white text-xs">OU: Production</div>
+                <div className="text-xs text-slate-400 mt-1">SCP: No delete</div>
+                <div className="w-px h-4 bg-slate-600"></div>
+                <div className="bg-green-500 rounded p-2 text-white text-xs">Account A</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-purple-500 rounded p-2 text-white text-xs">OU: Dev</div>
+                <div className="text-xs text-slate-400 mt-1">SCP: Full access</div>
+                <div className="w-px h-4 bg-slate-600"></div>
+                <div className="bg-green-500 rounded p-2 text-white text-xs">Account B</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Effective permissions */}
+          <div className="mt-4 p-3 bg-slate-800 rounded">
+            <div className="text-xs text-slate-400 mb-2">Effective Permissions Formula:</div>
+            <div className="text-xs text-center">
+              <span className="text-blue-400">IAM Policy</span>
+              <span className="text-slate-400"> ∩ </span>
+              <span className="text-orange-400">SCP</span>
+              <span className="text-slate-400"> = </span>
+              <span className="text-green-400">Effective Access</span>
+            </div>
+          </div>
+
+          <div className="mt-4 p-2 bg-red-500/10 border border-red-500/30 rounded text-center text-xs text-red-400">
+            ⚠️ SCPs do NOT apply to the management account
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>SCPs limit permissions, don&apos;t grant them</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Do NOT affect management account</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Inherit down the OU/account hierarchy</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Affect all users including root user in member accounts</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// IAM GROUPS EXPLAINER (Light)
+// ============================================================================
+export function IAMGroupsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What are IAM Groups?", description: "Collection of IAM users. Attach policies to group - all members get those permissions." },
+    { title: "Benefits", description: "Manage permissions at scale. Add/remove users from groups instead of changing individual policies." },
+    { title: "Limitations", description: "Groups can&apos;t be nested (no groups within groups). Users can belong to multiple groups." },
+    { title: "Best Practices", description: "Create groups by job function (Admins, Developers, Auditors). Use groups instead of attaching policies to users." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">IAM Groups</h1>
+        <p className="text-slate-400">Organizing users and permissions</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex justify-center gap-8">
+            {/* Groups with users */}
+            <div className="text-center">
+              <div className="bg-blue-500 rounded-lg p-3 text-white mb-2">
+                <div className="text-xs font-medium">Admins</div>
+                <div className="text-[10px]">AdministratorAccess</div>
+              </div>
+              <div className="flex gap-1 justify-center">
+                <div className="bg-slate-700 rounded w-6 h-6 text-xs flex items-center justify-center">👤</div>
+                <div className="bg-slate-700 rounded w-6 h-6 text-xs flex items-center justify-center">👤</div>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-500 rounded-lg p-3 text-white mb-2">
+                <div className="text-xs font-medium">Developers</div>
+                <div className="text-[10px]">PowerUserAccess</div>
+              </div>
+              <div className="flex gap-1 justify-center">
+                <div className="bg-slate-700 rounded w-6 h-6 text-xs flex items-center justify-center">👤</div>
+                <div className="bg-slate-700 rounded w-6 h-6 text-xs flex items-center justify-center">👤</div>
+                <div className="bg-slate-700 rounded w-6 h-6 text-xs flex items-center justify-center">👤</div>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-500 rounded-lg p-3 text-white mb-2">
+                <div className="text-xs font-medium">Auditors</div>
+                <div className="text-[10px]">ReadOnlyAccess</div>
+              </div>
+              <div className="flex gap-1 justify-center">
+                <div className="bg-slate-700 rounded w-6 h-6 text-xs flex items-center justify-center">👤</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="bg-green-500/20 rounded p-2 text-xs text-center">
+              <div className="text-green-400">✓ Can</div>
+              <div className="text-slate-300">Users in multiple groups</div>
+            </div>
+            <div className="bg-red-500/20 rounded p-2 text-xs text-center">
+              <div className="text-red-400">✗ Cannot</div>
+              <div className="text-slate-300">Nest groups</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Groups CANNOT be nested</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Users can belong to multiple groups</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Best practice: use groups, not individual user policies</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Groups are not &quot;identities&quot; - can&apos;t be principals in policies</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// IAM MFA EXPLAINER (Light)
+// ============================================================================
+export function IAMMFAExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What is MFA?", description: "Multi-Factor Authentication - requires second factor beyond password. Something you know + something you have." },
+    { title: "MFA Types", description: "Virtual MFA (app), Hardware TOTP, U2F Security Key, Hardware key fob for GovCloud." },
+    { title: "Enforcing MFA", description: "Use IAM policy conditions: aws:MultiFactorAuthPresent = true. Or require MFA for console sign-in." },
+    { title: "Best Practices", description: "Always enable MFA for root account and privileged users. Use hardware MFA for highest security." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">IAM Multi-Factor Authentication</h1>
+        <p className="text-slate-400">Enhanced security for AWS access</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* MFA Types */}
+          <div className="grid grid-cols-4 gap-3 mb-4">
+            <div className="bg-blue-500/20 rounded p-3 text-center">
+              <div className="text-2xl mb-1">📱</div>
+              <div className="text-xs text-blue-400">Virtual MFA</div>
+              <div className="text-[10px] text-slate-400">Google Auth, Authy</div>
+            </div>
+            <div className="bg-green-500/20 rounded p-3 text-center">
+              <div className="text-2xl mb-1">🔐</div>
+              <div className="text-xs text-green-400">Hardware TOTP</div>
+              <div className="text-[10px] text-slate-400">Gemalto token</div>
+            </div>
+            <div className="bg-purple-500/20 rounded p-3 text-center">
+              <div className="text-2xl mb-1">🔑</div>
+              <div className="text-xs text-purple-400">U2F Key</div>
+              <div className="text-[10px] text-slate-400">YubiKey</div>
+            </div>
+            <div className="bg-orange-500/20 rounded p-3 text-center">
+              <div className="text-2xl mb-1">🏛️</div>
+              <div className="text-xs text-orange-400">GovCloud</div>
+              <div className="text-[10px] text-slate-400">Special key fob</div>
+            </div>
+          </div>
+
+          {/* Auth flow */}
+          <div className="flex items-center justify-center gap-4">
+            <div className="bg-slate-800 rounded p-2 text-xs text-center">
+              <div>Password</div>
+              <div className="text-slate-500">Something you know</div>
+            </div>
+            <div className="text-slate-400 text-lg">+</div>
+            <div className="bg-slate-800 rounded p-2 text-xs text-center">
+              <div>MFA Code</div>
+              <div className="text-slate-500">Something you have</div>
+            </div>
+            <div className="text-slate-400">=</div>
+            <div className="bg-green-500 rounded p-2 text-xs text-white text-center">
+              Access ✓
+            </div>
+          </div>
+
+          <div className="mt-4 p-2 bg-red-500/10 border border-red-500/30 rounded text-center text-xs text-red-400">
+            ⚠️ ALWAYS enable MFA for root account!
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Virtual MFA: most common, one device per user</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>U2F security keys: phishing resistant, recommended</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use aws:MultiFactorAuthPresent condition to enforce</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Root MFA: use hardware MFA if possible</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// IAM ACCESS KEYS EXPLAINER (Medium)
+// ============================================================================
+export function IAMAccessKeysExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What are Access Keys?", description: "Long-term credentials for programmatic access. Access Key ID + Secret Access Key pair." },
+    { title: "Best Practices", description: "Rotate regularly. Never embed in code. Use IAM roles for services. Max 2 keys per user." },
+    { title: "Key Rotation", description: "Create new key, update applications, test, then delete old key. Keep transition period short." },
+    { title: "Alternatives", description: "Use IAM roles when possible (EC2, Lambda). Use temporary credentials from STS." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">IAM Access Keys</h1>
+        <p className="text-slate-400">Programmatic AWS access credentials</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Access key structure */}
+          <div className="bg-slate-800 rounded p-4 font-mono text-xs mb-4">
+            <div className="mb-2">
+              <span className="text-slate-400">Access Key ID: </span>
+              <span className="text-blue-400">AKIAIOSFODNN7EXAMPLE</span>
+            </div>
+            <div>
+              <span className="text-slate-400">Secret Access Key: </span>
+              <span className="text-green-400">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
+            </div>
+          </div>
+
+          {/* Key states */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-green-500/20 rounded p-2 text-xs text-center">
+              <div className="text-green-400 font-medium">Active</div>
+              <div className="text-slate-400">In use</div>
+            </div>
+            <div className="bg-orange-500/20 rounded p-2 text-xs text-center">
+              <div className="text-orange-400 font-medium">Inactive</div>
+              <div className="text-slate-400">Temporarily disabled</div>
+            </div>
+            <div className="bg-red-500/20 rounded p-2 text-xs text-center">
+              <div className="text-red-400 font-medium">Deleted</div>
+              <div className="text-slate-400">Permanent removal</div>
+            </div>
+          </div>
+
+          {/* Rotation flow */}
+          <div className="p-3 bg-slate-800 rounded">
+            <div className="text-xs text-slate-400 mb-2">Key Rotation Steps:</div>
+            <div className="flex items-center justify-center gap-2 text-xs">
+              <div className="bg-blue-500 rounded px-2 py-1 text-white">1. Create new</div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-green-500 rounded px-2 py-1 text-white">2. Update apps</div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-orange-500 rounded px-2 py-1 text-white">3. Test</div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-red-500 rounded px-2 py-1 text-white">4. Delete old</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Max 2 access keys per user (for rotation)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Never put access keys in code or commit to repos</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Prefer IAM roles over access keys when possible</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Rotate access keys regularly (90 days recommended)</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// IAM RESOURCE-BASED POLICIES EXPLAINER (Medium)
+// ============================================================================
+export function IAMResourceBasedPoliciesExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Resource-Based Policies", description: "Policies attached to resources (S3, Lambda, etc) instead of identities. Specify who can access." },
+    { title: "Principal Element", description: "Resource policies have Principal - specifies who is allowed/denied. Not in identity policies." },
+    { title: "Cross-Account Access", description: "Resource policies enable direct cross-account access without assuming a role." },
+    { title: "When to Use", description: "S3 buckets, Lambda functions, SNS topics, SQS queues, KMS keys. Simpler for resource sharing." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Resource-Based Policies</h1>
+        <p className="text-slate-400">Policies attached to AWS resources</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Comparison */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-blue-500/20 rounded p-3">
+              <div className="text-sm font-medium text-blue-400 mb-2">Identity-Based</div>
+              <div className="text-xs text-slate-300 mb-2">Attached to user/role/group</div>
+              <pre className="bg-slate-800 p-2 rounded text-[10px] text-green-400">{`{
+  "Action": "s3:GetObject",
+  "Resource": "arn:aws:s3:::bucket/*"
+}`}</pre>
+            </div>
+            <div className="bg-orange-500/20 rounded p-3">
+              <div className="text-sm font-medium text-orange-400 mb-2">Resource-Based</div>
+              <div className="text-xs text-slate-300 mb-2">Attached to resource</div>
+              <pre className="bg-slate-800 p-2 rounded text-[10px] text-green-400">{`{
+  "Principal": {"AWS": "arn:aws:iam::123:user/Bob"},
+  "Action": "s3:GetObject",
+  "Resource": "*"
+}`}</pre>
+            </div>
+          </div>
+
+          {/* Services that support resource policies */}
+          <div className="p-3 bg-slate-800 rounded">
+            <div className="text-xs text-slate-400 mb-2">Services with Resource-Based Policies:</div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <div className="bg-green-500 rounded px-2 py-1 text-white text-xs">S3</div>
+              <div className="bg-orange-500 rounded px-2 py-1 text-white text-xs">Lambda</div>
+              <div className="bg-purple-500 rounded px-2 py-1 text-white text-xs">SNS</div>
+              <div className="bg-blue-500 rounded px-2 py-1 text-white text-xs">SQS</div>
+              <div className="bg-yellow-500 rounded px-2 py-1 text-black text-xs">KMS</div>
+              <div className="bg-pink-500 rounded px-2 py-1 text-white text-xs">ECR</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Resource policies have &quot;Principal&quot; - identity policies don&apos;t</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Cross-account: no role assumption needed</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Not all services support resource policies</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Same-account: identity OR resource policy Allow works</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// IAM POLICY SIMULATOR EXPLAINER (Light)
+// ============================================================================
+export function IAMPolicySimulatorExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What is Policy Simulator?", description: "AWS tool to test and troubleshoot IAM policies before applying them in production." },
+    { title: "How It Works", description: "Select user/role/group, choose actions/resources, simulate. Shows allowed/denied with reason." },
+    { title: "Use Cases", description: "Test new policies, troubleshoot access denied errors, validate least privilege, compliance checks." },
+    { title: "Access Methods", description: "Console at policysim.aws.amazon.com, CLI: aws iam simulate-*, or API calls." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">IAM Policy Simulator</h1>
+        <p className="text-slate-400">Test policies before applying</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Simulator flow */}
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="bg-blue-500 rounded p-3 text-white text-xs text-center">
+              <div className="text-lg mb-1">👤</div>
+              Select Identity
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="bg-orange-500 rounded p-3 text-white text-xs text-center">
+              <div className="text-lg mb-1">⚙️</div>
+              Choose Action
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="bg-purple-500 rounded p-3 text-white text-xs text-center">
+              <div className="text-lg mb-1">🎯</div>
+              Specify Resource
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="bg-green-500 rounded p-3 text-white text-xs text-center">
+              <div className="text-lg mb-1">✓/✗</div>
+              See Result
+            </div>
+          </div>
+
+          {/* Example output */}
+          <div className="bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">Example Simulation Result:</div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="bg-green-500 text-white px-2 py-0.5 rounded">allowed</span>
+                <span className="text-slate-300">s3:GetObject on bucket-prod/*</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="bg-red-500 text-white px-2 py-0.5 rounded">denied</span>
+                <span className="text-slate-300">s3:DeleteObject - implicit deny</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="bg-red-500 text-white px-2 py-0.5 rounded">denied</span>
+                <span className="text-slate-300">ec2:TerminateInstances - explicit deny in SCP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Test policies BEFORE applying to production</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Shows which policy caused allow/deny</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Available as console, CLI, and API</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use for troubleshooting access denied errors</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// IAM IDENTITY CENTER EXPLAINER (Medium)
+// ============================================================================
+export function IAMIdentityCenterExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "What is IAM Identity Center?", description: "Successor to AWS SSO. Centrally manage workforce access to multiple AWS accounts and apps." },
+    { title: "Identity Sources", description: "Built-in directory, Active Directory, or external IdP (Okta, Azure AD). Single sign-on." },
+    { title: "Permission Sets", description: "Collections of policies attached to users/groups. Defines access for AWS accounts." },
+    { title: "Benefits", description: "One login for all accounts, centralized management, integrates with Organizations, SAML 2.0." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">AWS IAM Identity Center</h1>
+        <p className="text-slate-400">Centralized workforce access management</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* Architecture */}
+          <div className="flex items-start justify-center gap-4 mb-4">
+            {/* Identity Source */}
+            <div className="bg-blue-500/20 rounded p-3 text-center">
+              <div className="text-xs text-blue-400 mb-2">Identity Source</div>
+              <div className="space-y-1">
+                <div className="bg-slate-700 rounded px-2 py-1 text-xs text-slate-300">Built-in</div>
+                <div className="bg-slate-700 rounded px-2 py-1 text-xs text-slate-300">Active Directory</div>
+                <div className="bg-slate-700 rounded px-2 py-1 text-xs text-slate-300">External IdP</div>
+              </div>
+            </div>
+
+            <div className="text-slate-400 self-center">→</div>
+
+            {/* Identity Center */}
+            <div className="bg-purple-500 rounded-lg p-4 text-white text-center">
+              <div className="text-lg mb-1">🔐</div>
+              <div className="text-xs">IAM Identity Center</div>
+              <div className="text-[10px]">Permission Sets</div>
+            </div>
+
+            <div className="text-slate-400 self-center">→</div>
+
+            {/* Accounts */}
+            <div className="bg-green-500/20 rounded p-3 text-center">
+              <div className="text-xs text-green-400 mb-2">AWS Accounts</div>
+              <div className="space-y-1">
+                <div className="bg-green-500 rounded px-2 py-1 text-xs text-white">Production</div>
+                <div className="bg-green-500 rounded px-2 py-1 text-xs text-white">Development</div>
+                <div className="bg-green-500 rounded px-2 py-1 text-xs text-white">Staging</div>
+              </div>
+            </div>
+          </div>
+
+          {/* User flow */}
+          <div className="p-3 bg-slate-800 rounded">
+            <div className="text-xs text-slate-400 mb-2">User Access Flow:</div>
+            <div className="flex items-center justify-center gap-2 text-xs">
+              <div className="bg-blue-500 rounded px-2 py-1 text-white">Login</div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-purple-500 rounded px-2 py-1 text-white">Portal</div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-green-500 rounded px-2 py-1 text-white">Select Account</div>
+              <div className="text-slate-400">→</div>
+              <div className="bg-orange-500 rounded px-2 py-1 text-white">Console/CLI</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Formerly AWS SSO - now IAM Identity Center</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Integrates with AWS Organizations</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Permission Sets define access to accounts</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Supports AD, Okta, Azure AD, and built-in directory</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 export const iamExplainers = {
@@ -819,4 +1531,11 @@ export const iamExplainers = {
   "iam-instance-profiles": IAMInstanceProfilesExplainer,
   "iam-sts": IAMSTSExplainer,
   "iam-conditions": IAMConditionsExplainer,
+  "iam-scps": IAMSCPsExplainer,
+  "iam-groups": IAMGroupsExplainer,
+  "iam-mfa": IAMMFAExplainer,
+  "iam-access-keys": IAMAccessKeysExplainer,
+  "iam-resource-based-policies": IAMResourceBasedPoliciesExplainer,
+  "iam-policy-simulator": IAMPolicySimulatorExplainer,
+  "iam-identity-center": IAMIdentityCenterExplainer,
 }
