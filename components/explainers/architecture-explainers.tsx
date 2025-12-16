@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Layers, RefreshCw, Globe, Shield, Zap, Database } from "lucide-react"
+import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Layers, RefreshCw, Globe, Shield, Zap, Database, Cloud, Server, ArrowRight, GitBranch, CircleAlert, DollarSign, Repeat, Lock, HardDrive, Copy } from "lucide-react"
 
 // 1. Serverless Architecture Explainer (Rich)
 export function ServerlessArchitectureExplainer() {
@@ -867,6 +867,1753 @@ export function WellArchitectedPillarsExplainer() {
   )
 }
 
+// 7. Blue-Green Deployment Explainer
+export function BlueGreenDeploymentExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [activeEnv, setActiveEnv] = useState<"blue" | "green">("blue")
+
+  const steps = [
+    { title: "Blue-Green Deployment", description: "Zero-downtime deployments by maintaining two identical environments" },
+    { title: "Blue Environment", description: "Current production running stable version" },
+    { title: "Green Environment", description: "Deploy new version to green, test thoroughly" },
+    { title: "Switch Traffic", description: "Route 53 or ALB switches traffic instantly" },
+    { title: "Rollback", description: "If issues, switch back to blue immediately" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <GitBranch className="w-8 h-8 text-green-400" />
+        <h2 className="text-2xl font-bold text-white">Blue-Green Deployment</h2>
+      </div>
+
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={() => setActiveEnv(activeEnv === "blue" ? "green" : "blue")}
+          className="px-6 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white font-medium"
+        >
+          Switch to {activeEnv === "blue" ? "Green" : "Blue"}
+        </button>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-center gap-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+              <span className="text-2xl">👥</span>
+            </div>
+            <span className="text-sm text-gray-400">Users</span>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+              <Globe className="w-8 h-8 text-white" />
+            </div>
+            <span className="text-sm text-gray-400">Route 53</span>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className={`p-4 rounded-lg border-2 transition-all ${
+              activeEnv === "blue" ? "border-blue-500 bg-blue-900/30" : "border-gray-600 bg-gray-700 opacity-50"
+            }`}>
+              <div className="text-blue-400 font-semibold mb-2">Blue (v1.0)</div>
+              <div className="flex gap-2">
+                <div className="w-10 h-10 bg-blue-600 rounded flex items-center justify-center">
+                  <Server className="w-5 h-5 text-white" />
+                </div>
+                <div className="w-10 h-10 bg-blue-600 rounded flex items-center justify-center">
+                  <Server className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            </div>
+
+            <div className={`p-4 rounded-lg border-2 transition-all ${
+              activeEnv === "green" ? "border-green-500 bg-green-900/30" : "border-gray-600 bg-gray-700 opacity-50"
+            }`}>
+              <div className="text-green-400 font-semibold mb-2">Green (v2.0)</div>
+              <div className="flex gap-2">
+                <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                  <Server className="w-5 h-5 text-white" />
+                </div>
+                <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                  <Server className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 bg-gray-700 rounded-lg p-4 text-center">
+          <span className={`text-lg font-semibold ${activeEnv === "blue" ? "text-blue-400" : "text-green-400"}`}>
+            Traffic → {activeEnv.charAt(0).toUpperCase() + activeEnv.slice(1)} Environment
+          </span>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-green-900/50 to-blue-900/50 rounded-xl p-4 border border-green-500/30">
+        <h3 className="text-lg font-semibold text-green-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Zero downtime with instant rollback capability</li>
+          <li>• Requires 2x infrastructure during deployment</li>
+          <li>• Use Route 53 weighted or ALB for traffic switching</li>
+          <li>• Elastic Beanstalk supports blue-green natively</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 8. Canary Deployment Explainer
+export function CanaryDeploymentExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [canaryPercent, setCanaryPercent] = useState(10)
+
+  const steps = [
+    { title: "Canary Deployment", description: "Gradually roll out changes to a small subset of users first" },
+    { title: "Initial Canary", description: "Route 5-10% of traffic to new version" },
+    { title: "Monitor Metrics", description: "Watch error rates, latency, and business metrics" },
+    { title: "Gradual Rollout", description: "Increase traffic to 25%, 50%, 100% if healthy" },
+    { title: "Rollback", description: "Route back to 100% old version if issues detected" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <GitBranch className="w-8 h-8 text-yellow-400" />
+        <h2 className="text-2xl font-bold text-white">Canary Deployment</h2>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Canary Traffic: {canaryPercent}%
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="10"
+          value={canaryPercent}
+          onChange={(e) => setCanaryPercent(parseInt(e.target.value))}
+          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 bg-blue-600 rounded-l-lg p-4 text-center" style={{ width: `${100 - canaryPercent}%` }}>
+            <div className="text-white font-semibold">v1.0 (Stable)</div>
+            <div className="text-blue-200 text-sm">{100 - canaryPercent}% traffic</div>
+          </div>
+          {canaryPercent > 0 && (
+            <div className="bg-yellow-600 rounded-r-lg p-4 text-center" style={{ width: `${canaryPercent}%`, minWidth: "80px" }}>
+              <div className="text-white font-semibold">v2.0</div>
+              <div className="text-yellow-200 text-sm">{canaryPercent}%</div>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="text-sm font-semibold text-blue-400 mb-2">Stable (v1.0)</div>
+            <div className="flex gap-1 flex-wrap">
+              {Array(Math.round((100 - canaryPercent) / 10)).fill(0).map((_, i) => (
+                <div key={i} className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                  <Server className="w-4 h-4 text-white" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="text-sm font-semibold text-yellow-400 mb-2">Canary (v2.0)</div>
+            <div className="flex gap-1 flex-wrap">
+              {Array(Math.round(canaryPercent / 10)).fill(0).map((_, i) => (
+                <div key={i} className="w-8 h-8 bg-yellow-600 rounded flex items-center justify-center">
+                  <Server className="w-4 h-4 text-white" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-yellow-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-yellow-900/50 to-orange-900/50 rounded-xl p-4 border border-yellow-500/30">
+        <h3 className="text-lg font-semibold text-yellow-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Lower risk than blue-green (gradual rollout)</li>
+          <li>• CodeDeploy supports canary with Lambda & ECS</li>
+          <li>• API Gateway canary releases for API testing</li>
+          <li>• CloudWatch alarms can trigger automatic rollback</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 9. Fan-Out Pattern Explainer
+export function FanOutPatternExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [messageCount, setMessageCount] = useState(0)
+
+  const steps = [
+    { title: "Fan-Out Pattern", description: "Distribute a single message to multiple consumers" },
+    { title: "SNS Topic", description: "Publisher sends one message to SNS topic" },
+    { title: "Multiple Subscribers", description: "SNS fans out to SQS queues, Lambda, HTTP endpoints" },
+    { title: "Parallel Processing", description: "Each subscriber processes independently" },
+    { title: "Decoupling", description: "Publisher doesn't know about subscribers" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageCount(c => c + 1)
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Copy className="w-8 h-8 text-orange-400" />
+        <h2 className="text-2xl font-bold text-white">Fan-Out Pattern (SNS + SQS)</h2>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+              <span className="text-white text-xs font-bold">Producer</span>
+            </div>
+            <div className="text-xs text-gray-400">1 message</div>
+          </div>
+
+          <div className="flex-1 mx-4 relative">
+            <div className="h-1 bg-orange-500 rounded animate-pulse" />
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-xs text-orange-400">
+              #{messageCount}
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+              <span className="text-2xl">📢</span>
+              <span className="text-white text-xs">SNS</span>
+            </div>
+          </div>
+
+          <div className="flex-1 mx-4">
+            <div className="space-y-3">
+              <div className="h-1 bg-green-500 rounded" />
+              <div className="h-1 bg-green-500 rounded" />
+              <div className="h-1 bg-green-500 rounded" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="w-16 h-14 bg-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">SQS</span>
+            </div>
+            <div className="w-16 h-14 bg-yellow-600 rounded-lg flex items-center justify-center">
+              <span className="text-xl">λ</span>
+            </div>
+            <div className="w-16 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">HTTP</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 bg-gray-700 rounded-lg p-4">
+          <div className="text-sm font-semibold text-gray-300 mb-2">Benefits</div>
+          <div className="grid grid-cols-3 gap-4 text-xs">
+            <div className="text-center">
+              <div className="text-green-400 font-semibold">Decoupled</div>
+              <div className="text-gray-400">Producers & consumers independent</div>
+            </div>
+            <div className="text-center">
+              <div className="text-green-400 font-semibold">Reliable</div>
+              <div className="text-gray-400">SQS ensures delivery</div>
+            </div>
+            <div className="text-center">
+              <div className="text-green-400 font-semibold">Scalable</div>
+              <div className="text-gray-400">Add subscribers anytime</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-orange-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 rounded-xl p-4 border border-orange-500/30">
+        <h3 className="text-lg font-semibold text-orange-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• SNS + SQS = reliable fan-out with buffering</li>
+          <li>• Each SQS queue processes independently</li>
+          <li>• Use for order processing, notifications, analytics</li>
+          <li>• SNS message filtering reduces unnecessary processing</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 10. Static Website Hosting Explainer
+export function StaticWebsiteHostingExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Static Website Hosting", description: "Host static websites on S3 with CloudFront CDN" },
+    { title: "S3 Bucket", description: "Store HTML, CSS, JS, images in S3 bucket" },
+    { title: "CloudFront", description: "Global CDN for low latency delivery" },
+    { title: "Route 53", description: "Custom domain with SSL certificate" },
+    { title: "Origin Access Control", description: "Secure S3 so only CloudFront can access" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Globe className="w-8 h-8 text-blue-400" />
+        <h2 className="text-2xl font-bold text-white">Static Website Hosting</h2>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="text-center">
+            <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+              <span className="text-xl">👤</span>
+            </div>
+            <span className="text-xs text-gray-400">User</span>
+          </div>
+
+          <ArrowRight className="w-6 h-6 text-gray-500" />
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+              <Globe className="w-8 h-8 text-white" />
+            </div>
+            <span className="text-xs text-gray-400">Route 53</span>
+          </div>
+
+          <ArrowRight className="w-6 h-6 text-gray-500" />
+
+          <div className="text-center">
+            <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2 relative">
+              <Cloud className="w-10 h-10 text-white" />
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                <Lock className="w-3 h-3 text-white" />
+              </div>
+            </div>
+            <span className="text-xs text-gray-400">CloudFront</span>
+          </div>
+
+          <ArrowRight className="w-6 h-6 text-gray-500" />
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2">
+              <span className="text-2xl">🪣</span>
+            </div>
+            <span className="text-xs text-gray-400">S3 (Private)</span>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="text-sm font-semibold text-green-400 mb-2">S3 Bucket Contents</div>
+            <div className="space-y-1 text-xs text-gray-300">
+              <div>📄 index.html</div>
+              <div>📁 css/styles.css</div>
+              <div>📁 js/app.js</div>
+              <div>🖼️ images/logo.png</div>
+            </div>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="text-sm font-semibold text-orange-400 mb-2">CloudFront Config</div>
+            <div className="space-y-1 text-xs text-gray-300">
+              <div>Origin: S3 with OAC</div>
+              <div>HTTPS: ACM Certificate</div>
+              <div>Cache: Optimized</div>
+              <div>Error Pages: Custom 404</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 rounded-xl p-4 border border-blue-500/30">
+        <h3 className="text-lg font-semibold text-blue-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Use OAC (not OAI) to secure S3 origin</li>
+          <li>• ACM certificate must be in us-east-1 for CloudFront</li>
+          <li>• Configure custom error pages (403→index.html for SPA)</li>
+          <li>• Enable versioning and lifecycle policies on S3</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 11. Cache-Aside Pattern Explainer
+export function CacheAsidePatternExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [cacheHit, setCacheHit] = useState(true)
+
+  const steps = [
+    { title: "Cache-Aside Pattern", description: "Application manages cache population (lazy loading)" },
+    { title: "Cache Hit", description: "Data found in cache, return immediately" },
+    { title: "Cache Miss", description: "Data not in cache, fetch from database" },
+    { title: "Populate Cache", description: "Store fetched data in cache for future requests" },
+    { title: "TTL Expiration", description: "Cache entries expire, ensuring data freshness" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Zap className="w-8 h-8 text-red-400" />
+        <h2 className="text-2xl font-bold text-white">Cache-Aside Pattern</h2>
+      </div>
+
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={() => setCacheHit(!cacheHit)}
+          className={`px-6 py-2 rounded-lg font-medium transition-all ${
+            cacheHit ? "bg-green-600 text-white" : "bg-yellow-600 text-white"
+          }`}
+        >
+          {cacheHit ? "Cache Hit" : "Cache Miss"}
+        </button>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+              <span className="text-white text-xs font-bold">App</span>
+            </div>
+          </div>
+
+          <div className="flex-1 mx-4">
+            <div className="text-center text-xs text-gray-400 mb-1">1. Check cache</div>
+            <div className="h-1 bg-green-500 rounded" />
+          </div>
+
+          <div className="text-center">
+            <div className={`w-20 h-20 rounded-lg flex flex-col items-center justify-center mb-2 ${
+              cacheHit ? "bg-green-600" : "bg-gray-600"
+            }`}>
+              <Zap className="w-8 h-8 text-white" />
+              <span className="text-white text-xs">ElastiCache</span>
+            </div>
+            <span className={`text-xs ${cacheHit ? "text-green-400" : "text-yellow-400"}`}>
+              {cacheHit ? "HIT!" : "MISS"}
+            </span>
+          </div>
+
+          {!cacheHit && (
+            <>
+              <div className="flex-1 mx-4">
+                <div className="text-center text-xs text-gray-400 mb-1">2. Fetch from DB</div>
+                <div className="h-1 bg-yellow-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">RDS</span>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-4">
+            <div className="text-sm font-semibold text-green-400 mb-2">Cache Hit Flow</div>
+            <div className="text-xs text-gray-300 space-y-1">
+              <div>1. App checks ElastiCache</div>
+              <div>2. Data found → return</div>
+              <div className="text-green-400">Latency: ~1ms</div>
+            </div>
+          </div>
+          <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4">
+            <div className="text-sm font-semibold text-yellow-400 mb-2">Cache Miss Flow</div>
+            <div className="text-xs text-gray-300 space-y-1">
+              <div>1. App checks ElastiCache</div>
+              <div>2. Miss → query RDS</div>
+              <div>3. Store result in cache</div>
+              <div className="text-yellow-400">Latency: ~50-100ms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-red-900/50 to-orange-900/50 rounded-xl p-4 border border-red-500/30">
+        <h3 className="text-lg font-semibold text-red-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Cache-aside = lazy loading (app manages cache)</li>
+          <li>• ElastiCache Redis or Memcached</li>
+          <li>• Set appropriate TTL to balance freshness vs hit rate</li>
+          <li>• Consider write-through for write-heavy workloads</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 12. Read Replica Pattern Explainer
+export function ReadReplicaPatternExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Read Replica Pattern", description: "Scale read operations with asynchronous replicas" },
+    { title: "Primary Instance", description: "Handles all write operations" },
+    { title: "Read Replicas", description: "Handle read traffic, reduce primary load" },
+    { title: "Async Replication", description: "Data replicated asynchronously (slight lag)" },
+    { title: "Cross-Region", description: "Replicas can be in different regions for DR" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Database className="w-8 h-8 text-blue-400" />
+        <h2 className="text-2xl font-bold text-white">Read Replica Pattern</h2>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-center gap-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+              <span className="text-white text-xs font-bold">App</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-8">
+            <div className="flex items-center gap-4">
+              <div className="text-xs text-green-400 w-16">Writes</div>
+              <ArrowRight className="w-6 h-6 text-green-500" />
+              <div className="p-4 bg-green-900/30 border-2 border-green-500 rounded-lg">
+                <div className="text-green-400 font-semibold mb-2">Primary</div>
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="text-xs text-blue-400 w-16">Reads</div>
+              <ArrowRight className="w-6 h-6 text-blue-500" />
+              <div className="p-4 bg-blue-900/30 border-2 border-blue-500 rounded-lg">
+                <div className="text-blue-400 font-semibold mb-2">Read Replicas</div>
+                <div className="flex gap-2">
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <Database className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <Database className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <Database className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 bg-gray-700 rounded-lg p-4">
+          <div className="grid grid-cols-3 gap-4 text-center text-sm">
+            <div>
+              <div className="text-green-400 font-semibold">Up to 15</div>
+              <div className="text-xs text-gray-400">Aurora replicas</div>
+            </div>
+            <div>
+              <div className="text-blue-400 font-semibold">Up to 5</div>
+              <div className="text-xs text-gray-400">RDS replicas</div>
+            </div>
+            <div>
+              <div className="text-yellow-400 font-semibold">Cross-Region</div>
+              <div className="text-xs text-gray-400">DR support</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 rounded-xl p-4 border border-blue-500/30">
+        <h3 className="text-lg font-semibold text-blue-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Aurora: up to 15 replicas, RDS: up to 5</li>
+          <li>• Async replication = eventual consistency</li>
+          <li>• Replicas can be promoted to primary for DR</li>
+          <li>• Use connection pooling (RDS Proxy) for scaling</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 13. Decoupled Architecture Explainer
+export function DecoupledArchitectureExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [queueDepth, setQueueDepth] = useState(5)
+
+  const steps = [
+    { title: "Decoupled Architecture", description: "Loosely coupled components communicate via queues" },
+    { title: "Producer", description: "Sends messages to queue, doesn't wait for processing" },
+    { title: "SQS Queue", description: "Buffers messages, handles traffic spikes" },
+    { title: "Consumer", description: "Processes messages at its own pace" },
+    { title: "Scaling", description: "Scale consumers independently based on queue depth" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Repeat className="w-8 h-8 text-purple-400" />
+        <h2 className="text-2xl font-bold text-white">Decoupled Architecture</h2>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Queue Depth: {queueDepth} messages
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="20"
+          value={queueDepth}
+          onChange={(e) => setQueueDepth(parseInt(e.target.value))}
+          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+              <span className="text-white text-xs font-bold">Producer</span>
+            </div>
+            <div className="text-xs text-gray-400">API / Lambda</div>
+          </div>
+
+          <div className="flex-1 mx-4">
+            <div className="h-1 bg-purple-500 rounded animate-pulse" />
+          </div>
+
+          <div className="text-center">
+            <div className="w-24 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2">
+              <span className="text-xl">📬</span>
+              <span className="text-white text-xs">SQS</span>
+              <span className="text-purple-200 text-xs">{queueDepth} msgs</span>
+            </div>
+          </div>
+
+          <div className="flex-1 mx-4">
+            <div className="h-1 bg-green-500 rounded" />
+          </div>
+
+          <div className="text-center">
+            <div className="flex gap-1">
+              {Array(Math.max(1, Math.min(5, Math.ceil(queueDepth / 4)))).fill(0).map((_, i) => (
+                <div key={i} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xl">λ</span>
+                </div>
+              ))}
+            </div>
+            <div className="text-xs text-gray-400 mt-2">Consumers (auto-scaled)</div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3 text-center">
+            <div className="text-blue-400 font-semibold text-sm">Async</div>
+            <div className="text-xs text-gray-400">Non-blocking</div>
+          </div>
+          <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3 text-center">
+            <div className="text-purple-400 font-semibold text-sm">Buffered</div>
+            <div className="text-xs text-gray-400">Handle spikes</div>
+          </div>
+          <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-3 text-center">
+            <div className="text-green-400 font-semibold text-sm">Resilient</div>
+            <div className="text-xs text-gray-400">Retry on failure</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/30">
+        <h3 className="text-lg font-semibold text-purple-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• SQS decouples producers from consumers</li>
+          <li>• Dead-letter queue for failed messages</li>
+          <li>• Lambda scales based on queue depth</li>
+          <li>• Visibility timeout prevents duplicate processing</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 14. Global Architecture Explainer
+export function GlobalArchitectureExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Global Architecture", description: "Serve users worldwide with low latency" },
+    { title: "Multi-Region", description: "Deploy application in multiple AWS regions" },
+    { title: "Global Accelerator", description: "Use AWS backbone network for faster routing" },
+    { title: "Data Replication", description: "DynamoDB Global Tables, Aurora Global DB" },
+    { title: "DNS Routing", description: "Route 53 latency or geolocation routing" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Globe className="w-8 h-8 text-green-400" />
+        <h2 className="text-2xl font-bold text-white">Global Architecture</h2>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {[
+            { region: "us-east-1", label: "N. Virginia", users: "🇺🇸" },
+            { region: "eu-west-1", label: "Ireland", users: "🇪🇺" },
+            { region: "ap-northeast-1", label: "Tokyo", users: "🇯🇵" }
+          ].map((r, i) => (
+            <div key={i} className="bg-gray-700 rounded-lg p-4">
+              <div className="text-center mb-3">
+                <span className="text-2xl">{r.users}</span>
+              </div>
+              <div className="text-green-400 font-semibold text-sm text-center mb-2">{r.label}</div>
+              <div className="flex flex-col gap-2">
+                <div className="w-full h-8 bg-blue-600 rounded flex items-center justify-center">
+                  <span className="text-white text-xs">ALB + App</span>
+                </div>
+                <div className="w-full h-8 bg-purple-600 rounded flex items-center justify-center">
+                  <span className="text-white text-xs">DynamoDB</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex-1 h-1 bg-green-500 rounded" />
+          <div className="p-3 bg-orange-600 rounded-lg">
+            <Globe className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1 h-1 bg-green-500 rounded" />
+        </div>
+        <div className="text-center text-sm text-gray-400 mb-4">Global Accelerator / Route 53</div>
+
+        <div className="bg-gray-700 rounded-lg p-4">
+          <div className="text-sm font-semibold text-gray-300 mb-2">Data Replication Options</div>
+          <div className="grid grid-cols-2 gap-4 text-xs">
+            <div className="bg-purple-900/30 p-2 rounded">
+              <span className="text-purple-400 font-semibold">DynamoDB Global Tables</span>
+              <div className="text-gray-400">Multi-region, active-active</div>
+            </div>
+            <div className="bg-blue-900/30 p-2 rounded">
+              <span className="text-blue-400 font-semibold">Aurora Global Database</span>
+              <div className="text-gray-400">Cross-region read replicas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-green-900/50 to-teal-900/50 rounded-xl p-4 border border-green-500/30">
+        <h3 className="text-lg font-semibold text-green-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Global Accelerator: static IPs, AWS backbone</li>
+          <li>• CloudFront: content caching at edge</li>
+          <li>• DynamoDB Global Tables: active-active multi-region</li>
+          <li>• Route 53 latency routing for region selection</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 15. Hybrid Architecture Explainer
+export function HybridArchitectureExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Hybrid Architecture", description: "Connect on-premises infrastructure with AWS cloud" },
+    { title: "Site-to-Site VPN", description: "Encrypted tunnel over public internet" },
+    { title: "Direct Connect", description: "Dedicated private connection to AWS" },
+    { title: "Storage Gateway", description: "Hybrid cloud storage integration" },
+    { title: "Outposts", description: "AWS infrastructure on-premises" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Server className="w-8 h-8 text-blue-400" />
+        <h2 className="text-2xl font-bold text-white">Hybrid Architecture</h2>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="grid grid-cols-2 gap-8">
+          <div className="p-4 bg-gray-700 border-2 border-gray-500 rounded-lg">
+            <div className="text-gray-300 font-semibold mb-3 text-center">On-Premises</div>
+            <div className="flex justify-center gap-2 mb-4">
+              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                <Server className="w-6 h-6 text-white" />
+              </div>
+              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                <Database className="w-6 h-6 text-white" />
+              </div>
+              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                <HardDrive className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <div className="text-xs text-gray-400 text-center">Corporate Data Center</div>
+          </div>
+
+          <div className="p-4 bg-orange-900/20 border-2 border-orange-500 rounded-lg">
+            <div className="text-orange-400 font-semibold mb-3 text-center">AWS Cloud</div>
+            <div className="flex justify-center gap-2 mb-4">
+              <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">EC2</span>
+              </div>
+              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">RDS</span>
+              </div>
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">S3</span>
+              </div>
+            </div>
+            <div className="text-xs text-gray-400 text-center">AWS VPC</div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center my-4">
+          <div className="flex-1 h-2 bg-gradient-to-r from-gray-500 to-purple-500 rounded" />
+          <div className="mx-4 p-2 bg-purple-600 rounded-lg">
+            <Lock className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 h-2 bg-gradient-to-l from-orange-500 to-purple-500 rounded" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3">
+            <div className="text-sm font-semibold text-purple-400">Site-to-Site VPN</div>
+            <div className="text-xs text-gray-300 mt-1">Encrypted over internet, quick setup</div>
+          </div>
+          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+            <div className="text-sm font-semibold text-blue-400">Direct Connect</div>
+            <div className="text-xs text-gray-300 mt-1">Dedicated line, consistent latency</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-xl p-4 border border-blue-500/30">
+        <h3 className="text-lg font-semibold text-blue-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• VPN: quick, cheap, variable latency</li>
+          <li>• Direct Connect: consistent, high bandwidth, expensive</li>
+          <li>• Storage Gateway: file, volume, tape interfaces</li>
+          <li>• Outposts: AWS hardware in your data center</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 16. Cost Optimization Explainer
+export function CostOptimizationExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "Cost Optimization", description: "Reduce AWS spending while maintaining performance" },
+    { title: "Right Sizing", description: "Match instance types to actual workload needs" },
+    { title: "Reserved Capacity", description: "Commit to 1-3 year terms for up to 75% savings" },
+    { title: "Spot Instances", description: "Use spare capacity for up to 90% savings" },
+    { title: "Storage Tiering", description: "Move data to cheaper storage classes over time" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <DollarSign className="w-8 h-8 text-green-400" />
+        <h2 className="text-2xl font-bold text-white">Cost Optimization</h2>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="text-lg font-semibold text-green-400 mb-2">EC2 Pricing Options</div>
+            {[
+              { type: "On-Demand", savings: "0%", color: "gray", desc: "Pay as you go" },
+              { type: "Reserved", savings: "Up to 75%", color: "blue", desc: "1-3 year commit" },
+              { type: "Spot", savings: "Up to 90%", color: "green", desc: "Spare capacity" },
+              { type: "Savings Plans", savings: "Up to 72%", color: "purple", desc: "Flexible commitment" }
+            ].map((option, i) => (
+              <div key={i} className={`bg-${option.color}-900/30 border border-${option.color}-500/50 rounded-lg p-3 flex justify-between items-center`}
+                   style={{ backgroundColor: option.color === "gray" ? "rgba(75,85,99,0.3)" : undefined }}>
+                <div>
+                  <div className="font-semibold text-white">{option.type}</div>
+                  <div className="text-xs text-gray-400">{option.desc}</div>
+                </div>
+                <div className={`text-${option.color === "gray" ? "gray" : "green"}-400 font-bold`}>
+                  {option.savings}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            <div className="text-lg font-semibold text-blue-400 mb-2">S3 Storage Classes</div>
+            {[
+              { tier: "Standard", cost: "$$$", access: "Frequent" },
+              { tier: "IA", cost: "$$", access: "Infrequent" },
+              { tier: "Glacier IR", cost: "$", access: "Rare (ms)" },
+              { tier: "Glacier Deep", cost: "¢", access: "Archive (hrs)" }
+            ].map((tier, i) => (
+              <div key={i} className="bg-gray-700 rounded-lg p-3 flex justify-between items-center">
+                <div>
+                  <div className="font-semibold text-white">{tier.tier}</div>
+                  <div className="text-xs text-gray-400">{tier.access} access</div>
+                </div>
+                <div className="text-green-400 font-bold">{tier.cost}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-green-900/50 to-teal-900/50 rounded-xl p-4 border border-green-500/30">
+        <h3 className="text-lg font-semibold text-green-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Use Compute Optimizer for right-sizing recommendations</li>
+          <li>• Savings Plans: flexible across instance families</li>
+          <li>• S3 Lifecycle policies automate tiering</li>
+          <li>• Cost Explorer and Budgets for monitoring</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 17. Circuit Breaker Pattern Explainer
+export function CircuitBreakerPatternExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [circuitState, setCircuitState] = useState<"closed" | "open" | "half-open">("closed")
+
+  const steps = [
+    { title: "Circuit Breaker Pattern", description: "Prevent cascading failures by failing fast" },
+    { title: "Closed State", description: "Normal operation, requests pass through" },
+    { title: "Open State", description: "Too many failures, requests fail immediately" },
+    { title: "Half-Open", description: "Test if service recovered" },
+    { title: "Implementation", description: "Use Step Functions, Lambda, or application code" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <CircleAlert className="w-8 h-8 text-yellow-400" />
+        <h2 className="text-2xl font-bold text-white">Circuit Breaker Pattern</h2>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        {["closed", "open", "half-open"].map((state) => (
+          <button
+            key={state}
+            onClick={() => setCircuitState(state as typeof circuitState)}
+            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              circuitState === state
+                ? state === "closed" ? "bg-green-600 text-white" :
+                  state === "open" ? "bg-red-600 text-white" :
+                  "bg-yellow-600 text-white"
+                : "bg-gray-700 text-gray-300"
+            }`}
+          >
+            {state.charAt(0).toUpperCase() + state.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+              <span className="text-white text-xs font-bold">Client</span>
+            </div>
+          </div>
+
+          <div className="flex-1 mx-4 relative">
+            <div className={`h-2 rounded ${
+              circuitState === "closed" ? "bg-green-500" :
+              circuitState === "open" ? "bg-red-500" :
+              "bg-yellow-500 animate-pulse"
+            }`} />
+          </div>
+
+          <div className="text-center">
+            <div className={`w-20 h-20 rounded-lg flex flex-col items-center justify-center mb-2 border-4 ${
+              circuitState === "closed" ? "bg-green-600 border-green-400" :
+              circuitState === "open" ? "bg-red-600 border-red-400" :
+              "bg-yellow-600 border-yellow-400"
+            }`}>
+              <CircleAlert className="w-8 h-8 text-white" />
+              <span className="text-white text-xs">{circuitState}</span>
+            </div>
+          </div>
+
+          <div className={`flex-1 mx-4 ${circuitState === "open" ? "opacity-30" : ""}`}>
+            <div className="h-2 bg-gray-500 rounded" />
+          </div>
+
+          <div className={`text-center ${circuitState === "open" ? "opacity-30" : ""}`}>
+            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+              <span className="text-white text-xs font-bold">Service</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 bg-gray-700 rounded-lg p-4">
+          {circuitState === "closed" && (
+            <div className="text-green-400">
+              <span className="font-semibold">Closed:</span> All requests pass through. Monitoring for failures.
+            </div>
+          )}
+          {circuitState === "open" && (
+            <div className="text-red-400">
+              <span className="font-semibold">Open:</span> Requests fail immediately. Service is down. Waiting for timeout.
+            </div>
+          )}
+          {circuitState === "half-open" && (
+            <div className="text-yellow-400">
+              <span className="font-semibold">Half-Open:</span> Testing with limited requests. If successful, close circuit.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-yellow-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-yellow-900/50 to-orange-900/50 rounded-xl p-4 border border-yellow-500/30">
+        <h3 className="text-lg font-semibold text-yellow-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Prevents cascading failures in distributed systems</li>
+          <li>• Step Functions can implement circuit breaker with states</li>
+          <li>• App Mesh supports circuit breaking for microservices</li>
+          <li>• Combine with retries and exponential backoff</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 18. Strangler Fig Pattern Explainer
+export function StranglerFigPatternExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [migrationProgress, setMigrationProgress] = useState(30)
+
+  const steps = [
+    { title: "Strangler Fig Pattern", description: "Incrementally migrate from monolith to microservices" },
+    { title: "Start Small", description: "Extract one feature at a time" },
+    { title: "Route Traffic", description: "ALB routes to old or new based on path" },
+    { title: "Gradual Migration", description: "Move more features over time" },
+    { title: "Retire Monolith", description: "Eventually replace completely" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <RefreshCw className="w-8 h-8 text-green-400" />
+        <h2 className="text-2xl font-bold text-white">Strangler Fig Pattern</h2>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Migration Progress: {migrationProgress}%
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="10"
+          value={migrationProgress}
+          onChange={(e) => setMigrationProgress(parseInt(e.target.value))}
+          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex justify-center mb-4">
+          <div className="w-24 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
+            <span className="text-white text-xs font-bold">ALB Routing</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-6">
+          <div className="p-4 bg-gray-700 rounded-lg" style={{ opacity: 1 - migrationProgress / 100 * 0.7 }}>
+            <div className="text-red-400 font-semibold mb-3 text-center">
+              Monolith ({100 - migrationProgress}%)
+            </div>
+            <div className="w-full h-32 bg-red-900/50 border-2 border-red-500 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <Server className="w-12 h-12 text-red-400 mx-auto" />
+                <span className="text-xs text-red-300">Legacy App</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-gray-700 rounded-lg" style={{ opacity: 0.3 + migrationProgress / 100 * 0.7 }}>
+            <div className="text-green-400 font-semibold mb-3 text-center">
+              Microservices ({migrationProgress}%)
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {["Users", "Orders", "Payment", "Notif"].map((svc, i) => (
+                <div key={i} className={`h-14 rounded-lg flex items-center justify-center ${
+                  i < Math.ceil(migrationProgress / 25) ? "bg-green-600" : "bg-gray-600"
+                }`}>
+                  <span className="text-white text-xs">{svc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-green-900/50 to-teal-900/50 rounded-xl p-4 border border-green-500/30">
+        <h3 className="text-lg font-semibold text-green-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Low-risk migration: run old and new side by side</li>
+          <li>• ALB path-based routing directs traffic</li>
+          <li>• Extract loosely coupled components first</li>
+          <li>• Use API Gateway for facade pattern</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 19. CQRS Pattern Explainer
+export function CqrsPatternExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "CQRS Pattern", description: "Command Query Responsibility Segregation - separate read and write models" },
+    { title: "Command Side", description: "Handles writes, validates business rules" },
+    { title: "Query Side", description: "Optimized for reads, denormalized data" },
+    { title: "Event Sync", description: "Events keep read model in sync with write model" },
+    { title: "Benefits", description: "Scale reads and writes independently" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Layers className="w-8 h-8 text-purple-400" />
+        <h2 className="text-2xl font-bold text-white">CQRS Pattern</h2>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex justify-center mb-4">
+          <div className="w-20 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
+            <Globe className="w-8 h-8 text-white" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-8">
+          <div className="p-4 bg-green-900/20 border-2 border-green-500 rounded-lg">
+            <div className="text-green-400 font-semibold mb-3 text-center">Command Side (Write)</div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ArrowRight className="w-4 h-4 text-green-400" />
+                <span className="text-sm text-gray-300">POST /orders</span>
+              </div>
+              <div className="w-full h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">Command Handler</span>
+              </div>
+              <div className="w-full h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Database className="w-5 h-5 text-white mr-1" />
+                <span className="text-white text-xs">Write DB (RDS)</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-blue-900/20 border-2 border-blue-500 rounded-lg">
+            <div className="text-blue-400 font-semibold mb-3 text-center">Query Side (Read)</div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ArrowRight className="w-4 h-4 text-blue-400" />
+                <span className="text-sm text-gray-300">GET /orders</span>
+              </div>
+              <div className="w-full h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">Query Handler</span>
+              </div>
+              <div className="w-full h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                <Database className="w-5 h-5 text-white mr-1" />
+                <span className="text-white text-xs">Read DB (DynamoDB)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-center">
+          <div className="p-3 bg-orange-600 rounded-lg">
+            <span className="text-white text-xs">Events sync read model</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/30">
+        <h3 className="text-lg font-semibold text-purple-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Separate read/write concerns for complex domains</li>
+          <li>• Read model can be denormalized for performance</li>
+          <li>• Often combined with Event Sourcing</li>
+          <li>• DynamoDB Streams can sync read models</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// 20. Saga Pattern Explainer
+export function SagaPatternExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [sagaStep, setSagaStep] = useState(0)
+
+  const steps = [
+    { title: "Saga Pattern", description: "Manage distributed transactions across microservices" },
+    { title: "Local Transactions", description: "Each service completes its own transaction" },
+    { title: "Compensation", description: "If one fails, compensating transactions undo previous steps" },
+    { title: "Orchestration", description: "Step Functions coordinates saga steps" },
+    { title: "Choreography", description: "Services communicate via events (SNS/EventBridge)" }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  const sagaSteps = [
+    { name: "Create Order", status: sagaStep >= 1 ? "done" : "pending" },
+    { name: "Reserve Inventory", status: sagaStep >= 2 ? "done" : sagaStep === 1 ? "active" : "pending" },
+    { name: "Process Payment", status: sagaStep >= 3 ? (sagaStep === 4 ? "failed" : "done") : sagaStep === 2 ? "active" : "pending" },
+    { name: "Ship Order", status: sagaStep >= 4 ? "done" : sagaStep === 3 ? "active" : "pending" }
+  ]
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Repeat className="w-8 h-8 text-blue-400" />
+        <h2 className="text-2xl font-bold text-white">Saga Pattern</h2>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        {[0, 1, 2, 3, 4].map((s) => (
+          <button
+            key={s}
+            onClick={() => setSagaStep(s)}
+            className={`px-3 py-1 rounded text-xs ${
+              sagaStep === s ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"
+            }`}
+          >
+            Step {s}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-gray-800 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-6">
+          {sagaSteps.map((s, i) => (
+            <div key={i} className="flex items-center">
+              <div className={`w-16 h-16 rounded-lg flex flex-col items-center justify-center ${
+                s.status === "done" ? "bg-green-600" :
+                s.status === "active" ? "bg-blue-600 animate-pulse" :
+                s.status === "failed" ? "bg-red-600" :
+                "bg-gray-600"
+              }`}>
+                <span className="text-white text-xs text-center px-1">{s.name}</span>
+              </div>
+              {i < sagaSteps.length - 1 && (
+                <div className={`w-8 h-1 mx-1 ${
+                  sagaSteps[i + 1].status !== "pending" ? "bg-green-500" : "bg-gray-500"
+                }`} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4">
+            <div className="text-sm font-semibold text-blue-400 mb-2">Orchestration (Step Functions)</div>
+            <div className="text-xs text-gray-300">
+              Central coordinator manages saga state and calls services.
+            </div>
+          </div>
+          <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-4">
+            <div className="text-sm font-semibold text-orange-400 mb-2">Choreography (Events)</div>
+            <div className="text-xs text-gray-300">
+              Services publish events, others react. No central coordinator.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+            Step {step + 1}/{steps.length}
+          </span>
+          <h3 className="text-lg font-semibold text-white">{steps[step].title}</h3>
+        </div>
+        <p className="text-gray-300">{steps[step].description}</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 rounded-xl p-4 border border-blue-500/30">
+        <h3 className="text-lg font-semibold text-blue-300 mb-2">📝 Exam Takeaways</h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>• Saga = sequence of local transactions with compensations</li>
+          <li>• Step Functions is ideal for orchestration-based sagas</li>
+          <li>• EventBridge/SNS for choreography-based sagas</li>
+          <li>• Each step must have a compensation action for rollback</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
 // Export all explainers
 export const architectureExplainers = {
   "serverless-architecture": ServerlessArchitectureExplainer,
@@ -874,5 +2621,19 @@ export const architectureExplainers = {
   "event-driven-architecture": EventDrivenArchitectureExplainer,
   "multi-tier-architecture": MultiTierArchitectureExplainer,
   "disaster-recovery-patterns": DisasterRecoveryPatternsExplainer,
-  "well-architected-pillars": WellArchitectedPillarsExplainer
+  "well-architected-pillars": WellArchitectedPillarsExplainer,
+  "blue-green-deployment": BlueGreenDeploymentExplainer,
+  "canary-deployment": CanaryDeploymentExplainer,
+  "fan-out-pattern": FanOutPatternExplainer,
+  "static-website-hosting": StaticWebsiteHostingExplainer,
+  "cache-aside-pattern": CacheAsidePatternExplainer,
+  "read-replica-pattern": ReadReplicaPatternExplainer,
+  "decoupled-architecture": DecoupledArchitectureExplainer,
+  "global-architecture": GlobalArchitectureExplainer,
+  "hybrid-architecture": HybridArchitectureExplainer,
+  "cost-optimization": CostOptimizationExplainer,
+  "circuit-breaker-pattern": CircuitBreakerPatternExplainer,
+  "strangler-fig-pattern": StranglerFigPatternExplainer,
+  "cqrs-pattern": CqrsPatternExplainer,
+  "saga-pattern": SagaPatternExplainer
 }
