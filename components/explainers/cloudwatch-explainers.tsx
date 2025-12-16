@@ -1489,7 +1489,7 @@ export function XRaySegmentsExplainer() {
             </div>
             <div className="p-2 bg-gray-700 rounded">
               <div className="text-xs text-gray-400">Metadata (not indexed)</div>
-              <div className="text-sm text-white">request_body: {...}</div>
+              <div className="text-sm text-white">request_body: {"{...}"}</div>
             </div>
           </div>
         </div>
