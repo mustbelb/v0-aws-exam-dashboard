@@ -1,0 +1,351 @@
+{
+  "generatedAt": "2024-12-16T00:00:00.000Z",
+  "totalExplainers": 231,
+  "byService": {
+    "lambda": {
+      "count": 15,
+      "explainers": [
+        { "id": "lambda-concurrency", "functionName": "LambdaConcurrencyExplainer" },
+        { "id": "lambda-cold-starts", "functionName": "LambdaColdStartsExplainer" },
+        { "id": "lambda-vpc-access", "functionName": "LambdaVPCAccessExplainer" },
+        { "id": "lambda-versions-aliases", "functionName": "LambdaVersionsAliasesExplainer" },
+        { "id": "lambda-layers", "functionName": "LambdaLayersExplainer" },
+        { "id": "lambda-destinations", "functionName": "LambdaDestinationsExplainer" },
+        { "id": "lambda-event-source-mappings", "functionName": "LambdaEventSourceMappingsExplainer" },
+        { "id": "lambda-environment-config", "functionName": "LambdaEnvironmentConfigExplainer" },
+        { "id": "lambda-permissions", "functionName": "LambdaPermissionsExplainer" },
+        { "id": "lambda-invocation-types", "functionName": "LambdaInvocationTypesExplainer" },
+        { "id": "lambda-error-handling", "functionName": "LambdaErrorHandlingExplainer" },
+        { "id": "lambda-memory-timeout", "functionName": "LambdaMemoryTimeoutExplainer" },
+        { "id": "lambda-container-images", "functionName": "LambdaContainerImagesExplainer" },
+        { "id": "lambda-snapstart", "functionName": "LambdaSnapStartExplainer" },
+        { "id": "lambda-function-urls", "functionName": "LambdaFunctionURLsExplainer" }
+      ]
+    },
+    "dynamodb": {
+      "count": 15,
+      "explainers": [
+        { "id": "dynamodb-partition-keys", "functionName": "DynamoDBPartitionKeysExplainer" },
+        { "id": "dynamodb-ttl", "functionName": "DynamoDBTTLExplainer" },
+        { "id": "dynamodb-gsi-lsi", "functionName": "DynamoDBGSIvsLSIExplainer" },
+        { "id": "dynamodb-streams", "functionName": "DynamoDBStreamsExplainer" },
+        { "id": "dynamodb-capacity-modes", "functionName": "DynamoDBCapacityModesExplainer" },
+        { "id": "dynamodb-transactions", "functionName": "DynamoDBTransactionsExplainer" },
+        { "id": "dynamodb-dax", "functionName": "DynamoDBDAXExplainer" },
+        { "id": "dynamodb-global-tables", "functionName": "DynamoDBGlobalTablesExplainer" },
+        { "id": "dynamodb-sort-keys", "functionName": "DynamoDBSortKeysExplainer" },
+        { "id": "dynamodb-auto-scaling", "functionName": "DynamoDBAutoScalingExplainer" },
+        { "id": "dynamodb-conditional-writes", "functionName": "DynamoDBConditionalWritesExplainer" },
+        { "id": "dynamodb-batch-operations", "functionName": "DynamoDBBatchOperationsExplainer" },
+        { "id": "dynamodb-query-scan", "functionName": "DynamoDBQueryScanExplainer" },
+        { "id": "dynamodb-item-size", "functionName": "DynamoDBItemSizeExplainer" },
+        { "id": "dynamodb-backup-restore", "functionName": "DynamoDBBackupRestoreExplainer" }
+      ]
+    },
+    "s3": {
+      "count": 15,
+      "explainers": [
+        { "id": "s3-storage-classes", "functionName": "S3StorageClassesExplainer" },
+        { "id": "s3-lifecycle", "functionName": "S3LifecycleExplainer" },
+        { "id": "s3-versioning", "functionName": "S3VersioningExplainer" },
+        { "id": "s3-encryption", "functionName": "S3EncryptionExplainer" },
+        { "id": "s3-bucket-policies", "functionName": "S3BucketPoliciesExplainer" },
+        { "id": "s3-presigned-urls", "functionName": "S3PresignedURLsExplainer" },
+        { "id": "s3-replication", "functionName": "S3ReplicationExplainer" },
+        { "id": "s3-event-notifications", "functionName": "S3EventNotificationsExplainer" },
+        { "id": "s3-transfer-acceleration", "functionName": "S3TransferAccelerationExplainer" },
+        { "id": "s3-select", "functionName": "S3SelectExplainer" },
+        { "id": "s3-access-points", "functionName": "S3AccessPointsExplainer" },
+        { "id": "s3-object-lock", "functionName": "S3ObjectLockExplainer" },
+        { "id": "s3-multipart-upload", "functionName": "S3MultipartUploadExplainer" },
+        { "id": "s3-cors", "functionName": "S3CORSExplainer" },
+        { "id": "s3-batch-operations", "functionName": "S3BatchOperationsExplainer" }
+      ]
+    },
+    "sqs": {
+      "count": 10,
+      "explainers": [
+        { "id": "sqs-visibility-timeout", "functionName": "SQSVisibilityTimeoutExplainer" },
+        { "id": "sqs-standard-vs-fifo", "functionName": "SQSStandardVsFIFOExplainer" },
+        { "id": "sqs-dlq", "functionName": "SQSDLQExplainer" },
+        { "id": "sqs-long-polling", "functionName": "SQSLongPollingExplainer" },
+        { "id": "sqs-batching", "functionName": "SQSBatchingExplainer" },
+        { "id": "sqs-delay-queues", "functionName": "SQSDelayQueuesExplainer" },
+        { "id": "sqs-message-attributes", "functionName": "SQSMessageAttributesExplainer" },
+        { "id": "sqs-lambda-integration", "functionName": "SQSLambdaIntegrationExplainer" },
+        { "id": "sqs-message-retention", "functionName": "SQSMessageRetentionExplainer" },
+        { "id": "sqs-security", "functionName": "SQSSecurityExplainer" }
+      ]
+    },
+    "sns": {
+      "count": 10,
+      "explainers": [
+        { "id": "sns-topics", "functionName": "SNSTopicsExplainer" },
+        { "id": "sns-subscriptions", "functionName": "SNSSubscriptionsExplainer" },
+        { "id": "sns-filtering", "functionName": "SNSFilteringExplainer" },
+        { "id": "sns-fanout-pattern", "functionName": "SNSFanoutPatternExplainer" },
+        { "id": "sns-message-attributes", "functionName": "SNSMessageAttributesExplainer" },
+        { "id": "sns-delivery-policies", "functionName": "SNSDeliveryPoliciesExplainer" },
+        { "id": "sns-fifo-topics", "functionName": "SNSFIFOTopicsExplainer" },
+        { "id": "sns-mobile-push", "functionName": "SNSMobilePushExplainer" },
+        { "id": "sns-sms", "functionName": "SNSSMSExplainer" },
+        { "id": "sns-dlq", "functionName": "SNSDLQExplainer" }
+      ]
+    },
+    "vpc": {
+      "count": 15,
+      "explainers": [
+        { "id": "vpc-subnets", "functionName": "VPCSubnetsExplainer" },
+        { "id": "vpc-security-groups-nacls", "functionName": "VPCSecurityGroupsVsNACLsExplainer" },
+        { "id": "vpc-nat-gateway", "functionName": "VPCNATGatewayExplainer" },
+        { "id": "vpc-endpoints", "functionName": "VPCEndpointsExplainer" },
+        { "id": "vpc-peering", "functionName": "VPCPeeringExplainer" },
+        { "id": "vpc-route-tables", "functionName": "VPCRouteTablesExplainer" },
+        { "id": "vpc-flow-logs", "functionName": "VPCFlowLogsExplainer" },
+        { "id": "vpc-transit-gateway", "functionName": "VPCTransitGatewayExplainer" },
+        { "id": "vpc-privatelink", "functionName": "VPCPrivateLinkExplainer" },
+        { "id": "vpc-bastion-session-manager", "functionName": "VPCBastionVsSessionManagerExplainer" },
+        { "id": "vpc-internet-gateway", "functionName": "VPCInternetGatewayExplainer" },
+        { "id": "vpc-elastic-ip", "functionName": "VPCElasticIPExplainer" },
+        { "id": "vpc-dns", "functionName": "VPCDNSExplainer" },
+        { "id": "vpc-cidr-planning", "functionName": "VPCCIDRPlanningExplainer" },
+        { "id": "vpc-direct-connect", "functionName": "VPCDirectConnectExplainer" }
+      ]
+    },
+    "ec2": {
+      "count": 15,
+      "explainers": [
+        { "id": "ec2-instance-types", "functionName": "EC2InstanceTypesExplainer" },
+        { "id": "ec2-pricing-models", "functionName": "EC2PricingModelsExplainer" },
+        { "id": "ec2-placement-groups", "functionName": "EC2PlacementGroupsExplainer" },
+        { "id": "ec2-instance-store-ebs", "functionName": "EC2InstanceStoreVsEBSExplainer" },
+        { "id": "ec2-auto-scaling", "functionName": "EC2AutoScalingExplainer" },
+        { "id": "ec2-launch-templates", "functionName": "EC2LaunchTemplatesExplainer" },
+        { "id": "ec2-ebs-volume-types", "functionName": "EC2EBSVolumeTypesExplainer" },
+        { "id": "ec2-ebs-snapshots", "functionName": "EC2EBSSnapshotsExplainer" },
+        { "id": "ec2-amis", "functionName": "EC2AMIExplainer" },
+        { "id": "ec2-user-data", "functionName": "EC2UserDataExplainer" },
+        { "id": "ec2-instance-metadata", "functionName": "EC2InstanceMetadataExplainer" },
+        { "id": "ec2-hibernate", "functionName": "EC2HibernateExplainer" },
+        { "id": "ec2-eni", "functionName": "EC2ENIExplainer" },
+        { "id": "ec2-nitro", "functionName": "EC2NitroExplainer" },
+        { "id": "ec2-spot-fleet", "functionName": "EC2SpotFleetExplainer" }
+      ]
+    },
+    "iam": {
+      "count": 15,
+      "explainers": [
+        { "id": "iam-policy-evaluation", "functionName": "IAMPolicyEvaluationExplainer" },
+        { "id": "iam-policy-types", "functionName": "IAMPolicyTypesExplainer" },
+        { "id": "iam-roles-users", "functionName": "IAMRolesVsUsersExplainer" },
+        { "id": "iam-cross-account", "functionName": "IAMCrossAccountExplainer" },
+        { "id": "iam-permissions-boundaries", "functionName": "IAMPermissionsBoundariesExplainer" },
+        { "id": "iam-instance-profiles", "functionName": "IAMInstanceProfilesExplainer" },
+        { "id": "iam-sts", "functionName": "IAMSTSExplainer" },
+        { "id": "iam-conditions", "functionName": "IAMConditionsExplainer" },
+        { "id": "iam-scps", "functionName": "IAMSCPsExplainer" },
+        { "id": "iam-groups", "functionName": "IAMGroupsExplainer" },
+        { "id": "iam-mfa", "functionName": "IAMMFAExplainer" },
+        { "id": "iam-access-keys", "functionName": "IAMAccessKeysExplainer" },
+        { "id": "iam-resource-based-policies", "functionName": "IAMResourceBasedPoliciesExplainer" },
+        { "id": "iam-policy-simulator", "functionName": "IAMPolicySimulatorExplainer" },
+        { "id": "iam-identity-center", "functionName": "IAMIdentityCenterExplainer" }
+      ]
+    },
+    "api-gateway": {
+      "count": 15,
+      "explainers": [
+        { "id": "rest-vs-http-apis", "functionName": "RestVsHttpApisExplainer" },
+        { "id": "stages-deployments", "functionName": "StagesDeploymentsExplainer" },
+        { "id": "authentication-methods", "functionName": "AuthenticationMethodsExplainer" },
+        { "id": "throttling-rate-limiting", "functionName": "ThrottlingRateLimitingExplainer" },
+        { "id": "api-caching", "functionName": "ApiCachingExplainer" },
+        { "id": "request-response-transformations", "functionName": "RequestResponseTransformationsExplainer" },
+        { "id": "websocket-apis", "functionName": "WebSocketApisExplainer" },
+        { "id": "api-gateway-cors", "functionName": "ApiGatewayCORSExplainer" },
+        { "id": "integration-types", "functionName": "IntegrationTypesExplainer" },
+        { "id": "usage-plans", "functionName": "UsagePlansExplainer" },
+        { "id": "private-apis", "functionName": "PrivateApisExplainer" },
+        { "id": "custom-domains", "functionName": "CustomDomainsExplainer" },
+        { "id": "api-gateway-logging", "functionName": "ApiGatewayLoggingExplainer" },
+        { "id": "mock-integration", "functionName": "MockIntegrationExplainer" },
+        { "id": "openapi-swagger", "functionName": "OpenAPISwaggerExplainer" }
+      ]
+    },
+    "rds-aurora": {
+      "count": 15,
+      "explainers": [
+        { "id": "multi-az-deployments", "functionName": "MultiAzDeploymentsExplainer" },
+        { "id": "read-replicas", "functionName": "ReadReplicasExplainer" },
+        { "id": "aurora-architecture", "functionName": "AuroraArchitectureExplainer" },
+        { "id": "rds-proxy", "functionName": "RdsProxyExplainer" },
+        { "id": "backup-recovery", "functionName": "BackupRecoveryExplainer" },
+        { "id": "parameter-option-groups", "functionName": "ParameterOptionGroupsExplainer" },
+        { "id": "aurora-serverless", "functionName": "AuroraServerlessExplainer" },
+        { "id": "rds-encryption", "functionName": "RdsEncryptionExplainer" },
+        { "id": "aurora-global-database", "functionName": "AuroraGlobalDatabaseExplainer" },
+        { "id": "rds-performance-insights", "functionName": "RdsPerformanceInsightsExplainer" },
+        { "id": "aurora-cloning", "functionName": "AuroraCloningExplainer" },
+        { "id": "rds-maintenance-windows", "functionName": "RdsMaintenanceWindowsExplainer" },
+        { "id": "rds-storage-autoscaling", "functionName": "RdsStorageAutoScalingExplainer" },
+        { "id": "aurora-endpoints", "functionName": "AuroraEndpointsExplainer" },
+        { "id": "rds-iam-authentication", "functionName": "RdsIamAuthenticationExplainer" }
+      ]
+    },
+    "ecs": {
+      "count": 12,
+      "explainers": [
+        { "id": "ecs-vs-fargate", "functionName": "EcsVsFargateExplainer" },
+        { "id": "task-definitions", "functionName": "TaskDefinitionsExplainer" },
+        { "id": "service-auto-scaling", "functionName": "ServiceAutoScalingExplainer" },
+        { "id": "ecr-integration", "functionName": "EcrIntegrationExplainer" },
+        { "id": "ecs-service-discovery", "functionName": "EcsServiceDiscoveryExplainer" },
+        { "id": "ecs-load-balancing", "functionName": "EcsLoadBalancingExplainer" },
+        { "id": "ecs-secrets-management", "functionName": "EcsSecretsManagementExplainer" },
+        { "id": "ecs-capacity-providers", "functionName": "EcsCapacityProvidersExplainer" },
+        { "id": "ecs-logging", "functionName": "EcsLoggingExplainer" },
+        { "id": "ecr-lifecycle-policies", "functionName": "EcrLifecyclePoliciesExplainer" },
+        { "id": "ecr-image-scanning", "functionName": "EcrImageScanningExplainer" },
+        { "id": "ecs-networking-modes", "functionName": "EcsNetworkingModesExplainer" }
+      ]
+    },
+    "cloudwatch": {
+      "count": 15,
+      "explainers": [
+        { "id": "metrics-dimensions", "functionName": "MetricsDimensionsExplainer" },
+        { "id": "cloudwatch-alarms", "functionName": "CloudWatchAlarmsExplainer" },
+        { "id": "logs-insights", "functionName": "LogsInsightsExplainer" },
+        { "id": "eventbridge", "functionName": "EventBridgeExplainer" },
+        { "id": "xray-integration", "functionName": "XRayIntegrationExplainer" },
+        { "id": "cloudwatch-dashboards", "functionName": "CloudWatchDashboardsExplainer" },
+        { "id": "cloudwatch-agent", "functionName": "CloudWatchAgentExplainer" },
+        { "id": "cloudwatch-logs-retention", "functionName": "CloudWatchLogsRetentionExplainer" },
+        { "id": "cloudwatch-composite-alarms", "functionName": "CloudWatchCompositeAlarmsExplainer" },
+        { "id": "cloudwatch-metric-math", "functionName": "CloudWatchMetricMathExplainer" },
+        { "id": "cloudwatch-anomaly-detection", "functionName": "CloudWatchAnomalyDetectionExplainer" },
+        { "id": "eventbridge-rules", "functionName": "EventBridgeRulesExplainer" },
+        { "id": "eventbridge-scheduler", "functionName": "EventBridgeSchedulerExplainer" },
+        { "id": "xray-segments", "functionName": "XRaySegmentsExplainer" },
+        { "id": "cloudwatch-contributor-insights", "functionName": "CloudWatchContributorInsightsExplainer" }
+      ]
+    },
+    "cloudformation": {
+      "count": 12,
+      "explainers": [
+        { "id": "template-structure", "functionName": "TemplateStructureExplainer" },
+        { "id": "stack-operations", "functionName": "StackOperationsExplainer" },
+        { "id": "intrinsic-functions", "functionName": "IntrinsicFunctionsExplainer" },
+        { "id": "nested-stacks", "functionName": "NestedStacksExplainer" },
+        { "id": "sam-templates", "functionName": "SamTemplatesExplainer" },
+        { "id": "drift-detection", "functionName": "DriftDetectionExplainer" },
+        { "id": "helper-scripts", "functionName": "HelperScriptsExplainer" },
+        { "id": "wait-conditions", "functionName": "WaitConditionsExplainer" },
+        { "id": "mappings", "functionName": "MappingsExplainer" },
+        { "id": "conditions", "functionName": "ConditionsExplainer" },
+        { "id": "custom-resources", "functionName": "CustomResourcesExplainer" },
+        { "id": "stack-policies", "functionName": "StackPoliciesExplainer" }
+      ]
+    },
+    "kinesis-stepfunctions": {
+      "count": 12,
+      "explainers": [
+        { "id": "kinesis-data-streams", "functionName": "KinesisDataStreamsExplainer" },
+        { "id": "step-functions-state-machine", "functionName": "StepFunctionsStateMachineExplainer" },
+        { "id": "streaming-comparison", "functionName": "StreamingComparisonExplainer" },
+        { "id": "kinesis-firehose", "functionName": "KinesisFirehoseExplainer" },
+        { "id": "kinesis-analytics", "functionName": "KinesisAnalyticsExplainer" },
+        { "id": "enhanced-fan-out", "functionName": "EnhancedFanOutExplainer" },
+        { "id": "step-functions-error-handling", "functionName": "StepFunctionsErrorHandlingExplainer" },
+        { "id": "step-functions-parallel", "functionName": "StepFunctionsParallelExplainer" },
+        { "id": "step-functions-choice", "functionName": "StepFunctionsChoiceExplainer" },
+        { "id": "step-functions-map", "functionName": "StepFunctionsMapExplainer" },
+        { "id": "step-functions-integrations", "functionName": "StepFunctionsIntegrationsExplainer" },
+        { "id": "kinesis-kcl", "functionName": "KinesisKCLExplainer" }
+      ]
+    },
+    "cognito-secrets-kms": {
+      "count": 15,
+      "explainers": [
+        { "id": "cognito-user-pools", "functionName": "CognitoUserPoolsExplainer" },
+        { "id": "cognito-identity-pools", "functionName": "CognitoIdentityPoolsExplainer" },
+        { "id": "secrets-manager", "functionName": "SecretsManagerExplainer" },
+        { "id": "parameter-store", "functionName": "ParameterStoreExplainer" },
+        { "id": "kms-keys", "functionName": "KmsKeysExplainer" },
+        { "id": "kms-encryption", "functionName": "KmsEncryptionExplainer" },
+        { "id": "cognito-triggers", "functionName": "CognitoTriggersExplainer" },
+        { "id": "acm", "functionName": "AcmExplainer" },
+        { "id": "waf", "functionName": "WafExplainer" },
+        { "id": "shield", "functionName": "ShieldExplainer" },
+        { "id": "guardduty", "functionName": "GuardDutyExplainer" },
+        { "id": "macie", "functionName": "MacieExplainer" },
+        { "id": "cognito-hosted-ui", "functionName": "CognitoHostedUIExplainer" },
+        { "id": "secrets-vs-parameter", "functionName": "SecretsVsParameterExplainer" },
+        { "id": "kms-rotation", "functionName": "KmsRotationExplainer" }
+      ]
+    },
+    "elb-route53-cloudfront": {
+      "count": 15,
+      "explainers": [
+        { "id": "load-balancer-types", "functionName": "LoadBalancerTypesExplainer" },
+        { "id": "route53-routing-policies", "functionName": "Route53RoutingPoliciesExplainer" },
+        { "id": "cloudfront-distributions", "functionName": "CloudFrontDistributionsExplainer" },
+        { "id": "alb-target-groups", "functionName": "AlbTargetGroupsExplainer" },
+        { "id": "ssl-tls-certificates", "functionName": "SslTlsCertificatesExplainer" },
+        { "id": "health-checks", "functionName": "HealthChecksExplainer" },
+        { "id": "route53-hosted-zones", "functionName": "Route53HostedZonesExplainer" },
+        { "id": "cloudfront-lambda-edge", "functionName": "CloudFrontLambdaEdgeExplainer" },
+        { "id": "cloudfront-oac", "functionName": "CloudFrontOACExplainer" },
+        { "id": "nlb-static-ip", "functionName": "NlbStaticIpExplainer" },
+        { "id": "route53-record-types", "functionName": "Route53RecordTypesExplainer" },
+        { "id": "connection-draining", "functionName": "ConnectionDrainingExplainer" },
+        { "id": "sticky-sessions", "functionName": "StickySessionsExplainer" },
+        { "id": "cloudfront-signed-urls", "functionName": "CloudFrontSignedUrlsExplainer" },
+        { "id": "cross-zone-load-balancing", "functionName": "CrossZoneLoadBalancingExplainer" }
+      ]
+    },
+    "architecture": {
+      "count": 20,
+      "explainers": [
+        { "id": "serverless-architecture", "functionName": "ServerlessArchitectureExplainer" },
+        { "id": "microservices-architecture", "functionName": "MicroservicesArchitectureExplainer" },
+        { "id": "event-driven-architecture", "functionName": "EventDrivenArchitectureExplainer" },
+        { "id": "multi-tier-architecture", "functionName": "MultiTierArchitectureExplainer" },
+        { "id": "disaster-recovery-patterns", "functionName": "DisasterRecoveryPatternsExplainer" },
+        { "id": "well-architected-pillars", "functionName": "WellArchitectedPillarsExplainer" },
+        { "id": "blue-green-deployment", "functionName": "BlueGreenDeploymentExplainer" },
+        { "id": "canary-deployment", "functionName": "CanaryDeploymentExplainer" },
+        { "id": "fan-out-pattern", "functionName": "FanOutPatternExplainer" },
+        { "id": "static-website-hosting", "functionName": "StaticWebsiteHostingExplainer" },
+        { "id": "cache-aside-pattern", "functionName": "CacheAsidePatternExplainer" },
+        { "id": "read-replica-pattern", "functionName": "ReadReplicaPatternExplainer" },
+        { "id": "decoupled-architecture", "functionName": "DecoupledArchitectureExplainer" },
+        { "id": "global-architecture", "functionName": "GlobalArchitectureExplainer" },
+        { "id": "hybrid-architecture", "functionName": "HybridArchitectureExplainer" },
+        { "id": "cost-optimization", "functionName": "CostOptimizationExplainer" },
+        { "id": "circuit-breaker-pattern", "functionName": "CircuitBreakerPatternExplainer" },
+        { "id": "strangler-fig-pattern", "functionName": "StranglerFigPatternExplainer" },
+        { "id": "cqrs-pattern", "functionName": "CqrsPatternExplainer" },
+        { "id": "saga-pattern", "functionName": "SagaPatternExplainer" }
+      ]
+    }
+  },
+  "summary": {
+    "lambda": 15,
+    "dynamodb": 15,
+    "s3": 15,
+    "sqs": 10,
+    "sns": 10,
+    "vpc": 15,
+    "ec2": 15,
+    "iam": 15,
+    "api-gateway": 15,
+    "rds-aurora": 15,
+    "ecs": 12,
+    "cloudwatch": 15,
+    "cloudformation": 12,
+    "kinesis-stepfunctions": 12,
+    "cognito-secrets-kms": 15,
+    "elb-route53-cloudfront": 15,
+    "architecture": 20
+  }
+}
