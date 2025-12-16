@@ -1509,6 +1509,613 @@ export function S3SelectExplainer() {
 }
 
 // ============================================================================
+// S3 ACCESS POINTS EXPLAINER (Medium)
+// ============================================================================
+export function S3AccessPointsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [accessPoint, setAccessPoint] = useState<"finance" | "analytics" | "public">("finance")
+
+  const steps = [
+    {
+      title: "What are Access Points?",
+      description: "Named network endpoints attached to buckets. Each has its own policy and permissions for simplified access management."
+    },
+    {
+      title: "Per-Application Access",
+      description: "Create dedicated access points for each application. Simplifies bucket policies for multi-tenant scenarios."
+    },
+    {
+      title: "VPC Access Points",
+      description: "Restrict access to specific VPCs. Traffic never traverses public internet."
+    },
+    {
+      title: "Use Cases",
+      description: "Multi-tenant applications, shared data lakes, simplified permissions for large organizations."
+    }
+  ]
+
+  const accessPoints = {
+    finance: { name: "finance-reports-ap", vpc: "vpc-finance", policy: "Finance team only" },
+    analytics: { name: "analytics-data-ap", vpc: "vpc-analytics", policy: "Read-only analytics" },
+    public: { name: "public-assets-ap", vpc: "Internet", policy: "GetObject only" }
+  }
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">S3 Access Points</h1>
+        <p className="text-slate-400">Simplified access management for shared buckets</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-2 mb-6">
+          <button onClick={() => setAccessPoint("finance")} className={`px-3 py-1 rounded text-xs ${accessPoint === "finance" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>Finance AP</button>
+          <button onClick={() => setAccessPoint("analytics")} className={`px-3 py-1 rounded text-xs ${accessPoint === "analytics" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Analytics AP</button>
+          <button onClick={() => setAccessPoint("public")} className={`px-3 py-1 rounded text-xs ${accessPoint === "public" ? "bg-orange-500 text-white" : "bg-slate-700 text-slate-300"}`}>Public AP</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col gap-2">
+              <div className={`rounded p-2 text-white text-xs ${accessPoint === "finance" ? "bg-blue-500" : "bg-slate-700"}`}>Finance Team</div>
+              <div className={`rounded p-2 text-white text-xs ${accessPoint === "analytics" ? "bg-green-500" : "bg-slate-700"}`}>Analytics App</div>
+              <div className={`rounded p-2 text-white text-xs ${accessPoint === "public" ? "bg-orange-500" : "bg-slate-700"}`}>Public Users</div>
+            </div>
+            <div className="flex-1 mx-4">
+              <div className="text-center mb-2">
+                <code className="text-xs text-green-400 bg-slate-800 px-2 py-1 rounded">
+                  {accessPoints[accessPoint].name}
+                </code>
+              </div>
+              <div className="h-0.5 bg-slate-600"></div>
+              <div className="text-xs text-slate-400 text-center mt-1">VPC: {accessPoints[accessPoint].vpc}</div>
+            </div>
+            <div className="bg-green-500 rounded p-3 text-white text-center">
+              <div className="text-2xl">🪣</div>
+              <div className="text-xs">Shared Bucket</div>
+            </div>
+          </div>
+
+          <div className="bg-slate-800 rounded p-3 mt-4">
+            <div className="text-xs text-slate-400 mb-2">Access Point Policy</div>
+            <pre className="text-xs text-green-400 font-mono">{accessPoints[accessPoint].policy}</pre>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Each access point has unique DNS name and ARN</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Can restrict to VPC - no internet access possible</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Simplifies complex bucket policies for shared data</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Up to 10,000 access points per account per region</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// S3 OBJECT LOCK EXPLAINER (Medium)
+// ============================================================================
+export function S3ObjectLockExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [lockMode, setLockMode] = useState<"governance" | "compliance">("governance")
+
+  const steps = [
+    {
+      title: "What is Object Lock?",
+      description: "WORM (Write Once Read Many) model. Prevents objects from being deleted or modified for a retention period."
+    },
+    {
+      title: "Retention Modes",
+      description: "Governance: users with special permissions can override. Compliance: NO ONE can delete, including root."
+    },
+    {
+      title: "Legal Hold",
+      description: "Separate from retention. Applied indefinitely until removed. Prevents deletion regardless of retention."
+    },
+    {
+      title: "Requirements",
+      description: "Must enable versioning. Can only enable Object Lock when creating bucket (not existing buckets)."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">S3 Object Lock</h1>
+        <p className="text-slate-400">WORM protection for compliance and data protection</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setLockMode("governance")} className={`px-4 py-2 rounded-lg ${lockMode === "governance" ? "bg-yellow-500 text-black" : "bg-slate-700 text-slate-300"}`}>Governance Mode</button>
+          <button onClick={() => setLockMode("compliance")} className={`px-4 py-2 rounded-lg ${lockMode === "compliance" ? "bg-red-500 text-white" : "bg-slate-700 text-slate-300"}`}>Compliance Mode</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="text-center mb-4">
+            <div className={`inline-block rounded-full p-4 ${lockMode === "governance" ? "bg-yellow-500" : "bg-red-500"}`}>
+              <div className="text-3xl">🔒</div>
+            </div>
+            <div className="text-white font-medium mt-2">{lockMode === "governance" ? "Governance" : "Compliance"} Mode</div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className={`p-3 rounded-lg ${lockMode === "governance" ? "bg-yellow-500/20 border border-yellow-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white mb-2">Governance</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• Special permission can bypass</li>
+                <li>• s3:BypassGovernanceRetention</li>
+                <li>• Can shorten retention</li>
+                <li>• Testing/development</li>
+              </ul>
+            </div>
+            <div className={`p-3 rounded-lg ${lockMode === "compliance" ? "bg-red-500/20 border border-red-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white mb-2">Compliance</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• NO ONE can delete</li>
+                <li>• Not even root user</li>
+                <li>• Cannot shorten retention</li>
+                <li>• Regulatory compliance</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">Delete Attempt Result</div>
+            <div className={`text-sm font-mono ${lockMode === "governance" ? "text-yellow-400" : "text-red-400"}`}>
+              {lockMode === "governance"
+                ? "403 Forbidden (unless s3:BypassGovernanceRetention)"
+                : "403 Forbidden - ALWAYS (until retention expires)"}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Governance: bypassable with special permission</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Compliance: cannot be bypassed by anyone</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Requires versioning enabled</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Only configurable at bucket creation</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// S3 MULTIPART UPLOAD EXPLAINER (Medium)
+// ============================================================================
+export function S3MultipartUploadExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+
+  const steps = [
+    {
+      title: "What is Multipart Upload?",
+      description: "Upload large files in parts. Required for files >5GB. Recommended for files >100MB."
+    },
+    {
+      title: "How It Works",
+      description: "Initiate upload, upload parts in parallel, complete by combining. Parts: 5MB-5GB each."
+    },
+    {
+      title: "Benefits",
+      description: "Parallel uploads, pause/resume, recover from failures (retry single part). Faster throughput."
+    },
+    {
+      title: "Lifecycle Cleanup",
+      description: "Incomplete multipart uploads consume storage. Use lifecycle rules to abort old incomplete uploads."
+    }
+  ]
+
+  const parts = [
+    { id: 1, size: "5 GB", status: uploadProgress >= 25 ? "complete" : uploadProgress >= 10 ? "uploading" : "pending" },
+    { id: 2, size: "5 GB", status: uploadProgress >= 50 ? "complete" : uploadProgress >= 30 ? "uploading" : "pending" },
+    { id: 3, size: "5 GB", status: uploadProgress >= 75 ? "complete" : uploadProgress >= 55 ? "uploading" : "pending" },
+    { id: 4, size: "3 GB", status: uploadProgress >= 100 ? "complete" : uploadProgress >= 80 ? "uploading" : "pending" },
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">S3 Multipart Upload</h1>
+        <p className="text-slate-400">Efficient upload of large files in parallel</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-700/50 rounded-xl p-4 mb-6">
+          <label className="text-sm text-slate-400 block mb-2">Upload Progress</label>
+          <input type="range" min="0" max="100" value={uploadProgress} onChange={(e) => setUploadProgress(Number(e.target.value))} className="w-full" />
+          <div className="text-center text-white font-mono mt-1">{uploadProgress}%</div>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="text-sm text-slate-400 mb-3">18 GB File → 4 Parts</div>
+
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            {parts.map(part => (
+              <div key={part.id} className={`p-3 rounded text-center ${
+                part.status === "complete" ? "bg-green-500/20 border border-green-500" :
+                part.status === "uploading" ? "bg-blue-500/20 border border-blue-500" :
+                "bg-slate-800"
+              }`}>
+                <div className="text-2xl">{part.status === "complete" ? "✓" : part.status === "uploading" ? "⬆️" : "⏳"}</div>
+                <div className="text-xs text-white">Part {part.id}</div>
+                <div className="text-xs text-slate-400">{part.size}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="h-4 bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all" style={{ width: `${uploadProgress}%` }}></div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-4">
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <div className="text-xs text-slate-400">Min Part Size</div>
+              <div className="text-sm text-white">5 MB</div>
+            </div>
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <div className="text-xs text-slate-400">Max Part Size</div>
+              <div className="text-sm text-white">5 GB</div>
+            </div>
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <div className="text-xs text-slate-400">Max Parts</div>
+              <div className="text-sm text-white">10,000</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Required for objects &gt;5 GB, recommended &gt;100 MB</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Part size: 5 MB - 5 GB, max 10,000 parts</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Parts upload in parallel for faster throughput</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use lifecycle rules to clean up incomplete uploads</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// S3 CORS EXPLAINER (Light)
+// ============================================================================
+export function S3CORSExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [corsEnabled, setCorsEnabled] = useState(true)
+
+  const steps = [
+    {
+      title: "What is CORS?",
+      description: "Cross-Origin Resource Sharing. Allows web browsers to make requests to S3 from different domains."
+    },
+    {
+      title: "How It Works",
+      description: "Browser sends preflight OPTIONS request. S3 responds with allowed origins/methods. Browser proceeds if allowed."
+    },
+    {
+      title: "Configuration",
+      description: "JSON or XML rules specifying AllowedOrigins, AllowedMethods, AllowedHeaders, and ExposeHeaders."
+    },
+    {
+      title: "Common Use Cases",
+      description: "Web apps loading images/files from S3, JavaScript SDK uploads, static website hosting."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">S3 CORS</h1>
+        <p className="text-slate-400">Cross-Origin Resource Sharing configuration</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center mb-6">
+          <button onClick={() => setCorsEnabled(!corsEnabled)} className={`px-4 py-2 rounded-lg ${corsEnabled ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+            CORS: {corsEnabled ? "Enabled" : "Disabled"}
+          </button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-center">
+              <div className="bg-purple-500 rounded p-3 text-white">
+                <div className="text-xl">🌐</div>
+                <div className="text-xs">app.example.com</div>
+              </div>
+            </div>
+            <div className="flex-1 mx-4">
+              <div className="space-y-2">
+                <div className="text-xs text-center text-slate-400">1. OPTIONS (preflight)</div>
+                <div className="h-0.5 bg-blue-500"></div>
+                <div className="h-0.5 bg-green-500"></div>
+                <div className="text-xs text-center text-slate-400">{corsEnabled ? "2. Allow headers" : "2. No CORS headers"}</div>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className={`rounded p-3 text-white ${corsEnabled ? "bg-green-500" : "bg-red-500"}`}>
+                <div className="text-xl">🪣</div>
+                <div className="text-xs">S3 Bucket</div>
+              </div>
+            </div>
+          </div>
+
+          <div className={`p-3 rounded text-center ${corsEnabled ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+            {corsEnabled ? "✓ Request allowed from app.example.com" : "✗ CORS error: No 'Access-Control-Allow-Origin'"}
+          </div>
+
+          <div className="mt-4 bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">CORS Configuration</div>
+            <pre className="text-xs text-green-400 font-mono overflow-x-auto">
+{`[{
+  "AllowedOrigins": ["https://app.example.com"],
+  "AllowedMethods": ["GET", "PUT", "POST"],
+  "AllowedHeaders": ["*"],
+  "ExposeHeaders": ["ETag"]
+}]`}
+            </pre>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Required for browser-based S3 access from different domains</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Configure AllowedOrigins, Methods, Headers</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Browser sends OPTIONS preflight first</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Common issue when using S3 with JavaScript apps</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// S3 BATCH OPERATIONS EXPLAINER (Medium)
+// ============================================================================
+export function S3BatchOperationsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [operation, setOperation] = useState<"copy" | "tag" | "acl" | "restore">("copy")
+
+  const steps = [
+    {
+      title: "What is S3 Batch Operations?",
+      description: "Perform operations on billions of objects. Single request can process millions of objects automatically."
+    },
+    {
+      title: "Supported Operations",
+      description: "Copy, invoke Lambda, restore from Glacier, replace tags, replace ACLs, Object Lock retention."
+    },
+    {
+      title: "How It Works",
+      description: "Create job with manifest (list of objects), specify operation, S3 processes in background with reports."
+    },
+    {
+      title: "Use Cases",
+      description: "Bulk encryption, cross-account copy, Glacier restores, compliance tagging, Lambda processing at scale."
+    }
+  ]
+
+  const operations = {
+    copy: { name: "Copy", icon: "📋", desc: "Copy objects across buckets/accounts" },
+    tag: { name: "Replace Tags", icon: "🏷️", desc: "Update tags on all objects" },
+    acl: { name: "Replace ACL", icon: "🔐", desc: "Update ACLs across objects" },
+    restore: { name: "Restore", icon: "📦", desc: "Restore from Glacier at scale" }
+  }
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">S3 Batch Operations</h1>
+        <p className="text-slate-400">Perform bulk operations on billions of objects</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-2 mb-6">
+          {Object.entries(operations).map(([key, op]) => (
+            <button key={key} onClick={() => setOperation(key as typeof operation)} className={`px-3 py-1 rounded text-xs ${operation === key ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>
+              {op.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-center">
+              <div className="bg-blue-500 rounded p-3 text-white">
+                <div className="text-xl">📄</div>
+                <div className="text-xs">Manifest</div>
+                <div className="text-xs opacity-75">1M objects</div>
+              </div>
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="text-center">
+              <div className="bg-purple-500 rounded p-3 text-white">
+                <div className="text-xl">{operations[operation].icon}</div>
+                <div className="text-xs">{operations[operation].name}</div>
+              </div>
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="text-center">
+              <div className="bg-green-500 rounded p-3 text-white">
+                <div className="text-xl">📊</div>
+                <div className="text-xs">Report</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">Operation: {operations[operation].name}</div>
+            <div className="text-sm text-white">{operations[operation].desc}</div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-4">
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <div className="text-xs text-slate-400">Objects</div>
+              <div className="text-lg font-mono text-blue-400">1,000,000</div>
+            </div>
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <div className="text-xs text-slate-400">Success</div>
+              <div className="text-lg font-mono text-green-400">999,985</div>
+            </div>
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <div className="text-xs text-slate-400">Failed</div>
+              <div className="text-lg font-mono text-red-400">15</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Process billions of objects with single request</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Operations: Copy, Tag, ACL, Restore, Lambda, Object Lock</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Requires manifest file listing objects</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Completion reports show success/failure</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 export const s3Explainers = {
@@ -1522,4 +2129,9 @@ export const s3Explainers = {
   "s3-event-notifications": S3EventNotificationsExplainer,
   "s3-transfer-acceleration": S3TransferAccelerationExplainer,
   "s3-select": S3SelectExplainer,
+  "s3-access-points": S3AccessPointsExplainer,
+  "s3-object-lock": S3ObjectLockExplainer,
+  "s3-multipart-upload": S3MultipartUploadExplainer,
+  "s3-cors": S3CORSExplainer,
+  "s3-batch-operations": S3BatchOperationsExplainer,
 }

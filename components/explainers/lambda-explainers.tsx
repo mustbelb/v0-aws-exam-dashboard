@@ -1592,6 +1592,895 @@ export function LambdaEnvironmentConfigExplainer() {
 }
 
 // ============================================================================
+// LAMBDA PERMISSIONS EXPLAINER (Medium)
+// ============================================================================
+export function LambdaPermissionsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [permissionType, setPermissionType] = useState<"execution" | "resource">("execution")
+
+  const steps = [
+    {
+      title: "Two Permission Types",
+      description: "Lambda uses two permission models: Execution Role (what Lambda CAN do) and Resource Policy (who CAN invoke Lambda)."
+    },
+    {
+      title: "Execution Role",
+      description: "IAM role attached to function. Grants Lambda permission to access AWS services like S3, DynamoDB, CloudWatch Logs."
+    },
+    {
+      title: "Resource-Based Policy",
+      description: "Attached to the function itself. Grants other services/accounts permission to invoke the function."
+    },
+    {
+      title: "Common Patterns",
+      description: "S3 triggers: resource policy. Lambda calling DynamoDB: execution role. Cross-account: both needed."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Permissions</h1>
+        <p className="text-slate-400">Execution roles and resource-based policies</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setPermissionType("execution")} className={`px-4 py-2 rounded-lg ${permissionType === "execution" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>Execution Role</button>
+          <button onClick={() => setPermissionType("resource")} className={`px-4 py-2 rounded-lg ${permissionType === "resource" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Resource Policy</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {permissionType === "execution" ? (
+            <div className="flex items-center justify-between">
+              <div className="bg-orange-500 rounded p-3 text-white text-center">
+                <div className="text-2xl">λ</div>
+                <div className="text-xs">Lambda</div>
+              </div>
+              <div className="flex-1 mx-4">
+                <div className="text-center text-blue-400 text-sm mb-1">Execution Role</div>
+                <div className="h-1 bg-blue-500 rounded"></div>
+                <div className="text-xs text-slate-400 text-center mt-1">Lambda assumes this role</div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="bg-green-500 rounded p-2 text-white text-xs">S3</div>
+                <div className="bg-blue-600 rounded p-2 text-white text-xs">DynamoDB</div>
+                <div className="bg-purple-500 rounded p-2 text-white text-xs">CloudWatch</div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <div className="bg-green-500 rounded p-2 text-white text-xs">S3 Bucket</div>
+                <div className="bg-yellow-500 rounded p-2 text-white text-xs">API Gateway</div>
+                <div className="bg-purple-500 rounded p-2 text-white text-xs">EventBridge</div>
+              </div>
+              <div className="flex-1 mx-4">
+                <div className="text-center text-green-400 text-sm mb-1">Resource Policy</div>
+                <div className="h-1 bg-green-500 rounded"></div>
+                <div className="text-xs text-slate-400 text-center mt-1">Who can invoke Lambda</div>
+              </div>
+              <div className="bg-orange-500 rounded p-3 text-white text-center">
+                <div className="text-2xl">λ</div>
+                <div className="text-xs">Lambda</div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4 bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">Example Policy</div>
+            <pre className="text-xs text-green-400 font-mono overflow-x-auto">
+{permissionType === "execution" ? `{
+  "Effect": "Allow",
+  "Action": [
+    "dynamodb:GetItem",
+    "dynamodb:PutItem"
+  ],
+  "Resource": "arn:aws:dynamodb:*:*:table/MyTable"
+}` : `{
+  "Effect": "Allow",
+  "Principal": {"Service": "s3.amazonaws.com"},
+  "Action": "lambda:InvokeFunction",
+  "Resource": "arn:aws:lambda:*:*:function:MyFunction",
+  "Condition": {
+    "ArnLike": {"AWS:SourceArn": "arn:aws:s3:::my-bucket"}
+  }
+}`}
+            </pre>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Execution Role: what Lambda can DO (access other services)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Resource Policy: who can INVOKE Lambda</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Cross-account invocation requires BOTH policies</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Lambda automatically creates CloudWatch Logs permissions</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// LAMBDA INVOCATION TYPES EXPLAINER (Medium)
+// ============================================================================
+export function LambdaInvocationTypesExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [invocationType, setInvocationType] = useState<"sync" | "async" | "event">("sync")
+
+  const steps = [
+    {
+      title: "Three Invocation Types",
+      description: "Lambda supports synchronous, asynchronous, and event source mapping invocations with different behaviors."
+    },
+    {
+      title: "Synchronous (RequestResponse)",
+      description: "Caller waits for response. API Gateway, ALB, SDK calls. Errors returned immediately to caller."
+    },
+    {
+      title: "Asynchronous (Event)",
+      description: "Lambda queues the event. S3, SNS, EventBridge. Returns 202 immediately. Lambda handles retries."
+    },
+    {
+      title: "Event Source Mapping",
+      description: "Lambda polls the source. SQS, Kinesis, DynamoDB Streams. Lambda manages polling infrastructure."
+    }
+  ]
+
+  const invocationTypes = {
+    sync: { name: "Synchronous", services: ["API Gateway", "ALB", "SDK", "Cognito"], retries: "Caller handles", response: "Wait for result" },
+    async: { name: "Asynchronous", services: ["S3", "SNS", "EventBridge", "CloudWatch Events"], retries: "2 automatic retries", response: "202 Accepted" },
+    event: { name: "Event Source Mapping", services: ["SQS", "Kinesis", "DynamoDB Streams", "Kafka"], retries: "Until success/expiry", response: "N/A (polling)" }
+  }
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  const current = invocationTypes[invocationType]
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Invocation Types</h1>
+        <p className="text-slate-400">Synchronous, asynchronous, and polling patterns</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-2 mb-6">
+          <button onClick={() => setInvocationType("sync")} className={`px-3 py-1 rounded text-xs ${invocationType === "sync" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>Synchronous</button>
+          <button onClick={() => setInvocationType("async")} className={`px-3 py-1 rounded text-xs ${invocationType === "async" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Asynchronous</button>
+          <button onClick={() => setInvocationType("event")} className={`px-3 py-1 rounded text-xs ${invocationType === "event" ? "bg-purple-500 text-white" : "bg-slate-700 text-slate-300"}`}>Event Source Mapping</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col gap-1">
+              {current.services.map((svc, i) => (
+                <div key={i} className="bg-slate-700 rounded px-2 py-1 text-xs text-white">{svc}</div>
+              ))}
+            </div>
+            <div className="flex-1 mx-4 text-center">
+              <div className={`text-sm mb-2 ${invocationType === "sync" ? "text-blue-400" : invocationType === "async" ? "text-green-400" : "text-purple-400"}`}>
+                {invocationType === "sync" ? "→ Wait →" : invocationType === "async" ? "→ Queue →" : "← Poll ←"}
+              </div>
+              <div className="text-xs text-slate-500">{current.response}</div>
+            </div>
+            <div className="bg-orange-500 rounded p-3 text-white text-center">
+              <div className="text-2xl">λ</div>
+              <div className="text-xs">Lambda</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="bg-slate-800 rounded p-3 text-center">
+              <div className="text-xs text-slate-400">Type</div>
+              <div className="text-sm text-white">{current.name}</div>
+            </div>
+            <div className="bg-slate-800 rounded p-3 text-center">
+              <div className="text-xs text-slate-400">Retries</div>
+              <div className="text-sm text-white">{current.retries}</div>
+            </div>
+            <div className="bg-slate-800 rounded p-3 text-center">
+              <div className="text-xs text-slate-400">Response</div>
+              <div className="text-sm text-white">{current.response}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Sync: API Gateway, ALB - caller waits and handles errors</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Async: S3, SNS - Lambda retries twice automatically</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Event Source: SQS, Kinesis - Lambda polls and manages retries</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use destinations for async success/failure handling</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// LAMBDA ERROR HANDLING EXPLAINER (Medium)
+// ============================================================================
+export function LambdaErrorHandlingExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [errorType, setErrorType] = useState<"handled" | "unhandled" | "timeout">("handled")
+
+  const steps = [
+    {
+      title: "Error Types",
+      description: "Lambda has handled errors (your code catches them), unhandled exceptions, and system errors (timeout, OOM)."
+    },
+    {
+      title: "Retry Behavior",
+      description: "Sync: no retries. Async: 2 retries with delays. Event source: depends on source type (streams vs queues)."
+    },
+    {
+      title: "Dead Letter Queues",
+      description: "After retries exhausted, failed events can go to SQS DLQ or SNS topic for investigation."
+    },
+    {
+      title: "Error Destinations",
+      description: "Modern alternative to DLQ - route success/failure to SQS, SNS, Lambda, or EventBridge with full context."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Error Handling</h1>
+        <p className="text-slate-400">Retries, DLQs, and error destinations</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-2 mb-6">
+          <button onClick={() => setErrorType("handled")} className={`px-3 py-1 rounded text-xs ${errorType === "handled" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Handled Error</button>
+          <button onClick={() => setErrorType("unhandled")} className={`px-3 py-1 rounded text-xs ${errorType === "unhandled" ? "bg-red-500 text-white" : "bg-slate-700 text-slate-300"}`}>Unhandled Exception</button>
+          <button onClick={() => setErrorType("timeout")} className={`px-3 py-1 rounded text-xs ${errorType === "timeout" ? "bg-yellow-500 text-white" : "bg-slate-700 text-slate-300"}`}>Timeout</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-blue-500 rounded p-2 text-white text-xs">Event</div>
+            <div className="text-slate-400">→</div>
+            <div className={`rounded p-3 text-white text-center ${errorType === "handled" ? "bg-green-500" : "bg-red-500"}`}>
+              <div className="text-xl">λ</div>
+              <div className="text-xs">{errorType === "timeout" ? "TIMEOUT" : errorType === "handled" ? "Caught" : "CRASH"}</div>
+            </div>
+            <div className="text-slate-400">→</div>
+            <div className="flex flex-col gap-2">
+              <div className={`rounded p-2 text-xs ${errorType === "handled" ? "bg-green-500 text-white" : "bg-slate-600 text-slate-400"}`}>
+                {errorType === "handled" ? "Response" : "Retry 1"}
+              </div>
+              {errorType !== "handled" && (
+                <>
+                  <div className="bg-slate-600 rounded p-2 text-xs text-slate-400">Retry 2</div>
+                  <div className="bg-orange-500 rounded p-2 text-xs text-white">DLQ/Dest</div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-slate-800 rounded p-3 mt-4">
+            <div className="text-xs text-slate-400 mb-2">Error Response</div>
+            <pre className="text-xs font-mono overflow-x-auto">
+              {errorType === "handled" ? (
+                <span className="text-green-400">{`{
+  "statusCode": 400,
+  "body": "Validation error: missing field"
+}`}</span>
+              ) : errorType === "unhandled" ? (
+                <span className="text-red-400">{`{
+  "errorType": "ReferenceError",
+  "errorMessage": "x is not defined",
+  "trace": ["at handler (index.js:15:10)", ...]
+}`}</span>
+              ) : (
+                <span className="text-yellow-400">{`{
+  "errorType": "Task timed out",
+  "errorMessage": "Task timed out after 30.00 seconds"
+}`}</span>
+              )}
+            </pre>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Async invocation: 2 automatic retries with exponential backoff</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>DLQ for failed events after retries exhausted</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Destinations preferred over DLQ - more context, supports success too</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Return proper error responses to avoid unnecessary retries</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// LAMBDA MEMORY AND TIMEOUT EXPLAINER (Light)
+// ============================================================================
+export function LambdaMemoryTimeoutExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [memory, setMemory] = useState(512)
+  const [timeout, setTimeout_] = useState(30)
+
+  const steps = [
+    {
+      title: "Memory Configuration",
+      description: "128 MB to 10,240 MB. More memory = more CPU = faster execution. Often cost-effective to increase memory."
+    },
+    {
+      title: "Timeout Configuration",
+      description: "1 second to 15 minutes maximum. Set based on expected execution time plus buffer."
+    },
+    {
+      title: "Cost Calculation",
+      description: "Charged per ms of execution × memory allocated. Faster execution with more memory can cost less overall."
+    },
+    {
+      title: "Best Practices",
+      description: "Use AWS Lambda Power Tuning to find optimal memory. Set timeout > expected duration. Monitor with CloudWatch."
+    }
+  ]
+
+  const cpuShare = Math.min(6, Math.floor(memory / 1769))
+  const estimatedDuration = Math.max(100, 5000 - (memory * 3))
+  const cost = ((memory / 1024) * (estimatedDuration / 1000) * 0.0000166667).toFixed(6)
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Memory & Timeout</h1>
+        <p className="text-slate-400">Optimizing performance and cost</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-slate-700/50 rounded-xl p-4">
+            <label className="text-sm text-slate-400 block mb-2">Memory (MB)</label>
+            <input type="range" min="128" max="3008" step="64" value={memory} onChange={(e) => setMemory(Number(e.target.value))} className="w-full" />
+            <div className="text-center text-white font-mono mt-1">{memory} MB</div>
+          </div>
+          <div className="bg-slate-700/50 rounded-xl p-4">
+            <label className="text-sm text-slate-400 block mb-2">Timeout (seconds)</label>
+            <input type="range" min="1" max="900" value={timeout} onChange={(e) => setTimeout_(Number(e.target.value))} className="w-full" />
+            <div className="text-center text-white font-mono mt-1">{timeout}s</div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-slate-800 rounded p-3 text-center">
+              <div className="text-xs text-slate-400">Memory</div>
+              <div className="text-lg font-mono text-blue-400">{memory} MB</div>
+            </div>
+            <div className="bg-slate-800 rounded p-3 text-center">
+              <div className="text-xs text-slate-400">vCPU</div>
+              <div className="text-lg font-mono text-green-400">{cpuShare || "<1"}</div>
+            </div>
+            <div className="bg-slate-800 rounded p-3 text-center">
+              <div className="text-xs text-slate-400">Est. Duration</div>
+              <div className="text-lg font-mono text-yellow-400">{estimatedDuration}ms</div>
+            </div>
+            <div className="bg-slate-800 rounded p-3 text-center">
+              <div className="text-xs text-slate-400">Est. Cost</div>
+              <div className="text-lg font-mono text-purple-400">${cost}</div>
+            </div>
+          </div>
+
+          <div className="mt-4 h-8 bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" style={{ width: `${Math.min(100, estimatedDuration / timeout / 10)}%` }}>
+            </div>
+          </div>
+          <div className="flex justify-between text-xs text-slate-400 mt-1">
+            <span>Fast</span>
+            <span>{estimatedDuration}ms / {timeout * 1000}ms timeout</span>
+            <span>Timeout</span>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Memory: 128 MB - 10,240 MB (10 GB)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Timeout: 1 second - 15 minutes (900 seconds)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>CPU scales proportionally with memory at 1,769 MB = 1 vCPU</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>More memory often reduces cost (faster execution)</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// LAMBDA CONTAINER IMAGES EXPLAINER (Light)
+// ============================================================================
+export function LambdaContainerImagesExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [deploymentType, setDeploymentType] = useState<"zip" | "container">("container")
+
+  const steps = [
+    {
+      title: "Container Image Support",
+      description: "Deploy Lambda functions as container images up to 10 GB. Use familiar container tooling and workflows."
+    },
+    {
+      title: "Base Images",
+      description: "AWS provides base images for each runtime. Or use any image that implements Lambda Runtime API."
+    },
+    {
+      title: "ECR Integration",
+      description: "Images stored in Amazon ECR. Lambda pulls image at deployment. Supports private repositories."
+    },
+    {
+      title: "When to Use",
+      description: "Large dependencies, custom runtimes, consistent dev/prod environments, existing container workflows."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Container Images</h1>
+        <p className="text-slate-400">Deploying functions as Docker containers</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setDeploymentType("zip")} className={`px-4 py-2 rounded-lg ${deploymentType === "zip" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>ZIP Package</button>
+          <button onClick={() => setDeploymentType("container")} className={`px-4 py-2 rounded-lg ${deploymentType === "container" ? "bg-purple-500 text-white" : "bg-slate-700 text-slate-300"}`}>Container Image</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="text-center">
+              {deploymentType === "zip" ? (
+                <div className="bg-blue-500 rounded p-3 text-white">
+                  <div className="text-2xl">📦</div>
+                  <div className="text-xs">ZIP (≤250MB)</div>
+                </div>
+              ) : (
+                <div className="bg-purple-500 rounded p-3 text-white">
+                  <div className="text-2xl">🐳</div>
+                  <div className="text-xs">Container (≤10GB)</div>
+                </div>
+              )}
+            </div>
+            <div className="text-slate-400">→</div>
+            {deploymentType === "container" && (
+              <>
+                <div className="bg-orange-500 rounded p-3 text-white text-center">
+                  <div className="text-xl">📦</div>
+                  <div className="text-xs">ECR</div>
+                </div>
+                <div className="text-slate-400">→</div>
+              </>
+            )}
+            <div className="bg-orange-500 rounded p-3 text-white text-center">
+              <div className="text-2xl">λ</div>
+              <div className="text-xs">Lambda</div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className={`p-3 rounded-lg ${deploymentType === "zip" ? "bg-blue-500/20 border border-blue-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white mb-2">ZIP Package</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• Max 250 MB unzipped</li>
+                <li>• 50 MB direct upload</li>
+                <li>• Quick deployments</li>
+                <li>• Built-in runtimes only</li>
+              </ul>
+            </div>
+            <div className={`p-3 rounded-lg ${deploymentType === "container" ? "bg-purple-500/20 border border-purple-500" : "bg-slate-800"}`}>
+              <div className="text-sm font-medium text-white mb-2">Container Image</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>• Max 10 GB image</li>
+                <li>• Stored in ECR</li>
+                <li>• Custom runtimes</li>
+                <li>• Familiar tooling</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Container images up to 10 GB (vs 250 MB for ZIP)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Must be stored in Amazon ECR</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use AWS base images or implement Lambda Runtime API</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Same 15-minute timeout and 10 GB memory limits apply</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// LAMBDA SNAPSTART EXPLAINER (Light)
+// ============================================================================
+export function LambdaSnapStartExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [snapStartEnabled, setSnapStartEnabled] = useState(true)
+
+  const steps = [
+    {
+      title: "What is SnapStart?",
+      description: "Caches initialized execution environment snapshots. Dramatically reduces cold start latency for Java functions."
+    },
+    {
+      title: "How It Works",
+      description: "When you publish a version, Lambda initializes your function and takes a snapshot. Invocations restore from snapshot."
+    },
+    {
+      title: "Performance Impact",
+      description: "Up to 10x faster cold starts for Java. From seconds to milliseconds. No code changes required."
+    },
+    {
+      title: "Considerations",
+      description: "Java only (Corretto 11+). Requires published versions. Some state (connections, random) needs refresh hooks."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda SnapStart</h1>
+        <p className="text-slate-400">Eliminating Java cold starts with snapshots</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center mb-6">
+          <button onClick={() => setSnapStartEnabled(!snapStartEnabled)} className={`px-4 py-2 rounded-lg ${snapStartEnabled ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>
+            SnapStart: {snapStartEnabled ? "Enabled" : "Disabled"}
+          </button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="text-sm text-slate-400 mb-4">Cold Start Timeline</div>
+
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-slate-500 mb-1">Without SnapStart</div>
+              <div className="flex h-8 rounded overflow-hidden">
+                <div className="bg-red-500 flex items-center justify-center text-xs text-white" style={{ width: "30%" }}>Download</div>
+                <div className="bg-yellow-500 flex items-center justify-center text-xs text-black" style={{ width: "40%" }}>Init JVM + Code</div>
+                <div className="bg-green-500 flex items-center justify-center text-xs text-white" style={{ width: "30%" }}>Handler</div>
+              </div>
+              <div className="text-xs text-red-400 mt-1">~6,000ms total</div>
+            </div>
+
+            <div className={snapStartEnabled ? "opacity-100" : "opacity-40"}>
+              <div className="text-xs text-slate-500 mb-1">With SnapStart</div>
+              <div className="flex h-8 rounded overflow-hidden">
+                <div className="bg-blue-500 flex items-center justify-center text-xs text-white" style={{ width: "15%" }}>Restore</div>
+                <div className="bg-green-500 flex items-center justify-center text-xs text-white" style={{ width: "30%" }}>Handler</div>
+                <div className="bg-slate-700" style={{ width: "55%" }}></div>
+              </div>
+              <div className="text-xs text-green-400 mt-1">~200ms total (10x faster!)</div>
+            </div>
+          </div>
+
+          <div className="mt-6 bg-slate-800 rounded p-3">
+            <div className="text-xs text-slate-400 mb-2">SnapStart Lifecycle</div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="text-center">
+                <div className="bg-blue-500 rounded p-2 text-white mb-1">Publish Version</div>
+                <div className="text-slate-500">Trigger</div>
+              </div>
+              <div className="text-slate-400">→</div>
+              <div className="text-center">
+                <div className="bg-yellow-500 rounded p-2 text-black mb-1">Init & Snapshot</div>
+                <div className="text-slate-500">Cache</div>
+              </div>
+              <div className="text-slate-400">→</div>
+              <div className="text-center">
+                <div className="bg-green-500 rounded p-2 text-white mb-1">Restore & Run</div>
+                <div className="text-slate-500">Fast!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Java only - Corretto 11 and higher</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Up to 10x reduction in cold start latency</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Requires published versions (not $LATEST)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use runtime hooks to refresh connections/state after restore</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// LAMBDA FUNCTION URLS EXPLAINER (Light)
+// ============================================================================
+export function LambdaFunctionURLsExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [authType, setAuthType] = useState<"none" | "iam">("none")
+
+  const steps = [
+    {
+      title: "What are Function URLs?",
+      description: "Dedicated HTTPS endpoints for Lambda functions. No API Gateway needed for simple HTTP use cases."
+    },
+    {
+      title: "Authentication",
+      description: "Two auth types: AWS_IAM (SigV4 signed requests) or NONE (public). CORS configuration available."
+    },
+    {
+      title: "URL Format",
+      description: "https://<url-id>.lambda-url.<region>.on.aws - unique, persistent URL per function/alias."
+    },
+    {
+      title: "When to Use",
+      description: "Simple webhooks, single-function APIs, testing. Use API Gateway for complex routing, auth, throttling."
+    }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) {
+      setIsPlaying(false)
+    }
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Function URLs</h1>
+        <p className="text-slate-400">Built-in HTTPS endpoints without API Gateway</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setAuthType("none")} className={`px-4 py-2 rounded-lg ${authType === "none" ? "bg-yellow-500 text-black" : "bg-slate-700 text-slate-300"}`}>AUTH_TYPE: NONE</button>
+          <button onClick={() => setAuthType("iam")} className={`px-4 py-2 rounded-lg ${authType === "iam" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>AUTH_TYPE: AWS_IAM</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-center">
+              <div className="bg-purple-500 rounded p-3 text-white">
+                <div className="text-2xl">🌐</div>
+                <div className="text-xs">Client</div>
+              </div>
+            </div>
+            <div className="flex-1 mx-4">
+              <div className="bg-slate-800 rounded p-2 text-center">
+                <code className="text-xs text-green-400 break-all">
+                  https://abc123.lambda-url.us-east-1.on.aws
+                </code>
+              </div>
+              <div className="text-center text-xs text-slate-400 mt-1">
+                {authType === "none" ? "Public Access" : "IAM Signed Request"}
+              </div>
+            </div>
+            <div className="bg-orange-500 rounded p-3 text-white text-center">
+              <div className="text-2xl">λ</div>
+              <div className="text-xs">Lambda</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="bg-slate-800 rounded p-3">
+              <div className="text-sm font-medium text-white mb-2">Function URL</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>✓ Free (no API Gateway cost)</li>
+                <li>✓ Simple setup</li>
+                <li>✓ Built-in HTTPS</li>
+                <li>✗ No custom domains</li>
+                <li>✗ Limited auth options</li>
+              </ul>
+            </div>
+            <div className="bg-slate-800 rounded p-3">
+              <div className="text-sm font-medium text-white mb-2">API Gateway</div>
+              <ul className="text-xs text-slate-400 space-y-1">
+                <li>✓ Custom domains</li>
+                <li>✓ Request validation</li>
+                <li>✓ Usage plans/throttling</li>
+                <li>✓ Multiple auth methods</li>
+                <li>✗ Additional cost</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Function URLs are free - no API Gateway charges</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Auth types: AWS_IAM or NONE (public)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>No custom domain support - use API Gateway for that</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Great for webhooks, simple APIs, internal tools</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 export const lambdaExplainers = {
@@ -1603,4 +2492,11 @@ export const lambdaExplainers = {
   "lambda-destinations": LambdaDestinationsExplainer,
   "lambda-event-source-mappings": LambdaEventSourceMappingsExplainer,
   "lambda-environment-config": LambdaEnvironmentConfigExplainer,
+  "lambda-permissions": LambdaPermissionsExplainer,
+  "lambda-invocation-types": LambdaInvocationTypesExplainer,
+  "lambda-error-handling": LambdaErrorHandlingExplainer,
+  "lambda-memory-timeout": LambdaMemoryTimeoutExplainer,
+  "lambda-container-images": LambdaContainerImagesExplainer,
+  "lambda-snapstart": LambdaSnapStartExplainer,
+  "lambda-function-urls": LambdaFunctionURLsExplainer,
 }

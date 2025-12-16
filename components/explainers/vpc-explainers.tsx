@@ -1047,6 +1047,590 @@ export function VPCBastionVsSessionManagerExplainer() {
 }
 
 // ============================================================================
+// INTERNET GATEWAY EXPLAINER (Light)
+// ============================================================================
+export function VPCInternetGatewayExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [hasIgw, setHasIgw] = useState(true)
+
+  const steps = [
+    { title: "What is Internet Gateway?", description: "Horizontally scaled, redundant, highly available VPC component for internet connectivity." },
+    { title: "Key Function", description: "Performs NAT for instances with public IPs. Translates private to public IP for outbound traffic." },
+    { title: "One per VPC", description: "Only one IGW can be attached to a VPC at a time. Detach before attaching new one." },
+    { title: "Route Table Entry", description: "Add route 0.0.0.0/0 -> IGW to make subnet public. Instance also needs public IP." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Internet Gateway</h1>
+        <p className="text-slate-400">VPC internet connectivity</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center mb-6">
+          <button onClick={() => setHasIgw(!hasIgw)} className={`px-4 py-2 rounded-lg ${hasIgw ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+            IGW: {hasIgw ? "Attached" : "Detached"}
+          </button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between">
+            {/* VPC */}
+            <div className="border-2 border-blue-500/30 rounded-lg p-4 flex-1 mr-4">
+              <div className="text-xs text-blue-400 mb-2">VPC</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-green-500/20 border border-green-500/50 rounded p-2">
+                  <div className="text-xs text-green-400">Public Subnet</div>
+                  <div className="bg-blue-500 rounded p-1 text-white text-xs mt-1">EC2 + Public IP</div>
+                </div>
+                <div className="bg-orange-500/20 border border-orange-500/50 rounded p-2">
+                  <div className="text-xs text-orange-400">Private Subnet</div>
+                  <div className="bg-blue-500 rounded p-1 text-white text-xs mt-1">EC2 Private</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Internet Gateway */}
+            <div className={`rounded-lg p-4 text-center ${hasIgw ? "bg-yellow-500 text-black" : "bg-slate-700 text-slate-500"}`}>
+              <div className="text-2xl">{hasIgw ? "🌐" : "❌"}</div>
+              <div className="text-xs font-medium">IGW</div>
+            </div>
+
+            {/* Internet */}
+            <div className="ml-4 text-center">
+              <div className="text-4xl">☁️</div>
+              <div className="text-xs text-slate-400">Internet</div>
+            </div>
+          </div>
+
+          <div className="mt-4 text-center text-xs">
+            <span className={hasIgw ? "text-green-400" : "text-red-400"}>
+              {hasIgw ? "✓ Public subnet EC2 can reach internet" : "✗ No internet connectivity"}
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>IGW is horizontally scaled, redundant, and highly available</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Only ONE IGW per VPC</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Instance needs public IP AND route to IGW for internet</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>No cost for IGW itself (only data transfer)</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// ELASTIC IP EXPLAINER (Light)
+// ============================================================================
+export function VPCElasticIPExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [eipAllocated, setEipAllocated] = useState(true)
+
+  const steps = [
+    { title: "What is Elastic IP?", description: "Static, public IPv4 address you own until you release it. Survives instance stop/start." },
+    { title: "Association", description: "Associate EIP with instance or network interface. One EIP per instance at a time." },
+    { title: "Cost Model", description: "FREE when associated with running instance. CHARGED when unused or associated with stopped instance." },
+    { title: "Limits", description: "5 EIPs per region by default. Can request increase. Use sparingly - IPv4 addresses are scarce." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">Elastic IP Addresses</h1>
+        <p className="text-slate-400">Static public IPv4 addresses</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center mb-6">
+          <button onClick={() => setEipAllocated(!eipAllocated)} className={`px-4 py-2 rounded-lg ${eipAllocated ? "bg-green-500 text-white" : "bg-orange-500 text-white"}`}>
+            EIP: {eipAllocated ? "Associated" : "Unassociated"}
+          </button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-center gap-8">
+            {/* Elastic IP */}
+            <div className={`rounded-lg p-4 text-center ${eipAllocated ? "bg-green-500" : "bg-orange-500"}`}>
+              <div className="text-white text-sm font-mono">54.23.45.67</div>
+              <div className="text-xs text-white/80">Elastic IP</div>
+            </div>
+
+            {eipAllocated ? (
+              <>
+                <div className="text-green-400">→ associated →</div>
+                <div className="bg-blue-500 rounded-lg p-4 text-white">
+                  <div className="text-2xl">🖥️</div>
+                  <div className="text-xs">EC2 Running</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-orange-400">not associated</div>
+                <div className="bg-slate-700 rounded-lg p-4 text-slate-500">
+                  <div className="text-2xl">❓</div>
+                  <div className="text-xs">No Instance</div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="mt-4 p-3 bg-slate-800 rounded">
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-400">Cost:</span>
+              <span className={eipAllocated ? "text-green-400" : "text-red-400"}>
+                {eipAllocated ? "FREE (associated with running instance)" : "$0.005/hour (unused EIP charge)"}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-2 text-xs text-center">
+            <div className="bg-green-500/20 rounded p-2">
+              <div className="text-green-400">Free</div>
+              <div className="text-slate-400">Associated + Running</div>
+            </div>
+            <div className="bg-red-500/20 rounded p-2">
+              <div className="text-red-400">Charged</div>
+              <div className="text-slate-400">Unassociated</div>
+            </div>
+            <div className="bg-red-500/20 rounded p-2">
+              <div className="text-red-400">Charged</div>
+              <div className="text-slate-400">Instance Stopped</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>EIP is CHARGED when not associated or instance is stopped</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>5 EIPs per region default limit</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Best practice: use DNS names instead of EIPs when possible</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Can move EIP between instances instantly</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// VPC DNS EXPLAINER (Medium)
+// ============================================================================
+export function VPCDNSExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "VPC DNS Basics", description: "AWS provides DNS server at VPC base + 2 (e.g., 10.0.0.2). Called Route 53 Resolver." },
+    { title: "DNS Hostnames", description: "enableDnsHostnames: assigns public DNS to instances with public IPs (ec2-x-x-x-x.region.compute.amazonaws.com)." },
+    { title: "DNS Resolution", description: "enableDnsSupport: allows VPC to use AWS DNS. If disabled, must provide own DNS." },
+    { title: "Private Hosted Zones", description: "Route 53 private zones let you use custom domain names within VPC (e.g., db.internal)." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">VPC DNS Settings</h1>
+        <p className="text-slate-400">DNS resolution and hostnames in VPC</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* DNS Architecture */}
+          <div className="border-2 border-blue-500/30 rounded-lg p-4">
+            <div className="text-xs text-blue-400 mb-4">VPC 10.0.0.0/16</div>
+
+            <div className="grid grid-cols-3 gap-4">
+              {/* EC2 Instance */}
+              <div className="bg-blue-500 rounded p-3 text-white text-center">
+                <div className="text-xs">EC2 Instance</div>
+                <div className="font-mono text-xs mt-1">10.0.1.50</div>
+              </div>
+
+              {/* DNS Server */}
+              <div className="bg-green-500 rounded p-3 text-white text-center">
+                <div className="text-xs">Route 53 Resolver</div>
+                <div className="font-mono text-xs mt-1">10.0.0.2</div>
+              </div>
+
+              {/* Result */}
+              <div className="bg-purple-500 rounded p-3 text-white text-center">
+                <div className="text-xs">Resolved Name</div>
+                <div className="font-mono text-xs mt-1 break-all">ip-10-0-1-50</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Settings */}
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div className="bg-slate-800 p-3 rounded">
+              <div className="text-sm font-medium text-green-400 mb-2">enableDnsSupport</div>
+              <div className="text-xs text-slate-300">Queries go to Route 53 Resolver (10.0.0.2)</div>
+              <div className="text-xs text-slate-400 mt-1">Default: true</div>
+            </div>
+            <div className="bg-slate-800 p-3 rounded">
+              <div className="text-sm font-medium text-purple-400 mb-2">enableDnsHostnames</div>
+              <div className="text-xs text-slate-300">Instances get public DNS hostname</div>
+              <div className="text-xs text-slate-400 mt-1">Default: false (except default VPC)</div>
+            </div>
+          </div>
+
+          {/* Private Hosted Zone */}
+          <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500/30 rounded">
+            <div className="text-sm font-medium text-orange-400 mb-2">Private Hosted Zone Example</div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="bg-blue-500 text-white px-2 py-1 rounded">app.internal</span>
+              <span className="text-slate-400">→</span>
+              <span className="text-slate-300">10.0.1.50</span>
+              <span className="text-slate-400">(custom domain within VPC)</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>AWS DNS at VPC CIDR base + 2 (10.0.0.2 for 10.0.0.0/16)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Both settings must be enabled for VPC endpoints to work</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Private hosted zones need enableDnsHostnames = true</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Can use Route 53 Resolver endpoints for hybrid DNS</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// VPC CIDR PLANNING EXPLAINER (Medium)
+// ============================================================================
+export function VPCCIDRPlanningExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const steps = [
+    { title: "VPC CIDR Basics", description: "VPC requires IPv4 CIDR block. Range: /16 (65,536 IPs) to /28 (16 IPs). Can't change primary CIDR." },
+    { title: "Secondary CIDRs", description: "Can add up to 4 secondary CIDRs. Must not overlap with primary or other associated CIDRs." },
+    { title: "Subnet Planning", description: "Divide VPC CIDR into subnets. AWS reserves 5 IPs per subnet. Plan for growth." },
+    { title: "Avoiding Conflicts", description: "Don't overlap with on-premises or other VPCs you'll peer with. Use private IP ranges (RFC 1918)." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">VPC CIDR Planning</h1>
+        <p className="text-slate-400">Designing IP address allocation</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          {/* VPC CIDR Visualization */}
+          <div className="border-2 border-blue-500/30 rounded-lg p-4 mb-4">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-blue-400 text-sm">VPC: 10.0.0.0/16</span>
+              <span className="text-xs text-slate-400">65,536 IPs</span>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2">
+              <div className="bg-green-500/20 border border-green-500 rounded p-2 text-xs">
+                <div className="text-green-400">Public AZ-A</div>
+                <div className="font-mono text-slate-300">10.0.1.0/24</div>
+                <div className="text-slate-500">251 usable</div>
+              </div>
+              <div className="bg-green-500/20 border border-green-500 rounded p-2 text-xs">
+                <div className="text-green-400">Public AZ-B</div>
+                <div className="font-mono text-slate-300">10.0.2.0/24</div>
+                <div className="text-slate-500">251 usable</div>
+              </div>
+              <div className="bg-orange-500/20 border border-orange-500 rounded p-2 text-xs">
+                <div className="text-orange-400">Private AZ-A</div>
+                <div className="font-mono text-slate-300">10.0.10.0/24</div>
+                <div className="text-slate-500">251 usable</div>
+              </div>
+              <div className="bg-orange-500/20 border border-orange-500 rounded p-2 text-xs">
+                <div className="text-orange-400">Private AZ-B</div>
+                <div className="font-mono text-slate-300">10.0.11.0/24</div>
+                <div className="text-slate-500">251 usable</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reserved IPs */}
+          <div className="bg-slate-800 p-3 rounded mb-4">
+            <div className="text-sm font-medium text-red-400 mb-2">5 Reserved IPs per Subnet</div>
+            <div className="grid grid-cols-5 gap-2 text-xs">
+              <div className="bg-red-500/20 rounded p-2 text-center">
+                <div className="text-red-400">.0</div>
+                <div className="text-slate-400">Network</div>
+              </div>
+              <div className="bg-red-500/20 rounded p-2 text-center">
+                <div className="text-red-400">.1</div>
+                <div className="text-slate-400">VPC Router</div>
+              </div>
+              <div className="bg-red-500/20 rounded p-2 text-center">
+                <div className="text-red-400">.2</div>
+                <div className="text-slate-400">DNS</div>
+              </div>
+              <div className="bg-red-500/20 rounded p-2 text-center">
+                <div className="text-red-400">.3</div>
+                <div className="text-slate-400">Future</div>
+              </div>
+              <div className="bg-red-500/20 rounded p-2 text-center">
+                <div className="text-red-400">.255</div>
+                <div className="text-slate-400">Broadcast</div>
+              </div>
+            </div>
+          </div>
+
+          {/* RFC 1918 Ranges */}
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="bg-slate-800 p-2 rounded text-center">
+              <div className="text-purple-400">10.0.0.0/8</div>
+              <div className="text-slate-400">16M IPs</div>
+            </div>
+            <div className="bg-slate-800 p-2 rounded text-center">
+              <div className="text-purple-400">172.16.0.0/12</div>
+              <div className="text-slate-400">1M IPs</div>
+            </div>
+            <div className="bg-slate-800 p-2 rounded text-center">
+              <div className="text-purple-400">192.168.0.0/16</div>
+              <div className="text-slate-400">65K IPs</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>VPC CIDR: /16 (largest) to /28 (smallest)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>AWS reserves 5 IPs per subnet (first 4 + last)</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Can&apos;t resize primary CIDR - plan ahead!</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Use RFC 1918 private ranges to avoid conflicts</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// DIRECT CONNECT EXPLAINER (Medium)
+// ============================================================================
+export function VPCDirectConnectExplainer() {
+  const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [connectionType, setConnectionType] = useState<"dedicated" | "hosted">("dedicated")
+
+  const steps = [
+    { title: "What is Direct Connect?", description: "Dedicated network connection from on-premises to AWS. Bypasses public internet for consistent performance." },
+    { title: "Connection Types", description: "Dedicated: physical port (1Gbps, 10Gbps, 100Gbps). Hosted: share partner's connection (50Mbps to 10Gbps)." },
+    { title: "Virtual Interfaces", description: "Public VIF: access AWS public services. Private VIF: access VPC resources. Transit VIF: access Transit Gateway." },
+    { title: "High Availability", description: "Single DX is single point of failure. Use redundant connections or DX + VPN backup for resilience." }
+  ]
+
+  useEffect(() => {
+    if (isPlaying && step < steps.length - 1) {
+      const timer = setTimeout(() => setStep(s => s + 1), 3000)
+      return () => clearTimeout(timer)
+    } else if (step >= steps.length - 1) setIsPlaying(false)
+  }, [isPlaying, step, steps.length])
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white mb-2">AWS Direct Connect</h1>
+        <p className="text-slate-400">Dedicated hybrid connectivity</p>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
+        <div className="flex justify-center gap-4 mb-6">
+          <button onClick={() => setConnectionType("dedicated")} className={`px-4 py-2 rounded-lg ${connectionType === "dedicated" ? "bg-blue-500 text-white" : "bg-slate-700 text-slate-300"}`}>Dedicated</button>
+          <button onClick={() => setConnectionType("hosted")} className={`px-4 py-2 rounded-lg ${connectionType === "hosted" ? "bg-purple-500 text-white" : "bg-slate-700 text-slate-300"}`}>Hosted</button>
+        </div>
+
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between">
+            {/* On-Premises */}
+            <div className="bg-orange-500 rounded-lg p-4 text-white text-center">
+              <div className="text-2xl">🏢</div>
+              <div className="text-xs">On-Premises</div>
+            </div>
+
+            {/* Connection */}
+            <div className="flex-1 mx-4">
+              <div className={`h-2 rounded ${connectionType === "dedicated" ? "bg-blue-500" : "bg-purple-500"}`}></div>
+              <div className="text-center text-xs text-slate-400 mt-1">
+                {connectionType === "dedicated" ? "Physical Fiber (1/10/100 Gbps)" : "Partner Connection (50Mbps-10Gbps)"}
+              </div>
+            </div>
+
+            {/* DX Location */}
+            <div className="bg-yellow-500 rounded-lg p-4 text-black text-center">
+              <div className="text-2xl">🔌</div>
+              <div className="text-xs">DX Location</div>
+            </div>
+
+            {/* AWS Connection */}
+            <div className="flex-1 mx-4">
+              <div className="h-2 bg-green-500 rounded"></div>
+              <div className="text-center text-xs text-slate-400 mt-1">AWS Backbone</div>
+            </div>
+
+            {/* AWS */}
+            <div className="bg-green-500 rounded-lg p-4 text-white text-center">
+              <div className="text-2xl">☁️</div>
+              <div className="text-xs">AWS Region</div>
+            </div>
+          </div>
+
+          {/* Virtual Interfaces */}
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="bg-green-500/20 border border-green-500 rounded p-3 text-center">
+              <div className="text-sm font-medium text-green-400">Private VIF</div>
+              <div className="text-xs text-slate-400 mt-1">Access VPC (via VGW)</div>
+            </div>
+            <div className="bg-blue-500/20 border border-blue-500 rounded p-3 text-center">
+              <div className="text-sm font-medium text-blue-400">Public VIF</div>
+              <div className="text-xs text-slate-400 mt-1">S3, DynamoDB, etc.</div>
+            </div>
+            <div className="bg-purple-500/20 border border-purple-500 rounded p-3 text-center">
+              <div className="text-sm font-medium text-purple-400">Transit VIF</div>
+              <div className="text-xs text-slate-400 mt-1">Access TGW</div>
+            </div>
+          </div>
+
+          {/* Lead Time Warning */}
+          <div className="mt-4 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-center text-red-400">
+            ⚠️ Direct Connect setup takes weeks to months - plan ahead!
+          </div>
+        </div>
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Step {step + 1}/{steps.length}</span>
+            <span className="text-blue-400 font-medium">{steps[step].title}</span>
+          </div>
+          <p className="text-slate-300 text-sm">{steps[step].description}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+
+      <div className="bg-slate-800/50 rounded-xl p-4">
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Direct Connect: consistent latency, bypasses internet</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>NOT encrypted by default - use VPN over DX for encryption</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Long lead time - takes weeks/months to provision</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>For HA: two DX connections in different locations</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 export const vpcExplainers = {
@@ -1060,4 +1644,9 @@ export const vpcExplainers = {
   "vpc-transit-gateway": VPCTransitGatewayExplainer,
   "vpc-privatelink": VPCPrivateLinkExplainer,
   "vpc-bastion-session-manager": VPCBastionVsSessionManagerExplainer,
+  "vpc-internet-gateway": VPCInternetGatewayExplainer,
+  "vpc-elastic-ip": VPCElasticIPExplainer,
+  "vpc-dns": VPCDNSExplainer,
+  "vpc-cidr-planning": VPCCIDRPlanningExplainer,
+  "vpc-direct-connect": VPCDirectConnectExplainer,
 }
