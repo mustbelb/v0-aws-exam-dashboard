@@ -6,7 +6,10 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "topic-tag:test": "npx tsx scripts/topic-tagging/test-classification.ts",
+    "topic-tag:dry-run": "DRY_RUN=true npx tsx scripts/topic-tagging/classify-questions.ts",
+    "topic-tag:run": "DRY_RUN=false npx tsx scripts/topic-tagging/classify-questions.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "latest",
@@ -36,6 +39,7 @@
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^17.2.3",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.21",
     "postcss": "^8.4.49",
