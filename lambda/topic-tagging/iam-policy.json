@@ -1,0 +1,27 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DynamoDBAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:Query",
+        "dynamodb:UpdateItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:*:*:table/exam-questions",
+        "arn:aws:dynamodb:*:*:table/exam-questions/index/*"
+      ]
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/topic-tagging:*"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "topic-tagging-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function to classify and tag exam questions with topic tags in DynamoDB",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist node_modules",
+    "package": "npm run build && cd dist && zip -r ../function.zip . && cd .. && zip -ur function.zip node_modules",
+    "deploy": "npm run package && aws lambda update-function-code --function-name topic-tagging --zip-file fileb://function.zip"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.500.0",
+    "@aws-sdk/lib-dynamodb": "^3.500.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.131",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
