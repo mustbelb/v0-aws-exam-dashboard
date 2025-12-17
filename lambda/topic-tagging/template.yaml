@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Topic Tagging Lambda Function
+  Classifies and tags exam questions in DynamoDB with topic tags
+
+Parameters:
+  DynamoDBTableName:
+    Type: String
+    Default: exam-questions
+    Description: Name of the DynamoDB table containing exam questions
+
+  DryRun:
+    Type: String
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: Set to 'false' to actually update DynamoDB (default is dry run)
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Timeout: 900  # 15 minutes
+    MemorySize: 512
+
+Resources:
+  TopicTaggingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: topic-tagging
+      Description: Classifies exam questions and tags them with topics in DynamoDB
+      CodeUri: ./dist
+      Handler: index.handler
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref DynamoDBTableName
+          DRY_RUN: !Ref DryRun
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTableName
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        EntryPoints:
+          - index.ts
+
+  TopicTaggingFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${TopicTaggingFunction}
+      RetentionInDays: 30
+
+Outputs:
+  TopicTaggingFunctionArn:
+    Description: ARN of the Topic Tagging Lambda function
+    Value: !GetAtt TopicTaggingFunction.Arn
+
+  TopicTaggingFunctionName:
+    Description: Name of the Topic Tagging Lambda function
+    Value: !Ref TopicTaggingFunction
