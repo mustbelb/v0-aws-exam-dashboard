@@ -2,6 +2,8 @@
 // Fetches a random unseen question from the DynamoDB question bank
 // Supports both specific service and random category mode
 
+export const dynamic = 'force-dynamic'
+
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
