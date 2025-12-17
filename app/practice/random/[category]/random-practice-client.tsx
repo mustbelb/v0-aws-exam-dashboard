@@ -6,9 +6,12 @@ import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { QuestionCard } from "@/components/question-card"
 import { FeedbackDisplay } from "@/components/feedback-display"
+import { ExplainerModal } from "@/components/explainer-modal"
+import { allExplainers } from "@/components/explainers"
+import { getExplainerForService } from "@/lib/explainer-mapping"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { ArrowLeft, Loader2, PartyPopper, Zap, Shuffle } from "lucide-react"
+import { ArrowLeft, Loader2, PartyPopper, Zap, Shuffle, Lightbulb } from "lucide-react"
 import type { ServiceDefinition, CategoryDefinition, CertificationType } from "@/lib/services"
 
 interface RandomPracticeClientProps {
@@ -49,6 +52,7 @@ interface Question {
   service?: string
   serviceName?: string
   serviceIcon?: string
+  topic?: string  // Topic for targeted explainer (e.g., "lambda-cold-starts")
 }
 
 interface PartialQuestion {
@@ -95,7 +99,11 @@ export function RandomPracticeClient({
   const [bankExhausted, setBankExhausted] = useState(false)
   const [showExhaustedMessage, setShowExhaustedMessage] = useState(false)
   const [useStreamingMode, setUseStreamingMode] = useState(false)
-  
+
+  // Explainer modal state
+  const [showExplainer, setShowExplainer] = useState(false)
+  const [currentExplainerId, setCurrentExplainerId] = useState<string | null>(null)
+
   const startTimeRef = useRef<number>(0)
 
   // Fetch random question from category
@@ -106,6 +114,8 @@ export function RandomPracticeClient({
     setShowFeedback(false)
     setSelectedAnswer("")
     setCurrentService(null)
+    setShowExplainer(false)
+    setCurrentExplainerId(null)
 
     try {
       const params = new URLSearchParams({
@@ -150,7 +160,8 @@ export function RandomPracticeClient({
         examTip: data.examTip,
         service: data.service,
         serviceName: data.serviceName,
-        serviceIcon: data.serviceIcon
+        serviceIcon: data.serviceIcon,
+        topic: data.topic  // Include topic for targeted explainer
       })
       startTimeRef.current = Date.now()
       setIsLoading(false)
@@ -166,7 +177,7 @@ export function RandomPracticeClient({
   const generateQuestionStreaming = useCallback(async () => {
     // Pick a random service from the category
     const randomService = servicesInCategory[Math.floor(Math.random() * servicesInCategory.length)]
-    
+
     setIsLoading(true)
     setIsStreaming(true)
     setError(null)
@@ -174,6 +185,8 @@ export function RandomPracticeClient({
     setPartialQuestion(null)
     setShowFeedback(false)
     setSelectedAnswer("")
+    setShowExplainer(false)
+    setCurrentExplainerId(null)
     setCurrentService({
       id: randomService.id,
       name: randomService.name,
@@ -295,6 +308,23 @@ export function RandomPracticeClient({
     router.push('/dashboard')
   }
 
+  // Explainer handlers
+  const handleShowExplainer = () => {
+    if (currentExplainerId) {
+      setShowExplainer(true)
+    }
+  }
+
+  const handleExplainerClose = () => {
+    setShowExplainer(false)
+  }
+
+  const handleNextQuestion = () => {
+    setShowExplainer(false)
+    setCurrentExplainerId(null)
+    getNextQuestion()
+  }
+
   const handleSubmit = async (answer: string) => {
     if (!currentQuestion) return
 
@@ -307,6 +337,24 @@ export function RandomPracticeClient({
     setQuestionsAnswered(prev => prev + 1)
     if (correct) {
       setCorrectCount(prev => prev + 1)
+    }
+
+    // Set up explainer for wrong answers - use question's topic if available
+    if (!correct) {
+      let explainerId: string | null = null
+      const serviceId = currentService?.id || currentQuestion.service
+
+      if (currentQuestion.topic && allExplainers[currentQuestion.topic]) {
+        // Use the question's topic if it has a matching explainer
+        explainerId = currentQuestion.topic
+      } else if (serviceId) {
+        // Fall back to service-level default explainer
+        explainerId = getExplainerForService(serviceId)
+      }
+
+      if (explainerId) {
+        setCurrentExplainerId(explainerId)
+      }
     }
 
     try {
@@ -536,9 +584,9 @@ export function RandomPracticeClient({
 
             {/* Feedback display */}
             {showFeedback && currentQuestion && (
-              <>
+              <div className="space-y-4">
                 {currentService && (
-                  <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="text-xl">{currentService.icon}</span>
                     <span>Service: <strong>{currentService.name}</strong></span>
                   </div>
@@ -549,9 +597,38 @@ export function RandomPracticeClient({
                   selectedAnswer={selectedAnswer}
                   explanations={formattedExplanations}
                   examTip={currentQuestion.examTip}
-                  onNextQuestion={getNextQuestion}
+                  onNextQuestion={handleNextQuestion}
                 />
-              </>
+
+                {/* Learn More button for wrong answers */}
+                {!isCorrect && currentExplainerId && (
+                  <Card className="border-2 border-yellow-500/30 bg-yellow-500/5">
+                    <CardContent className="py-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                            <Lightbulb className="w-5 h-5 text-yellow-500" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">Want to understand this better?</p>
+                            <p className="text-sm text-muted-foreground">
+                              View an interactive explainer for this topic
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleShowExplainer}
+                          variant="outline"
+                          className="border-yellow-500/50 hover:bg-yellow-500/10"
+                        >
+                          <Lightbulb className="w-4 h-4 mr-2" />
+                          Learn More
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             )}
           </div>
 
@@ -601,6 +678,17 @@ export function RandomPracticeClient({
           </aside>
         </div>
       </main>
+
+      {/* Explainer Modal */}
+      {showExplainer && currentExplainerId && (
+        <ExplainerModal
+          explainerId={currentExplainerId}
+          question={currentQuestion}
+          selectedAnswer={selectedAnswer}
+          onClose={handleExplainerClose}
+          onNextQuestion={handleNextQuestion}
+        />
+      )}
     </div>
   )
 }

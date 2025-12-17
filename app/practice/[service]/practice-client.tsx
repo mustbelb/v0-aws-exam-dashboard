@@ -6,8 +6,9 @@ import { Header } from "@/components/header"
 import { QuestionCard } from "@/components/question-card"
 import { FeedbackDisplay } from "@/components/feedback-display"
 import { ServiceSidebar } from "@/components/service-sidebar"
-import { ExplainerModal } from "@/components/explainer-modal"  // NEW
-import { getExplainerForService } from "@/lib/explainer-mapping"  // NEW
+import { ExplainerModal } from "@/components/explainer-modal"
+import { allExplainers } from "@/components/explainers"
+import { getExplainerForService } from "@/lib/explainer-mapping"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ArrowLeft, Loader2, PartyPopper, Zap, Lightbulb } from "lucide-react"
@@ -48,6 +49,7 @@ interface Question {
     D?: string
   }
   examTip: string
+  topic?: string  // Topic for targeted explainer (e.g., "lambda-cold-starts")
 }
 
 // Partial question for progressive display during streaming
@@ -138,7 +140,8 @@ export function PracticeClient({
         options: data.options,
         correct: data.correct,
         explanation: data.explanation,
-        examTip: data.examTip
+        examTip: data.examTip,
+        topic: data.topic  // Include topic for targeted explainer
       })
       startTimeRef.current = Date.now()
       setIsLoading(false)
@@ -533,13 +536,21 @@ export function PracticeClient({
       setCorrectCount(prev => prev + 1)
     }
 
-    // NEW: Set up explainer for wrong answers
+    // Set up explainer for wrong answers - use question's topic if available
     if (!correct) {
-      const explainerId = getExplainerForService(service.id)
+      // Try to use the question's specific topic first
+      let explainerId: string | null = null
+
+      if (currentQuestion.topic && allExplainers[currentQuestion.topic]) {
+        // Use the question's topic if it has a matching explainer
+        explainerId = currentQuestion.topic
+      } else {
+        // Fall back to service-level default explainer
+        explainerId = getExplainerForService(service.id)
+      }
+
       if (explainerId) {
         setCurrentExplainerId(explainerId)
-        // Don't show immediately - let user see feedback first
-        // They can click "Learn More" or we auto-show after delay
       }
     }
 
