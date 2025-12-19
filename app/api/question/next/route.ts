@@ -8,6 +8,9 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb"
 import { getServicesInCategory, getRandomServiceFromCategory, type CertificationType } from "@/lib/services"
 
+// Force dynamic rendering since we use searchParams
+export const dynamic = 'force-dynamic'
+
 const dynamoClient = new DynamoDBClient({
   region: process.env.AWS_REGION || "us-east-1",
   credentials: {
