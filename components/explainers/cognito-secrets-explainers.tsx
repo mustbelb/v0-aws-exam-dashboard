@@ -668,7 +668,7 @@ export function SecretsManagerExplainer() {
               </div>
               <div className="bg-gray-700 rounded-lg p-4">
                 <div className="text-red-400 text-2xl mb-2">🔍</div>
-                <div className="text-white font-semibold text-sm">Audit & Monitor</div>
+                <div className="text-white font-semibold text-sm">Audit &amp; Monitor</div>
               </div>
             </div>
             <div className="mt-6 bg-gray-900 rounded-lg p-4 max-w-xl mx-auto">
@@ -1083,7 +1083,7 @@ export function ParameterStoreExplainer() {
 
         {step === 3 && (
           <div className="py-4">
-            <h3 className="text-xl font-bold text-white mb-6 text-center">Free Tier & Pricing</h3>
+            <h3 className="text-xl font-bold text-white mb-6 text-center">Free Tier &amp; Pricing</h3>
             <div className="grid grid-cols-2 gap-6 mb-6">
               <div className="bg-green-900/30 border-2 border-green-600 rounded-lg p-6">
                 <div className="text-center mb-4">
@@ -2359,7 +2359,7 @@ export function WafExplainer() {
         {step === 2 && (
           <div>
             <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold text-white mb-2">Rules - Match Conditions & Actions</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Rules - Match Conditions &amp; Actions</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
@@ -2580,7 +2580,7 @@ export function ShieldExplainer() {
               </div>
               <ul className="text-sm text-gray-300 space-y-3">
                 <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Layer 3/4 DDoS protection</li>
-                <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Automatic detection & mitigation</li>
+                <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Automatic detection &amp; mitigation</li>
                 <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Always on for all customers</li>
                 <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> No cost, no configuration</li>
               </ul>
@@ -2610,7 +2610,7 @@ export function ShieldExplainer() {
                 <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Layer 3/4/7 protection</li>
                 <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Real-time attack notifications</li>
                 <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> DDoS Response Team (DRT) 24/7</li>
-                <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Advanced metrics & reporting</li>
+                <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> Advanced metrics &amp; reporting</li>
                 <li className="flex items-center gap-2"><span className="text-green-400 text-lg">✓</span> WAF included at no extra cost</li>
               </ul>
             </div>
@@ -3643,7 +3643,7 @@ export function SecretsVsParameterExplainer() {
         {step === 4 && (
           <div>
             <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold text-white mb-2">Integration & Usage</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Integration &amp; Usage</h3>
             </div>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-red-900/30 border border-red-600 rounded-lg p-4">

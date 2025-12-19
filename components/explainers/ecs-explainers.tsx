@@ -358,7 +358,7 @@ export function TaskDefinitionsExplainer() {
               </div>
               <div className="bg-gray-700 rounded-lg p-3">
                 <div className="text-white font-semibold">IAM Roles</div>
-                <div className="text-sm text-gray-400">Task role & Execution role</div>
+                <div className="text-sm text-gray-400">Task role &amp; Execution role</div>
               </div>
               <div className="bg-gray-700 rounded-lg p-3">
                 <div className="text-white font-semibold">Volumes</div>
@@ -798,7 +798,7 @@ export function EcrIntegrationExplainer() {
 
         {step === 1 && (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white text-center mb-4">Push & Pull Images</h3>
+            <h3 className="text-xl font-bold text-white text-center mb-4">Push &amp; Pull Images</h3>
             {/* Push Flow */}
             <div>
               <div className="text-sm font-semibold text-purple-400 mb-3">Push Image to ECR</div>
@@ -1858,7 +1858,7 @@ export function EcsLoggingExplainer() {
                 </div>
                 <div className="bg-gray-700 rounded p-2 text-center">
                   <div className="text-white text-sm">Elasticsearch</div>
-                  <div className="text-xs text-gray-400">Search & analytics</div>
+                  <div className="text-xs text-gray-400">Search &amp; analytics</div>
                 </div>
                 <div className="bg-gray-700 rounded p-2 text-center">
                   <div className="text-white text-sm">Datadog</div>

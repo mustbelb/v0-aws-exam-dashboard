@@ -573,7 +573,7 @@ export function MicroservicesArchitectureExplainer() {
             <div className="mb-4">
               <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-400 rounded-lg p-4 mb-4">
                 <div className="text-center text-purple-300 font-bold mb-2">AWS App Mesh</div>
-                <div className="text-xs text-gray-300 text-center">Service Mesh - Traffic Management & Observability</div>
+                <div className="text-xs text-gray-300 text-center">Service Mesh - Traffic Management &amp; Observability</div>
               </div>
 
               <div className="relative">
@@ -1231,7 +1231,7 @@ export function DisasterRecoveryPatternsExplainer() {
 
   const steps = [
     { title: "Disaster Recovery", description: "Strategies to recover from regional failures" },
-    { title: "Backup & Restore", description: "Cheapest: restore from backups when needed (hours)" },
+    { title: "Backup &amp; Restore", description: "Cheapest: restore from backups when needed (hours)" },
     { title: "Pilot Light", description: "Core components always running, scale on disaster" },
     { title: "Warm Standby", description: "Scaled-down version running, scale up on disaster" },
     { title: "Multi-Site Active/Active", description: "Full capacity in multiple regions (most expensive)" }
@@ -1259,7 +1259,7 @@ export function DisasterRecoveryPatternsExplainer() {
   }, [step])
 
   const patterns = {
-    backup: { name: "Backup & Restore", rto: "Hours", rpo: "Hours", cost: "💵", activeInDR: false },
+    backup: { name: "Backup &amp; Restore", rto: "Hours", rpo: "Hours", cost: "💵", activeInDR: false },
     pilot: { name: "Pilot Light", rto: "10-30 min", rpo: "Minutes", cost: "💵💵", activeInDR: true },
     warm: { name: "Warm Standby", rto: "Minutes", rpo: "Seconds", cost: "💵💵💵", activeInDR: true },
     hot: { name: "Multi-Site", rto: "Near-zero", rpo: "Near-zero", cost: "💵💵💵💵", activeInDR: true }
@@ -1809,7 +1809,7 @@ export function CanaryDeploymentExplainer() {
         <h3 className="text-lg font-semibold text-yellow-300 mb-2">📝 Exam Takeaways</h3>
         <ul className="text-gray-300 text-sm space-y-1">
           <li>• Lower risk than blue-green (gradual rollout)</li>
-          <li>• CodeDeploy supports canary with Lambda & ECS</li>
+          <li>• CodeDeploy supports canary with Lambda &amp; ECS</li>
           <li>• API Gateway canary releases for API testing</li>
           <li>• CloudWatch alarms can trigger automatic rollback</li>
         </ul>
@@ -2088,7 +2088,7 @@ export function FanOutPatternExplainer() {
               <div className="grid grid-cols-3 gap-4 text-xs">
                 <div className="text-center">
                   <div className="text-green-400 font-semibold">Decoupled</div>
-                  <div className="text-gray-400">Producers & consumers independent</div>
+                  <div className="text-gray-400">Producers &amp; consumers independent</div>
                 </div>
                 <div className="text-center">
                   <div className="text-green-400 font-semibold">Reliable</div>

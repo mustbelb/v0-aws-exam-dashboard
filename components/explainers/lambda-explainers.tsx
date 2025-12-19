@@ -829,7 +829,7 @@ export function LambdaVersionsAliasesExplainer() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">Lambda Versions & Aliases</h1>
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Versions &amp; Aliases</h1>
         <p className="text-slate-400">Managing deployments with immutable versions and flexible aliases</p>
       </div>
 
@@ -1001,7 +1001,7 @@ export function LambdaLayersExplainer() {
       description: "Reduce deployment package size, share common code, separate dependencies from business logic."
     },
     {
-      title: "Limits & Considerations",
+      title: "Limits &amp; Considerations",
       description: "Max 5 layers per function, 250 MB total unzipped. Layers are versioned and immutable."
     }
   ]
@@ -2224,7 +2224,7 @@ export function LambdaMemoryTimeoutExplainer() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">Lambda Memory & Timeout</h1>
+        <h1 className="text-2xl font-bold text-white mb-2">Lambda Memory &amp; Timeout</h1>
         <p className="text-slate-400">Optimizing performance and cost</p>
       </div>
 
@@ -2517,12 +2517,12 @@ export function LambdaSnapStartExplainer() {
               </div>
               <div className="text-slate-400">→</div>
               <div className="text-center">
-                <div className="bg-yellow-500 rounded p-2 text-black mb-1">Init & Snapshot</div>
+                <div className="bg-yellow-500 rounded p-2 text-black mb-1">Init &amp; Snapshot</div>
                 <div className="text-slate-500">Cache</div>
               </div>
               <div className="text-slate-400">→</div>
               <div className="text-center">
-                <div className="bg-green-500 rounded p-2 text-white mb-1">Restore & Run</div>
+                <div className="bg-green-500 rounded p-2 text-white mb-1">Restore &amp; Run</div>
                 <div className="text-slate-500">Fast!</div>
               </div>
             </div>

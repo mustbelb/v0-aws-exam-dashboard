@@ -744,7 +744,7 @@ export function DynamoDBTransactionsExplainer() {
       description: "Read multiple items atomically. Get a consistent snapshot across items."
     },
     {
-      title: "Cost & Limits",
+      title: "Cost &amp; Limits",
       description: "Transactions cost 2x normal capacity. Use for critical operations like financial transfers, inventory."
     }
   ]
@@ -1889,7 +1889,7 @@ export function DynamoDBBackupRestoreExplainer() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">DynamoDB Backup & Restore</h1>
+        <h1 className="text-2xl font-bold text-white mb-2">DynamoDB Backup &amp; Restore</h1>
         <p className="text-slate-400">Protecting data with PITR and on-demand backups</p>
       </div>
 

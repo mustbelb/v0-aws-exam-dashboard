@@ -209,7 +209,7 @@ export function StagesDeploymentsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Zap className="w-8 h-8 text-yellow-400" />
-        <h2 className="text-2xl font-bold text-white">Stages & Deployments</h2>
+        <h2 className="text-2xl font-bold text-white">Stages &amp; Deployments</h2>
       </div>
 
       {/* Stage Selector */}
@@ -520,7 +520,7 @@ export function ThrottlingRateLimitingExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Gauge className="w-8 h-8 text-red-400" />
-        <h2 className="text-2xl font-bold text-white">Throttling & Rate Limiting</h2>
+        <h2 className="text-2xl font-bold text-white">Throttling &amp; Rate Limiting</h2>
       </div>
 
       {/* Rate Slider */}

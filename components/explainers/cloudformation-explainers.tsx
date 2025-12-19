@@ -726,7 +726,7 @@ export function NestedStacksExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Package className="w-8 h-8 text-cyan-400" />
-        <h2 className="text-2xl font-bold text-white">Nested Stacks & StackSets</h2>
+        <h2 className="text-2xl font-bold text-white">Nested Stacks &amp; StackSets</h2>
       </div>
 
       {/* View Toggle */}
@@ -1589,7 +1589,7 @@ export function WaitConditionsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Layers className="w-8 h-8 text-purple-400" />
-        <h2 className="text-2xl font-bold text-white">Wait Conditions & CreationPolicy</h2>
+        <h2 className="text-2xl font-bold text-white">Wait Conditions &amp; CreationPolicy</h2>
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
@@ -1772,7 +1772,7 @@ export function MappingsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <FileCode className="w-8 h-8 text-indigo-400" />
-        <h2 className="text-2xl font-bold text-white">Mappings & FindInMap</h2>
+        <h2 className="text-2xl font-bold text-white">Mappings &amp; FindInMap</h2>
       </div>
 
       <div className="flex gap-2 mb-6">
@@ -2320,7 +2320,7 @@ export function StackPoliciesExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <FileCode className="w-8 h-8 text-red-400" />
-        <h2 className="text-2xl font-bold text-white">Stack Policies & Security</h2>
+        <h2 className="text-2xl font-bold text-white">Stack Policies &amp; Security</h2>
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">

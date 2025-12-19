@@ -236,7 +236,7 @@ export function KinesisDataStreamsExplainer() {
         {step === 4 && (
           <div>
             <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-orange-400 mb-4">Data Retention & Replay</h3>
+              <h3 className="text-xl font-bold text-orange-400 mb-4">Data Retention &amp; Replay</h3>
             </div>
             <div className="bg-orange-900/30 border-2 border-orange-500 rounded-lg p-6">
               <div className="flex items-center justify-center gap-8 mb-6">
@@ -537,7 +537,7 @@ export function StepFunctionsStateMachineExplainer() {
         {step === 3 && (
           <div>
             <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-pink-400 mb-4">Error Handling: Retry & Catch</h3>
+              <h3 className="text-xl font-bold text-pink-400 mb-4">Error Handling: Retry &amp; Catch</h3>
             </div>
             <div className="space-y-4">
               <div className="bg-blue-900/30 border-2 border-blue-500 rounded-lg p-4">
@@ -611,7 +611,7 @@ export function StepFunctionsStateMachineExplainer() {
             </div>
             <div className="mt-4 bg-gray-700 rounded-lg p-3">
               <div className="text-sm text-gray-300 text-center">
-                💡 Optimized integrations = No Lambda needed = Lower cost & latency
+                💡 Optimized integrations = No Lambda needed = Lower cost &amp; latency
               </div>
             </div>
           </div>
@@ -1135,7 +1135,7 @@ export function KinesisFirehoseExplainer() {
                   <span className="text-3xl">🔍</span>
                   <div className="text-yellow-400 font-bold text-lg">OpenSearch</div>
                 </div>
-                <div className="text-sm text-gray-400">Search & analytics</div>
+                <div className="text-sm text-gray-400">Search &amp; analytics</div>
               </div>
               <div className="bg-blue-900/30 border-2 border-blue-500 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">

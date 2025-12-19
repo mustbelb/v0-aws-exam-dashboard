@@ -1377,7 +1377,7 @@ export function BackupRecoveryExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Clock className="w-8 h-8 text-yellow-400" />
-        <h2 className="text-2xl font-bold text-white">Backup & Recovery</h2>
+        <h2 className="text-2xl font-bold text-white">Backup &amp; Recovery</h2>
       </div>
 
       {/* Backup Type Toggle */}
@@ -1525,7 +1525,7 @@ export function BackupRecoveryExplainer() {
               </div>
             </div>
             <div className="mt-4 bg-blue-900/30 rounded-lg p-4 text-center border border-blue-500/30">
-              <p className="text-sm text-blue-300">Manual snapshots persist after DB deletion - great for compliance & long-term backup</p>
+              <p className="text-sm text-blue-300">Manual snapshots persist after DB deletion - great for compliance &amp; long-term backup</p>
             </div>
           </div>
         )}
@@ -1713,7 +1713,7 @@ export function ParameterOptionGroupsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Settings className="w-8 h-8 text-purple-400" />
-        <h2 className="text-2xl font-bold text-white">Parameter & Option Groups</h2>
+        <h2 className="text-2xl font-bold text-white">Parameter &amp; Option Groups</h2>
       </div>
 
       {/* Group Type Toggle */}
@@ -1999,7 +1999,7 @@ export function AuroraServerlessExplainer() {
             </div>
             <div className="bg-gray-700 rounded-lg p-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><span className="text-gray-400">Scaling:</span> <span className="text-white">Automatic & instant</span></div>
+                <div><span className="text-gray-400">Scaling:</span> <span className="text-white">Automatic &amp; instant</span></div>
                 <div><span className="text-gray-400">Pricing:</span> <span className="text-white">Pay per second</span></div>
                 <div><span className="text-gray-400">Min ACUs:</span> <span className="text-white">0.5</span></div>
                 <div><span className="text-gray-400">Max ACUs:</span> <span className="text-white">128</span></div>
@@ -2029,7 +2029,7 @@ export function AuroraServerlessExplainer() {
                   </div>
                   <div className="bg-gray-600 rounded-lg p-3 text-center">
                     <div className="text-2xl font-bold text-green-400 mb-1">Proportional</div>
-                    <div className="text-xs text-gray-400">CPU & Networking</div>
+                    <div className="text-xs text-gray-400">CPU &amp; Networking</div>
                   </div>
                 </div>
               </div>
@@ -2815,7 +2815,7 @@ export function AuroraCloningExplainer() {
             <div className="flex flex-col items-center px-4">
               <div className="text-teal-400 text-sm mb-1">Clone</div>
               <div className="text-2xl">→</div>
-              <div className="text-teal-400 text-xs">Fast & Efficient</div>
+              <div className="text-teal-400 text-xs">Fast &amp; Efficient</div>
             </div>
             <div className="text-center">
               <div className="w-24 h-24 bg-teal-600 rounded-lg flex items-center justify-center mb-2 mx-auto border-4 border-teal-400">
@@ -3119,7 +3119,7 @@ export function RdsMaintenanceWindowsExplainer() {
         )}
         {step === 3 && (
           <div>
-            <div className="text-sm text-gray-400 mb-3">Maintenance Types & Deferral Options</div>
+            <div className="text-sm text-gray-400 mb-3">Maintenance Types &amp; Deferral Options</div>
             <div className="space-y-2">
               {maintenanceTypes.map((m, i) => (
                 <div key={i} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
@@ -3872,7 +3872,7 @@ export function RdsIamAuthenticationExplainer() {
               </div>
               <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-3">
                 <div className="text-purple-300 text-sm font-semibold mb-1">Aurora</div>
-                <div className="text-gray-300 text-xs">MySQL & PostgreSQL compatible</div>
+                <div className="text-gray-300 text-xs">MySQL &amp; PostgreSQL compatible</div>
               </div>
             </div>
           </div>

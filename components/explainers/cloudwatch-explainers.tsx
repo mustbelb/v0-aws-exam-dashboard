@@ -45,7 +45,7 @@ export function MetricsDimensionsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Activity className="w-8 h-8 text-blue-400" />
-        <h2 className="text-2xl font-bold text-white">Metrics & Dimensions</h2>
+        <h2 className="text-2xl font-bold text-white">Metrics &amp; Dimensions</h2>
       </div>
 
       {/* Metric Selector */}
@@ -669,7 +669,7 @@ export function LogsInsightsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <FileText className="w-8 h-8 text-green-400" />
-        <h2 className="text-2xl font-bold text-white">Logs & Insights</h2>
+        <h2 className="text-2xl font-bold text-white">Logs &amp; Insights</h2>
       </div>
 
       {/* View Toggle */}
@@ -1271,9 +1271,9 @@ export function XRayIntegrationExplainer() {
 
   const steps = [
     { title: "AWS X-Ray", description: "Distributed tracing to analyze and debug production applications" },
-    { title: "Segments & Subsegments", description: "Segments represent services, subsegments represent calls" },
+    { title: "Segments &amp; Subsegments", description: "Segments represent services, subsegments represent calls" },
     { title: "Service Map", description: "Visual representation of your application architecture" },
-    { title: "Annotations & Metadata", description: "Add custom data to traces for filtering and analysis" },
+    { title: "Annotations &amp; Metadata", description: "Add custom data to traces for filtering and analysis" },
     { title: "Sampling", description: "Control how many requests are traced to manage costs" }
   ]
 
@@ -1352,9 +1352,9 @@ export function XRayIntegrationExplainer() {
 
         {step === 1 && (
           <div>
-            {/* Step 1: Segments & Subsegments */}
+            {/* Step 1: Segments &amp; Subsegments */}
             <div className="text-center mb-4">
-              <h3 className="text-xl font-semibold text-purple-400 mb-2">Segments & Subsegments</h3>
+              <h3 className="text-xl font-semibold text-purple-400 mb-2">Segments &amp; Subsegments</h3>
             </div>
             <div className="space-y-4">
               <div className="bg-purple-900/30 border-2 border-purple-600 rounded-lg p-4">
@@ -1428,14 +1428,14 @@ export function XRayIntegrationExplainer() {
 
         {step === 3 && (
           <div>
-            {/* Step 3: Annotations & Metadata */}
+            {/* Step 3: Annotations &amp; Metadata */}
             <div className="text-center mb-4">
-              <h3 className="text-xl font-semibold text-yellow-400 mb-2">Annotations & Metadata</h3>
+              <h3 className="text-xl font-semibold text-yellow-400 mb-2">Annotations &amp; Metadata</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-yellow-900/30 border-2 border-yellow-600 rounded-lg p-4">
                 <div className="text-lg font-bold text-yellow-300 mb-2">Annotations</div>
-                <div className="text-sm text-gray-300 mb-3">Indexed for filtering & search</div>
+                <div className="text-sm text-gray-300 mb-3">Indexed for filtering &amp; search</div>
                 <div className="bg-gray-900 rounded p-3 space-y-2 font-mono text-xs">
                   <div className="text-yellow-400">user_id: "12345"</div>
                   <div className="text-yellow-400">order_type: "premium"</div>
@@ -2506,7 +2506,7 @@ export function CloudWatchMetricMathExplainer() {
           <div>
             <div className="text-center mb-4"><h3 className="text-xl font-semibold text-yellow-400 mb-2">SEARCH Expressions</h3></div>
             <div className="bg-gray-700 rounded-lg p-4 mb-3">
-              <div className="text-sm text-gray-400 mb-2">Find & Aggregate Metrics</div>
+              <div className="text-sm text-gray-400 mb-2">Find &amp; Aggregate Metrics</div>
               <div className="font-mono text-sm text-yellow-400 mb-3">SEARCH(' CPUUtilization ', 'Average', 300)</div>
               <div className="text-xs text-gray-400">Finds all CPUUtilization metrics across all instances</div>
             </div>
@@ -2949,7 +2949,7 @@ export function XRaySegmentsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Search className="w-8 h-8 text-teal-400" />
-        <h2 className="text-2xl font-bold text-white">X-Ray Segments & Subsegments</h2>
+        <h2 className="text-2xl font-bold text-white">X-Ray Segments &amp; Subsegments</h2>
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
@@ -3118,7 +3118,7 @@ export function CloudWatchContributorInsightsExplainer() {
               <div className="space-y-2">
                 <div className="bg-gray-900 rounded p-3"><div className="text-xs text-gray-400">Source</div><div className="font-mono text-sm text-blue-400">CloudWatch Logs</div></div>
                 <div className="text-center text-xl">↓</div>
-                <div className="bg-gray-900 rounded p-3"><div className="text-xs text-gray-400">Analysis</div><div className="text-sm text-blue-400">Pattern matching & aggregation</div></div>
+                <div className="bg-gray-900 rounded p-3"><div className="text-xs text-gray-400">Analysis</div><div className="text-sm text-blue-400">Pattern matching &amp; aggregation</div></div>
                 <div className="text-center text-xl">↓</div>
                 <div className="bg-gray-900 rounded p-3"><div className="text-xs text-gray-400">Output</div><div className="text-sm text-blue-400">Top contributors ranked by impact</div></div>
               </div>
