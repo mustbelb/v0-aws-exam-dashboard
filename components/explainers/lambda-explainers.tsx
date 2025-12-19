@@ -1001,7 +1001,7 @@ export function LambdaLayersExplainer() {
       description: "Reduce deployment package size, share common code, separate dependencies from business logic."
     },
     {
-      title: "Limits &amp; Considerations",
+      title: "Limits & Considerations",
       description: "Max 5 layers per function, 250 MB total unzipped. Layers are versioned and immutable."
     }
   ]

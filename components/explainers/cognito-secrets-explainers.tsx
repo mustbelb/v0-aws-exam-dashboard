@@ -3675,13 +3675,13 @@ export function SecretsVsParameterExplainer() {
               <div className="bg-blue-900/30 border border-blue-600/50 rounded-lg p-3">
                 <div className="text-xs text-blue-400 font-semibold mb-2">Cross-reference</div>
                 <div className="text-xs text-gray-300 font-mono">
-                  {{'{{'}}resolve:secretsmanager:db-password{{'}}'}}
+                  {'{{'}resolve:secretsmanager:db-password{'}}'}
                 </div>
               </div>
               <div className="bg-blue-900/30 border border-blue-600/50 rounded-lg p-3">
                 <div className="text-xs text-blue-400 font-semibold mb-2">Parameter reference</div>
                 <div className="text-xs text-gray-300 font-mono">
-                  {{'{{'}}resolve:ssm:/app/config{{'}}'}}
+                  {'{{'}resolve:ssm:/app/config{'}}'}
                 </div>
               </div>
             </div>

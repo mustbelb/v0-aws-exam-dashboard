@@ -17,7 +17,7 @@ export function S3StorageClassesExplainer() {
       description: "S3 offers multiple storage classes optimized for different access patterns and cost requirements."
     },
     {
-      title: "Standard &amp; Intelligent-Tiering",
+      title: "Standard & Intelligent-Tiering",
       description: "Standard for frequent access. Intelligent-Tiering auto-moves objects between tiers based on access patterns."
     },
     {
@@ -176,7 +176,7 @@ export function S3LifecycleExplainer() {
       description: "Automatically delete objects or old versions after specified days."
     },
     {
-      title: "Filters &amp; Scope",
+      title: "Filters & Scope",
       description: "Apply rules to entire bucket, prefix, or objects with specific tags."
     }
   ]
@@ -472,7 +472,7 @@ export function S3EncryptionExplainer() {
       description: "AWS KMS manages keys. Audit trail via CloudTrail. Can use customer-managed CMK for rotation control."
     },
     {
-      title: "SSE-C &amp; Client-Side",
+      title: "SSE-C & Client-Side",
       description: "SSE-C: you provide key with each request. Client-side: encrypt before upload. Full key control."
     }
   ]

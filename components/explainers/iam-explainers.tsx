@@ -128,7 +128,7 @@ export function IAMPolicyTypesExplainer() {
 
   const types = {
     managed: { name: "AWS Managed", desc: "Predefined by AWS", example: "AmazonS3ReadOnlyAccess" },
-    customer: { name: "Customer Managed", desc: "You create &amp; manage", example: "MyAppS3Policy" },
+    customer: { name: "Customer Managed", desc: "You create & manage", example: "MyAppS3Policy" },
     inline: { name: "Inline", desc: "Embedded in identity", example: "Attached to specific user" },
     resource: { name: "Resource-based", desc: "Attached to resource", example: "S3 bucket policy" }
   }

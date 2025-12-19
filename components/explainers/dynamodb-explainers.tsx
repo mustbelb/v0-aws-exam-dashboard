@@ -744,7 +744,7 @@ export function DynamoDBTransactionsExplainer() {
       description: "Read multiple items atomically. Get a consistent snapshot across items."
     },
     {
-      title: "Cost &amp; Limits",
+      title: "Cost & Limits",
       description: "Transactions cost 2x normal capacity. Use for critical operations like financial transfers, inventory."
     }
   ]
