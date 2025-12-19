@@ -2350,7 +2350,7 @@ export function NlbStaticIpExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Server className="w-8 h-8 text-green-400" />
-        <h2 className="text-2xl font-bold text-white">NLB Static IP & PrivateLink</h2>
+        <h2 className="text-2xl font-bold text-white">NLB Static IP &amp; PrivateLink</h2>
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
@@ -3182,7 +3182,7 @@ export function CloudFrontSignedUrlsExplainer() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Shield className="w-8 h-8 text-green-400" />
-        <h2 className="text-2xl font-bold text-white">CloudFront Signed URLs & Cookies</h2>
+        <h2 className="text-2xl font-bold text-white">CloudFront Signed URLs &amp; Cookies</h2>
       </div>
 
       <div className="flex gap-2 mb-6">
@@ -3248,8 +3248,8 @@ export function CloudFrontSignedUrlsExplainer() {
                 <div className="text-sm text-gray-300 mb-2">Single file access with embedded policy:</div>
                 <div className="font-mono text-xs text-green-400 bg-gray-800 p-2 rounded break-all">
                   https://d123.cloudfront.net/video.mp4?<br/>
-                  Policy=eyJ...&<br/>
-                  Signature=abc...&<br/>
+                  Policy=eyJ...&amp;<br/>
+                  Signature=abc...&amp;<br/>
                   Key-Pair-Id=K12345
                 </div>
               </div>
