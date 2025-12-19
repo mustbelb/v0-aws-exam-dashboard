@@ -334,46 +334,161 @@ export function LambdaColdStartsExplainer() {
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
           <div className="text-sm text-slate-400 mb-3">Cold Start Timeline</div>
 
-          <div className="relative h-24">
-            {/* Cold Start Bar */}
-            <div className="absolute top-0 left-0 h-10 flex items-center">
-              <div className="text-xs text-slate-500 w-20">Cold Start</div>
-              <div className="flex h-8">
-                <div
-                  className="bg-red-500/80 h-full flex items-center justify-center text-xs text-white rounded-l"
-                  style={{ width: `${calculateColdStart() / 5}px`, minWidth: "40px" }}
-                >
-                  Init
-                </div>
-                <div
-                  className="bg-yellow-500/80 h-full flex items-center justify-center text-xs text-white"
-                  style={{ width: "60px" }}
-                >
-                  Runtime
-                </div>
-                <div
-                  className="bg-green-500/80 h-full flex items-center justify-center text-xs text-white rounded-r"
-                  style={{ width: "40px" }}
-                >
-                  Handler
+          <div className="relative h-32">
+            {/* Step 0: Basic Cold Start concept */}
+            {step === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="bg-slate-700 rounded p-3 text-slate-400">
+                      <span className="text-2xl">📦</span>
+                      <div className="text-xs mt-1">New Request</div>
+                    </div>
+                    <div className="text-2xl text-yellow-400 animate-pulse">→</div>
+                    <div className="bg-red-500/20 border-2 border-red-500 rounded p-3 text-red-400">
+                      <span className="text-2xl">⏳</span>
+                      <div className="text-xs mt-1">Cold Start</div>
+                    </div>
+                    <div className="text-2xl text-yellow-400 animate-pulse">→</div>
+                    <div className="bg-green-500/20 border-2 border-green-500 rounded p-3 text-green-400">
+                      <span className="text-2xl">✓</span>
+                      <div className="text-xs mt-1">Ready</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-500">First invocation requires initialization</div>
                 </div>
               </div>
-              <div className="ml-2 text-sm text-white font-mono">{calculateColdStart()}ms</div>
-            </div>
+            )}
 
-            {/* Warm Start Bar */}
-            <div className="absolute top-14 left-0 h-10 flex items-center">
-              <div className="text-xs text-slate-500 w-20">Warm Start</div>
-              <div className="flex h-8">
-                <div
-                  className="bg-green-500/80 h-full flex items-center justify-center text-xs text-white rounded"
-                  style={{ width: "40px" }}
-                >
-                  Handler
+            {/* Step 1: Cold Start Phases breakdown */}
+            {step === 1 && (
+              <div className="absolute inset-0">
+                <div className="text-xs text-slate-400 mb-2">Cold Start Phases (in order)</div>
+                <div className="flex items-center h-12 gap-1">
+                  <div className="bg-purple-500 h-full flex items-center justify-center text-xs text-white rounded-l px-2 animate-pulse" style={{ width: "60px" }}>
+                    1. Download
+                  </div>
+                  <div className="bg-blue-500 h-full flex items-center justify-center text-xs text-white px-2" style={{ width: "70px" }}>
+                    2. Start Env
+                  </div>
+                  <div className="bg-yellow-500 h-full flex items-center justify-center text-xs text-white px-2" style={{ width: "60px" }}>
+                    3. Runtime
+                  </div>
+                  <div className="bg-orange-500 h-full flex items-center justify-center text-xs text-white px-2" style={{ width: "50px" }}>
+                    4. Init
+                  </div>
+                  <div className="bg-green-500 h-full flex items-center justify-center text-xs text-white rounded-r px-2" style={{ width: "50px" }}>
+                    5. Handler
+                  </div>
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-slate-500">
+                  <span>← Initialization overhead (cold) →</span>
+                  <span>Execution</span>
                 </div>
               </div>
-              <div className="ml-2 text-sm text-green-400 font-mono">~10ms</div>
-            </div>
+            )}
+
+            {/* Step 2: Factors affecting duration - highlight controls */}
+            {step === 2 && (
+              <div className="absolute inset-0">
+                <div className="grid grid-cols-4 gap-2 h-full">
+                  <div className={`bg-slate-800 rounded p-2 border-2 transition-all ${runtime === "java" || runtime === "dotnet" ? "border-red-500" : "border-green-500"}`}>
+                    <div className="text-xs text-slate-400">Runtime</div>
+                    <div className={`text-lg font-bold ${runtime === "java" || runtime === "dotnet" ? "text-red-400" : "text-green-400"}`}>
+                      {runtime === "nodejs" ? "Fast" : runtime === "python" ? "Fast" : "Slow"}
+                    </div>
+                    <div className="text-xs text-slate-500">{runtime}</div>
+                  </div>
+                  <div className={`bg-slate-800 rounded p-2 border-2 transition-all ${memorySize < 512 ? "border-red-500" : "border-green-500"}`}>
+                    <div className="text-xs text-slate-400">Memory</div>
+                    <div className={`text-lg font-bold ${memorySize < 512 ? "text-red-400" : "text-green-400"}`}>
+                      {memorySize < 512 ? "Low" : "Good"}
+                    </div>
+                    <div className="text-xs text-slate-500">{memorySize}MB</div>
+                  </div>
+                  <div className={`bg-slate-800 rounded p-2 border-2 transition-all ${vpcEnabled ? "border-red-500" : "border-green-500"}`}>
+                    <div className="text-xs text-slate-400">VPC</div>
+                    <div className={`text-lg font-bold ${vpcEnabled ? "text-red-400" : "text-green-400"}`}>
+                      {vpcEnabled ? "+200ms" : "No VPC"}
+                    </div>
+                  </div>
+                  <div className="bg-slate-800 rounded p-2 border-2 border-blue-500">
+                    <div className="text-xs text-slate-400">Total</div>
+                    <div className="text-lg font-bold text-blue-400">{calculateColdStart()}ms</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Mitigation Strategies */}
+            {step === 3 && (
+              <div className="absolute inset-0">
+                <div className="grid grid-cols-2 gap-3 h-full">
+                  <div className="bg-green-500/20 border border-green-500 rounded p-3">
+                    <div className="text-green-400 font-medium text-sm mb-1">✓ Provisioned Concurrency</div>
+                    <div className="text-xs text-slate-400">Pre-warm instances always ready</div>
+                  </div>
+                  <div className="bg-blue-500/20 border border-blue-500 rounded p-3">
+                    <div className="text-blue-400 font-medium text-sm mb-1">✓ Scheduled Warm-up</div>
+                    <div className="text-xs text-slate-400">Ping function every few minutes</div>
+                  </div>
+                  <div className="bg-yellow-500/20 border border-yellow-500 rounded p-3">
+                    <div className="text-yellow-400 font-medium text-sm mb-1">✓ Optimize Package</div>
+                    <div className="text-xs text-slate-400">Smaller deployment = faster download</div>
+                  </div>
+                  <div className="bg-purple-500/20 border border-purple-500 rounded p-3">
+                    <div className="text-purple-400 font-medium text-sm mb-1">✓ Increase Memory</div>
+                    <div className="text-xs text-slate-400">More memory = more CPU = faster init</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Warm vs Cold comparison */}
+            {step === 4 && (
+              <div className="absolute inset-0">
+                {/* Cold Start Bar */}
+                <div className="flex items-center mb-3">
+                  <div className="text-xs text-slate-500 w-20">Cold Start</div>
+                  <div className="flex h-8">
+                    <div
+                      className="bg-red-500/80 h-full flex items-center justify-center text-xs text-white rounded-l"
+                      style={{ width: `${calculateColdStart() / 5}px`, minWidth: "40px" }}
+                    >
+                      Init
+                    </div>
+                    <div
+                      className="bg-yellow-500/80 h-full flex items-center justify-center text-xs text-white"
+                      style={{ width: "60px" }}
+                    >
+                      Runtime
+                    </div>
+                    <div
+                      className="bg-green-500/80 h-full flex items-center justify-center text-xs text-white rounded-r"
+                      style={{ width: "40px" }}
+                    >
+                      Handler
+                    </div>
+                  </div>
+                  <div className="ml-2 text-sm text-red-400 font-mono">{calculateColdStart()}ms</div>
+                </div>
+
+                {/* Warm Start Bar */}
+                <div className="flex items-center">
+                  <div className="text-xs text-slate-500 w-20">Warm Start</div>
+                  <div className="flex h-8">
+                    <div
+                      className="bg-green-500 h-full flex items-center justify-center text-xs text-white rounded animate-pulse"
+                      style={{ width: "40px" }}
+                    >
+                      Handler
+                    </div>
+                  </div>
+                  <div className="ml-2 text-sm text-green-400 font-mono">~10ms ⚡</div>
+                </div>
+                <div className="text-xs text-slate-500 mt-2">Warm invocations skip all initialization - just run handler!</div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1481,46 +1596,135 @@ export function LambdaEnvironmentConfigExplainer() {
 
         {/* Visualization */}
         <div className="relative bg-slate-900/50 rounded-xl p-4 h-56 mb-4">
-          {/* Lambda Function */}
-          <div className="absolute left-1/2 top-4 transform -translate-x-1/2">
-            <div className="bg-orange-500 rounded p-3 text-white text-center">
-              Lambda Function
+          {/* Step 0: Basic Environment Variables concept */}
+          {step === 0 && (
+            <div className="absolute inset-4">
+              <div className="flex items-start gap-4 h-full">
+                <div className="bg-orange-500 rounded p-3 text-white text-center">
+                  <div className="text-2xl mb-1">λ</div>
+                  <div className="text-xs">Lambda</div>
+                </div>
+                <div className="flex-1 bg-slate-800 rounded p-3">
+                  <div className="text-xs text-slate-400 mb-2">Environment Variables (process.env / os.environ)</div>
+                  <div className="space-y-2 font-mono text-sm">
+                    <div className="flex items-center gap-2 bg-slate-700/50 rounded p-2 animate-pulse">
+                      <span className="text-blue-400">DB_HOST</span>
+                      <span className="text-slate-500">=</span>
+                      <span className="text-green-400">rds.example.com</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-700/50 rounded p-2">
+                      <span className="text-blue-400">TABLE_NAME</span>
+                      <span className="text-slate-500">=</span>
+                      <span className="text-green-400">users-prod</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-700/50 rounded p-2">
+                      <span className="text-blue-400">LOG_LEVEL</span>
+                      <span className="text-slate-500">=</span>
+                      <span className="text-green-400">INFO</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Environment Variables */}
-          <div className="absolute left-8 top-20 right-8 bottom-4 bg-slate-800 rounded p-3">
-            <div className="text-xs text-slate-400 mb-2">Environment Variables</div>
-            <div className="space-y-1 font-mono text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-blue-400">DB_HOST</span>
-                <span className="text-slate-500">=</span>
-                <span className="text-green-400">rds.example.com</span>
-                {encrypted && <span className="text-yellow-400">🔐</span>}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-blue-400">TABLE_NAME</span>
-                <span className="text-slate-500">=</span>
-                <span className="text-green-400">users-prod</span>
-                {encrypted && <span className="text-yellow-400">🔐</span>}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-blue-400">LOG_LEVEL</span>
-                <span className="text-slate-500">=</span>
-                <span className="text-green-400">INFO</span>
-                {encrypted && <span className="text-yellow-400">🔐</span>}
-              </div>
-              <div className="flex items-center gap-2 opacity-50">
-                <span className="text-red-400">SECRET_KEY</span>
-                <span className="text-slate-500">=</span>
-                <span className="text-red-400 line-through">Don&apos;t do this!</span>
+          {/* Step 1: Encryption */}
+          {step === 1 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Encryption at Rest</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="bg-slate-800 rounded p-3 border-2 border-slate-600">
+                  <div className="text-xs text-slate-400 mb-2">AWS Managed Key (Default)</div>
+                  <div className="space-y-1 font-mono text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400">DB_HOST=***</span>
+                      <span className="text-yellow-400">🔐</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400">TABLE=***</span>
+                      <span className="text-yellow-400">🔐</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-500 mt-2">Automatic, no config needed</div>
+                </div>
+                <div className={`bg-slate-800 rounded p-3 border-2 transition-all ${encrypted ? "border-green-500" : "border-slate-600"}`}>
+                  <div className="text-xs text-slate-400 mb-2">Customer Managed KMS Key</div>
+                  <div className="space-y-1 font-mono text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400">DB_HOST=***</span>
+                      <span className="text-green-400 animate-pulse">🔐🔑</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400">TABLE=***</span>
+                      <span className="text-green-400 animate-pulse">🔐🔑</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-green-400 mt-2">More control, audit via CloudTrail</div>
+                </div>
               </div>
             </div>
+          )}
 
-            <div className="absolute bottom-2 right-2 text-xs text-slate-500">
-              Max 4KB total
+          {/* Step 2: Best Practices */}
+          {step === 2 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Best Practices: Config vs Secrets</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="bg-green-500/20 border border-green-500 rounded p-3">
+                  <div className="text-green-400 font-medium text-sm mb-2">✓ Store in Env Vars</div>
+                  <div className="space-y-1 font-mono text-xs text-slate-300">
+                    <div>TABLE_NAME=users</div>
+                    <div>LOG_LEVEL=INFO</div>
+                    <div>REGION=us-east-1</div>
+                    <div>FEATURE_FLAG=true</div>
+                  </div>
+                  <div className="text-xs text-slate-500 mt-2">Non-sensitive config</div>
+                </div>
+                <div className="bg-red-500/20 border border-red-500 rounded p-3">
+                  <div className="text-red-400 font-medium text-sm mb-2">✗ DON&apos;T Store Here</div>
+                  <div className="space-y-1 font-mono text-xs text-red-300 line-through opacity-70">
+                    <div>API_KEY=sk-xxxx</div>
+                    <div>DB_PASSWORD=secret</div>
+                    <div>JWT_SECRET=token</div>
+                  </div>
+                  <div className="text-xs text-yellow-400 mt-2 animate-pulse">Use Secrets Manager!</div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Step 3: Limits */}
+          {step === 3 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Environment Variable Limits</div>
+              <div className="space-y-4">
+                <div className="bg-slate-800 rounded p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-slate-300">Total Size Limit</span>
+                    <span className="text-xl font-bold text-blue-400">4 KB</span>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-4">
+                    <div className="bg-blue-500 h-4 rounded-full animate-pulse" style={{ width: "60%" }}></div>
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">All variables combined must fit in 4KB</div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-slate-800 rounded p-3">
+                    <div className="text-yellow-400 text-sm mb-1">Case Sensitive</div>
+                    <div className="font-mono text-xs">
+                      <div className="text-green-400">DB_HOST ≠ db_host</div>
+                    </div>
+                  </div>
+                  <div className="bg-slate-800 rounded p-3">
+                    <div className="text-yellow-400 text-sm mb-1">Reserved Names</div>
+                    <div className="font-mono text-xs text-slate-400">
+                      AWS_*, LAMBDA_* reserved
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Step Info */}

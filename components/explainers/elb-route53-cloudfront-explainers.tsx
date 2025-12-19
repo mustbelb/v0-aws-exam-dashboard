@@ -78,75 +78,235 @@ export function LoadBalancerTypesExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-6">
-          {/* Clients */}
-          <div className="text-center">
-            <div className="flex flex-col gap-2 mb-2">
-              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                <span className="text-xl">📱</span>
-              </div>
-              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                <span className="text-xl">💻</span>
-              </div>
-            </div>
-            <span className="text-sm text-gray-400">Clients</span>
-          </div>
-
-          {/* Arrow */}
-          <div className="text-gray-500 text-xl">→</div>
-
-          {/* Load Balancer */}
-          <div className={`p-6 rounded-lg border-2 ${
-            lbType === "alb" ? "border-blue-500 bg-blue-900/20" :
-            lbType === "nlb" ? "border-green-500 bg-green-900/20" :
-            "border-orange-500 bg-orange-900/20"
-          }`}>
-            <div className="text-center">
-              <div className={`text-lg font-bold mb-1 ${
-                lbType === "alb" ? "text-blue-400" :
-                lbType === "nlb" ? "text-green-400" :
-                "text-orange-400"
-              }`}>
-                {lbType.toUpperCase()}
-              </div>
-              <div className="text-xs text-gray-400">{currentLb.layer}</div>
-              <div className="text-xs text-gray-500">{currentLb.protocol}</div>
-            </div>
-          </div>
-
-          {/* Arrow */}
-          <div className="text-gray-500 text-xl">→</div>
-
-          {/* Targets */}
-          <div className="text-center">
-            <div className="flex flex-col gap-2 mb-2">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-xs">EC2</span>
+        {step === 0 && (
+          <div className="text-center py-8">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">👥</span>
                 </div>
-              ))}
+                <span className="text-sm text-gray-400">Multiple Clients</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="w-24 h-24 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <Server className="w-12 h-12 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Load Balancer</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="flex gap-2 mb-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">EC2</span>
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-400">Targets</span>
+              </div>
             </div>
-            <span className="text-sm text-gray-400">Targets</span>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">ELB distributes incoming traffic across multiple targets (EC2, containers, IPs) in one or more Availability Zones, ensuring high availability and fault tolerance.</p>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Features */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-semibold text-gray-300 mb-2">Features</div>
-            <div className="flex flex-wrap gap-2">
-              {currentLb.features.map((feature, i) => (
-                <span key={i} className="bg-gray-600 px-2 py-1 rounded text-xs text-white">
-                  {feature}
-                </span>
-              ))}
+        {step === 1 && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">📱</span>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">💻</span>
+                  </div>
+                </div>
+                <span className="text-sm text-gray-400">HTTP/HTTPS</span>
+              </div>
+              <div className="text-gray-500 text-xl">→</div>
+              <div className="p-6 rounded-lg border-2 border-blue-500 bg-blue-900/20">
+                <div className="text-center">
+                  <div className="text-lg font-bold mb-1 text-blue-400">ALB</div>
+                  <div className="text-xs text-gray-400">Layer 7</div>
+                  <div className="text-xs text-gray-500">HTTP/HTTPS</div>
+                </div>
+              </div>
+              <div className="text-gray-500 text-xl">→</div>
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">EC2</span>
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-400">Targets</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-sm font-semibold text-gray-300 mb-2">Features</div>
+                <div className="flex flex-wrap gap-2">
+                  {lbTypes.alb.features.map((feature, i) => (
+                    <span key={i} className="bg-gray-600 px-2 py-1 rounded text-xs text-white">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-sm font-semibold text-gray-300 mb-2">Use Case</div>
+                <div className="text-sm text-gray-300">{lbTypes.alb.useCase}</div>
+              </div>
             </div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-semibold text-gray-300 mb-2">Use Case</div>
-            <div className="text-sm text-gray-300">{currentLb.useCase}</div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">🎮</span>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">📡</span>
+                  </div>
+                </div>
+                <span className="text-sm text-gray-400">TCP/UDP</span>
+              </div>
+              <div className="text-gray-500 text-xl">→</div>
+              <div className="p-6 rounded-lg border-2 border-green-500 bg-green-900/20">
+                <div className="text-center">
+                  <div className="text-lg font-bold mb-1 text-green-400">NLB</div>
+                  <div className="text-xs text-gray-400">Layer 4</div>
+                  <div className="text-xs text-gray-500">TCP/UDP/TLS</div>
+                </div>
+              </div>
+              <div className="text-gray-500 text-xl">→</div>
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">EC2</span>
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-400">Targets</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-sm font-semibold text-gray-300 mb-2">Features</div>
+                <div className="flex flex-wrap gap-2">
+                  {lbTypes.nlb.features.map((feature, i) => (
+                    <span key={i} className="bg-gray-600 px-2 py-1 rounded text-xs text-white">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-sm font-semibold text-gray-300 mb-2">Use Case</div>
+                <div className="text-sm text-gray-300">{lbTypes.nlb.useCase}</div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">🌐</span>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">📱</span>
+                  </div>
+                </div>
+                <span className="text-sm text-gray-400">Traffic</span>
+              </div>
+              <div className="text-gray-500 text-xl">→</div>
+              <div className="p-6 rounded-lg border-2 border-orange-500 bg-orange-900/20">
+                <div className="text-center">
+                  <div className="text-lg font-bold mb-1 text-orange-400">GWLB</div>
+                  <div className="text-xs text-gray-400">Layer 3</div>
+                  <div className="text-xs text-gray-500">GENEVE</div>
+                </div>
+              </div>
+              <div className="text-gray-500 text-xl">→</div>
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-white" />
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-400">Firewalls</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-sm font-semibold text-gray-300 mb-2">Features</div>
+                <div className="flex flex-wrap gap-2">
+                  {lbTypes.gwlb.features.map((feature, i) => (
+                    <span key={i} className="bg-gray-600 px-2 py-1 rounded text-xs text-white">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-sm font-semibold text-gray-300 mb-2">Use Case</div>
+                <div className="text-sm text-gray-300">{lbTypes.gwlb.useCase}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div>
+            <div className="text-center mb-6">
+              <div className="text-lg font-semibold text-purple-400 mb-4">Target Group Types</div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">EC2</span>
+                  </div>
+                  <div className="text-xs text-gray-300">Instance ID</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">IP</span>
+                  </div>
+                  <div className="text-xs text-gray-300">IP Address</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">λ</span>
+                  </div>
+                  <div className="text-xs text-gray-300">Lambda</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">ALB</span>
+                  </div>
+                  <div className="text-xs text-gray-300">ALB</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-300">Target Groups route requests to one or more registered targets. Health checks automatically remove unhealthy targets from the rotation.</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step Info */}
@@ -240,104 +400,214 @@ export function Route53RoutingPoliciesExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          {/* User */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
-              <span className="text-2xl">👤</span>
-            </div>
-            <span className="text-sm text-gray-400">User</span>
-          </div>
-
-          {/* DNS Query */}
-          <div className="flex-1 mx-2">
-            <div className="text-center text-xs text-gray-400 mb-1">DNS Query</div>
-            <div className="h-1 bg-blue-500 rounded" />
-          </div>
-
-          {/* Route 53 */}
-          <div className="text-center">
-            <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <Globe className="w-10 h-10 text-white" />
-            </div>
-            <span className="text-sm text-gray-400">Route 53</span>
-          </div>
-
-          {/* Routing */}
-          <div className="flex-1 mx-2">
-            {policy === "weighted" && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 bg-green-500 rounded" style={{ width: "70%" }} />
-                  <span className="text-xs text-gray-400">70%</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 bg-yellow-500 rounded" style={{ width: "30%" }} />
-                  <span className="text-xs text-gray-400">30%</span>
-                </div>
-              </div>
-            )}
-            {policy === "simple" && (
-              <div className="h-1 bg-green-500 rounded" />
-            )}
-            {policy === "latency" && (
+        {step === 0 && (
+          <div className="text-center py-8">
+            <div className="flex items-center justify-center gap-8 mb-6">
               <div className="text-center">
-                <div className="text-xs text-green-400">Lowest Latency</div>
-                <div className="h-1 bg-green-500 rounded mt-1" />
-              </div>
-            )}
-            {policy === "failover" && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 bg-green-500 rounded flex-1" />
-                  <span className="text-xs text-green-400">Primary</span>
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">🌍</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 bg-gray-600 rounded flex-1" />
-                  <span className="text-xs text-gray-500">Secondary</span>
-                </div>
+                <span className="text-sm text-gray-400">Global Users</span>
               </div>
-            )}
-          </div>
-
-          {/* Endpoints */}
-          <div className="flex flex-col gap-2">
-            <div className={`w-14 h-14 rounded-lg flex items-center justify-center ${
-              policy === "failover" ? "bg-green-600" : "bg-green-600"
-            }`}>
-              <span className="text-white text-xs">us-e</span>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="w-24 h-24 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-12 h-12 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Route 53 DNS</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="flex gap-2 mb-2">
+                  {["us-e", "eu-w", "ap-s"].map(region => (
+                    <div key={region} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">{region}</span>
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-400">Endpoints</span>
+              </div>
             </div>
-            <div className={`w-14 h-14 rounded-lg flex items-center justify-center ${
-              policy === "failover" ? "bg-gray-600" : "bg-yellow-600"
-            }`}>
-              <span className="text-white text-xs">eu-w</span>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Route 53 is a highly available and scalable DNS service with intelligent routing policies, health checks, and domain registration.</p>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Policy Description */}
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          {policy === "simple" && (
-            <div className="text-sm text-gray-300">
-              <span className="text-blue-400 font-semibold">Simple:</span> Returns a single value. No health checks. Good for single resource.
+        {step === 1 && (
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <span className="text-sm text-gray-400">User</span>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="text-center text-xs text-gray-400 mb-1">DNS Query</div>
+                <div className="h-1 bg-blue-500 rounded" />
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Route 53</span>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">us-e</span>
+                </div>
+              </div>
             </div>
-          )}
-          {policy === "weighted" && (
-            <div className="text-sm text-gray-300">
-              <span className="text-blue-400 font-semibold">Weighted:</span> Split traffic by weight (70/30 shown). Useful for blue-green deployments.
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm text-gray-300">
+                <span className="text-blue-400 font-semibold">Simple:</span> Returns a single value. No health checks. Good for single resource.
+              </div>
             </div>
-          )}
-          {policy === "latency" && (
-            <div className="text-sm text-gray-300">
-              <span className="text-blue-400 font-semibold">Latency:</span> Routes to region with lowest latency for the user. Best for global apps.
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <span className="text-sm text-gray-400">User</span>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="text-center text-xs text-gray-400 mb-1">DNS Query</div>
+                <div className="h-1 bg-blue-500 rounded" />
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Route 53</span>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 bg-green-500 rounded" style={{ width: "70%" }} />
+                    <span className="text-xs text-gray-400">70%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 bg-yellow-500 rounded" style={{ width: "30%" }} />
+                    <span className="text-xs text-gray-400">30%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">us-e</span>
+                </div>
+                <div className="w-14 h-14 bg-yellow-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">eu-w</span>
+                </div>
+              </div>
             </div>
-          )}
-          {policy === "failover" && (
-            <div className="text-sm text-gray-300">
-              <span className="text-blue-400 font-semibold">Failover:</span> Active-passive. Health checks route to secondary if primary fails.
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm text-gray-300">
+                <span className="text-blue-400 font-semibold">Weighted:</span> Split traffic by weight (70/30 shown). Useful for blue-green deployments.
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <span className="text-sm text-gray-400">User</span>
+                <div className="text-xs text-gray-500">Tokyo</div>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="text-center text-xs text-gray-400 mb-1">DNS Query</div>
+                <div className="h-1 bg-blue-500 rounded" />
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Route 53</span>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="text-center">
+                  <div className="text-xs text-green-400">Lowest Latency</div>
+                  <div className="h-1 bg-green-500 rounded mt-1" />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">ap-s</span>
+                </div>
+                <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center opacity-50">
+                  <span className="text-white text-xs">us-e</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm text-gray-300">
+                <span className="text-blue-400 font-semibold">Latency:</span> Routes to region with lowest latency for the user. Best for global apps.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <span className="text-sm text-gray-400">User</span>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="text-center text-xs text-gray-400 mb-1">DNS Query</div>
+                <div className="h-1 bg-blue-500 rounded" />
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Route 53</span>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 bg-green-500 rounded flex-1" />
+                    <span className="text-xs text-green-400">Primary ✓</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 bg-gray-600 rounded flex-1" />
+                    <span className="text-xs text-gray-500">Secondary (Standby)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">us-e</span>
+                </div>
+                <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">eu-w</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm text-gray-300">
+                <span className="text-blue-400 font-semibold">Failover:</span> Active-passive. Health checks route to secondary if primary fails.
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step Info */}
@@ -423,67 +693,203 @@ export function CloudFrontDistributionsExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          {/* User */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
-              <span className="text-2xl">👤</span>
+        {step === 0 && (
+          <div className="text-center py-8">
+            <div className="flex items-center justify-center gap-6 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">🌍</span>
+                </div>
+                <span className="text-sm text-gray-400">Global Users</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="w-24 h-24 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-12 h-12 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">CloudFront CDN</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="flex gap-2 mb-2">
+                  {["Edge1", "Edge2", "Edge3"].map(edge => (
+                    <div key={edge} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-white" />
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-400">400+ Edge Locations</span>
+              </div>
             </div>
-            <span className="text-sm text-gray-400">User</span>
-            <div className="text-xs text-gray-500">Tokyo</div>
-          </div>
-
-          {/* Arrow to Edge */}
-          <div className="flex-1 mx-2">
-            <div className="text-center text-xs text-green-400 mb-1">~10ms</div>
-            <div className="h-1 bg-green-500 rounded" />
-          </div>
-
-          {/* Edge Location */}
-          <div className="text-center">
-            <div className={`w-20 h-20 rounded-lg flex flex-col items-center justify-center mb-2 ${
-              cacheHit ? "bg-green-600" : "bg-yellow-600"
-            }`}>
-              <Zap className="w-8 h-8 text-white" />
-              <span className="text-xs text-white">Edge</span>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">CloudFront is a global content delivery network (CDN) that caches content at edge locations worldwide for low-latency access.</p>
             </div>
-            <span className="text-sm text-gray-400">Tokyo Edge</span>
           </div>
+        )}
 
-          {/* Arrow to Origin (dimmed if cache hit) */}
-          <div className={`flex-1 mx-2 ${cacheHit ? "opacity-30" : ""}`}>
-            <div className="text-center text-xs text-yellow-400 mb-1">
-              {cacheHit ? "Cached!" : "~200ms"}
+        {step === 1 && (
+          <div>
+            <div className="text-center mb-6">
+              <div className="text-lg font-semibold text-orange-400 mb-4">CloudFront Origins</div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-xl">🪣</span>
+                  </div>
+                  <div className="text-xs text-gray-300">S3 Bucket</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">ALB</span>
+                  </div>
+                  <div className="text-xs text-gray-300">ALB</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Server className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-xs text-gray-300">EC2/On-Prem</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Globe className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-xs text-gray-300">HTTP Server</div>
+                </div>
+              </div>
             </div>
-            <div className={`h-1 rounded ${cacheHit ? "bg-gray-600" : "bg-yellow-500"}`} />
-          </div>
-
-          {/* Origin */}
-          <div className={`text-center ${cacheHit ? "opacity-30" : ""}`}>
-            <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
-              <span className="text-2xl">🪣</span>
-              <span className="text-xs text-white">S3</span>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-300">Origins are the source servers where CloudFront retrieves content. Can be S3, ALB, EC2, or any HTTP server.</p>
             </div>
-            <span className="text-sm text-gray-400">Origin</span>
-            <div className="text-xs text-gray-500">us-east-1</div>
           </div>
-        </div>
+        )}
 
-        {/* Cache Stats */}
-        <div className="mt-6 grid grid-cols-3 gap-4">
-          <div className="bg-gray-700 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-green-400">~10ms</div>
-            <div className="text-xs text-gray-400">Cache Hit Latency</div>
+        {step === 2 && (
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <span className="text-sm text-gray-400">User</span>
+                <div className="text-xs text-gray-500">Tokyo</div>
+              </div>
+              <div className="flex-1 mx-2">
+                <div className="text-center text-xs text-green-400 mb-1">~10ms</div>
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+              <div className="text-center">
+                <div className={`w-20 h-20 rounded-lg flex flex-col items-center justify-center mb-2 ${
+                  cacheHit ? "bg-green-600" : "bg-yellow-600"
+                }`}>
+                  <Zap className="w-8 h-8 text-white" />
+                  <span className="text-xs text-white">Edge</span>
+                </div>
+                <span className="text-sm text-gray-400">Tokyo Edge</span>
+              </div>
+              <div className={`flex-1 mx-2 ${cacheHit ? "opacity-30" : ""}`}>
+                <div className="text-center text-xs text-yellow-400 mb-1">
+                  {cacheHit ? "Cached!" : "~200ms"}
+                </div>
+                <div className={`h-1 rounded ${cacheHit ? "bg-gray-600" : "bg-yellow-500"}`} />
+              </div>
+              <div className={`text-center ${cacheHit ? "opacity-30" : ""}`}>
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-2xl">🪣</span>
+                  <span className="text-xs text-white">S3</span>
+                </div>
+                <span className="text-sm text-gray-400">Origin</span>
+                <div className="text-xs text-gray-500">us-east-1</div>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-3 gap-4">
+              <div className="bg-gray-700 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-green-400">~10ms</div>
+                <div className="text-xs text-gray-400">Cache Hit Latency</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-yellow-400">~200ms</div>
+                <div className="text-xs text-gray-400">Cache Miss Latency</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-white">400+</div>
+                <div className="text-xs text-gray-400">Edge Locations</div>
+              </div>
+            </div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-yellow-400">~200ms</div>
-            <div className="text-xs text-gray-400">Cache Miss Latency</div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <div className="text-center mb-6">
+              <div className="text-lg font-semibold text-orange-400 mb-4">Cache Behaviors</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-green-400">/images/*.jpg</span>
+                  <span className="text-gray-500">→</span>
+                  <span className="text-blue-400">S3 Origin</span>
+                  <span className="text-gray-400 text-xs">TTL: 86400s</span>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-green-400">/api/*</span>
+                  <span className="text-gray-500">→</span>
+                  <span className="text-purple-400">ALB Origin</span>
+                  <span className="text-gray-400 text-xs">TTL: 0s</span>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-green-400">/static/*</span>
+                  <span className="text-gray-500">→</span>
+                  <span className="text-blue-400">S3 Origin</span>
+                  <span className="text-gray-400 text-xs">TTL: 3600s</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-300">Cache behaviors define different caching rules based on URL path patterns, allowing different origins and TTLs per path.</p>
+            </div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-white">400+</div>
-            <div className="text-xs text-gray-400">Edge Locations</div>
+        )}
+
+        {step === 4 && (
+          <div>
+            <div className="text-center mb-6">
+              <div className="text-lg font-semibold text-orange-400 mb-4">Security Features</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Lock className="w-5 h-5 text-green-400" />
+                    <span className="text-sm font-semibold text-green-400">OAC/OAI</span>
+                  </div>
+                  <p className="text-xs text-gray-300">Restrict S3 access to CloudFront only</p>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="w-5 h-5 text-blue-400" />
+                    <span className="text-sm font-semibold text-blue-400">SSL/TLS</span>
+                  </div>
+                  <p className="text-xs text-gray-300">HTTPS encryption with ACM certificates</p>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-5 h-5 text-yellow-400" />
+                    <span className="text-sm font-semibold text-yellow-400">Signed URLs</span>
+                  </div>
+                  <p className="text-xs text-gray-300">Time-limited access to individual files</p>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-5 h-5 text-purple-400" />
+                    <span className="text-sm font-semibold text-purple-400">Signed Cookies</span>
+                  </div>
+                  <p className="text-xs text-gray-300">Access to multiple restricted files</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-300">CloudFront provides multiple security features to protect content and control access.</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Step Info */}
@@ -576,86 +982,156 @@ export function AlbTargetGroupsExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          {/* ALB */}
-          <div className="text-center">
-            <div className="w-20 h-20 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-sm font-bold">ALB</span>
-            </div>
-            <span className="text-sm text-gray-400">Load Balancer</span>
-          </div>
-
-          {/* Listener Rules */}
-          <div className="flex-1 mx-4">
-            <div className="bg-gray-700 rounded-lg p-3 space-y-2">
-              <div className="text-xs text-gray-400 mb-2">Listener Rules</div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-green-400">/api/*</span>
-                <span className="text-gray-500">→</span>
-                <span className="text-blue-400">api-targets</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-green-400">/*.jpg</span>
-                <span className="text-gray-500">→</span>
-                <span className="text-blue-400">static-targets</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Target Group */}
-          <div className="p-4 bg-blue-900/30 border-2 border-blue-500 rounded-lg">
-            <div className="text-blue-400 font-semibold text-sm mb-3">Target Group</div>
-            <div className="flex gap-2">
-              {targetType === "instance" && (
-                <>
-                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs">EC2</span>
-                  </div>
-                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs">EC2</span>
-                  </div>
-                  <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs">❌</span>
-                  </div>
-                </>
-              )}
-              {targetType === "ip" && (
-                <>
-                  <div className="w-16 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs">10.0.1.5</span>
-                  </div>
-                  <div className="w-16 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs">10.0.2.8</span>
-                  </div>
-                </>
-              )}
-              {targetType === "lambda" && (
-                <div className="w-20 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white">λ function</span>
+        {step === 0 && (
+          <div className="text-center py-8">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">ALB</span>
                 </div>
-              )}
+                <span className="text-sm text-gray-400">Load Balancer</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="p-4 bg-blue-900/30 border-2 border-blue-500 rounded-lg">
+                <div className="text-blue-400 font-semibold mb-2">Target Group</div>
+                <div className="flex gap-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">EC2</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Target Groups route requests to registered targets and automatically perform health checks to remove unhealthy targets from rotation.</p>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Health Check */}
-        <div className="mt-4 bg-gray-700 rounded-lg p-4">
-          <div className="text-sm font-semibold text-gray-300 mb-2">Health Check</div>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="text-gray-400">Path: </span>
-              <span className="text-white">/health</span>
+        {step === 1 && (
+          <div>
+            <div className="text-center mb-6">
+              <div className="text-lg font-semibold text-blue-400 mb-4">Target Types</div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">EC2</span>
+                  </div>
+                  <div className="text-sm text-gray-300 font-semibold">Instance</div>
+                  <div className="text-xs text-gray-400">Register by instance ID</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">IP</span>
+                  </div>
+                  <div className="text-sm text-gray-300 font-semibold">IP Address</div>
+                  <div className="text-xs text-gray-400">Can be outside VPC</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <span className="text-white text-xs">λ</span>
+                  </div>
+                  <div className="text-sm text-gray-300 font-semibold">Lambda</div>
+                  <div className="text-xs text-gray-400">Invoke functions</div>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="text-gray-400">Interval: </span>
-              <span className="text-white">30s</span>
-            </div>
-            <div>
-              <span className="text-gray-400">Threshold: </span>
-              <span className="text-white">2 healthy</span>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-300">ALB can route to EC2 instances, IP addresses (including on-premises servers), or Lambda functions.</p>
             </div>
           </div>
-        </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">ALB</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4">
+                {[
+                  { healthy: true, id: 1 },
+                  { healthy: true, id: 2 },
+                  { healthy: false, id: 3 }
+                ].map(target => (
+                  <div key={target.id} className="flex items-center gap-2">
+                    <div className={`w-8 h-1 rounded ${target.healthy ? "bg-green-500" : "bg-red-500"}`} />
+                    <span className="text-xs text-gray-400">/health</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col gap-4">
+                {[
+                  { healthy: true, label: "✓ Healthy" },
+                  { healthy: true, label: "✓ Healthy" },
+                  { healthy: false, label: "✗ Unhealthy" }
+                ].map((target, i) => (
+                  <div key={i} className={`w-16 h-16 rounded-lg flex items-center justify-center ${
+                    target.healthy ? "bg-green-600" : "bg-red-600"
+                  }`}>
+                    <span className="text-white text-xs">{target.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <div className="grid grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Path</span>
+                  <div className="text-white">/health</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Interval</span>
+                  <div className="text-white">30 sec</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Timeout</span>
+                  <div className="text-white">5 sec</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Threshold</span>
+                  <div className="text-white">2 checks</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <div className="text-center mb-6">
+              <div className="text-lg font-semibold text-blue-400 mb-4">Routing Rules</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-green-400">Path: /api/*</span>
+                  <span className="text-gray-500">→</span>
+                  <span className="text-blue-400">api-target-group</span>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-green-400">Host: admin.example.com</span>
+                  <span className="text-gray-500">→</span>
+                  <span className="text-purple-400">admin-target-group</span>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-green-400">Query: ?user=vip</span>
+                  <span className="text-gray-500">→</span>
+                  <span className="text-orange-400">vip-target-group</span>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-green-400">Header: X-Custom-Header</span>
+                  <span className="text-gray-500">→</span>
+                  <span className="text-yellow-400">custom-target-group</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <p className="text-sm text-gray-300">ALB can route based on path, host header, HTTP method, query strings, source IP, and custom headers.</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step Info */}
@@ -740,71 +1216,143 @@ export function SslTlsCertificatesExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          {/* Client */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-2xl">🔒</span>
-            </div>
-            <span className="text-sm text-gray-400">Client</span>
-            <div className="text-xs text-green-400 mt-1">HTTPS</div>
-          </div>
-
-          {/* TLS Handshake */}
-          <div className="flex-1 mx-4">
-            <div className="bg-green-900/30 border border-green-600 rounded-lg p-3 text-center">
-              <div className="text-sm text-green-400">TLS 1.2/1.3</div>
-              {sniEnabled && (
-                <div className="text-xs text-gray-400 mt-1">
-                  SNI: api.example.com
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">🔒</span>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* ALB with Certs */}
-          <div className="text-center">
-            <div className="w-24 h-24 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2 relative">
-              <span className="text-white text-sm font-bold">ALB</span>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs">🔐</span>
+                <span className="text-sm text-gray-400">Client</span>
+              </div>
+              <div className="flex-1 max-w-xs">
+                <div className="bg-green-900/30 border border-green-600 rounded-lg p-3">
+                  <div className="text-sm text-green-400 text-center">Encrypted in Transit</div>
+                  <div className="text-xs text-gray-400 text-center mt-1">TLS 1.2/1.3</div>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">AWS</span>
+                </div>
+                <span className="text-sm text-gray-400">Load Balancer</span>
               </div>
             </div>
-            <span className="text-sm text-gray-400">SSL Termination</span>
-          </div>
-
-          {/* Arrow */}
-          <div className="text-gray-500 text-xl mx-2">→</div>
-
-          {/* Backend */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs">HTTP</span>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">SSL/TLS certificates encrypt data in transit between clients and AWS services. Use HTTPS to secure communications.</p>
             </div>
-            <span className="text-sm text-gray-400">Backend</span>
-          </div>
-        </div>
-
-        {/* Multiple Certs with SNI */}
-        {sniEnabled && (
-          <div className="mt-6 grid grid-cols-3 gap-4">
-            {[
-              { domain: "api.example.com", cert: "cert-1" },
-              { domain: "www.example.com", cert: "cert-2" },
-              { domain: "admin.example.com", cert: "cert-3" }
-            ].map((item, i) => (
-              <div key={i} className="bg-green-900/30 border border-green-600/50 rounded-lg p-3 text-center">
-                <div className="text-green-400 text-sm">{item.domain}</div>
-                <div className="text-xs text-gray-500">{item.cert}</div>
-              </div>
-            ))}
           </div>
         )}
 
-        {!sniEnabled && (
-          <div className="mt-6 bg-yellow-900/30 border border-yellow-600/50 rounded-lg p-4 text-center">
-            <div className="text-yellow-400">Without SNI: One certificate per load balancer</div>
-            <div className="text-xs text-gray-400 mt-1">Legacy clients may not support SNI</div>
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Shield className="w-6 h-6 text-green-400" />
+                <span className="text-green-400 font-semibold">AWS Certificate Manager (ACM)</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-400">Cost</div>
+                  <div className="text-green-400 font-semibold">FREE</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-400">Renewal</div>
+                  <div className="text-green-400 font-semibold">Automatic</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-400">Validation</div>
+                  <div className="text-white">DNS or Email</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-400">Regions</div>
+                  <div className="text-white">All AWS regions</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              ACM provides free SSL/TLS certificates that auto-renew. For CloudFront, certificates must be in us-east-1.
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xs text-gray-300">api.example.com</span>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xs text-gray-300">www.example.com</span>
+                  </div>
+                </div>
+                <span className="text-sm text-gray-400">Multiple Domains</span>
+              </div>
+              <div className="text-gray-500 text-xl">→</div>
+              <div className="p-6 rounded-lg border-2 border-purple-500 bg-purple-900/20">
+                <div className="text-center">
+                  <div className="text-lg font-bold mb-1 text-purple-400">ALB with SNI</div>
+                  <div className="text-xs text-gray-400">One IP, Multiple Certs</div>
+                </div>
+              </div>
+            </div>
+
+            {sniEnabled && (
+              <div className="mt-6 grid grid-cols-3 gap-4">
+                {[
+                  { domain: "api.example.com", cert: "cert-1" },
+                  { domain: "www.example.com", cert: "cert-2" },
+                  { domain: "admin.example.com", cert: "cert-3" }
+                ].map((item, i) => (
+                  <div key={i} className="bg-green-900/30 border border-green-600/50 rounded-lg p-3 text-center">
+                    <div className="text-green-400 text-sm">{item.domain}</div>
+                    <div className="text-xs text-gray-500">{item.cert}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!sniEnabled && (
+              <div className="mt-6 bg-yellow-900/30 border border-yellow-600/50 rounded-lg p-4 text-center">
+                <div className="text-yellow-400">Without SNI: One certificate per load balancer</div>
+                <div className="text-xs text-gray-400 mt-1">Legacy clients may not support SNI</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-purple-900/20 border border-purple-600 rounded-lg p-4">
+                <div className="text-purple-400 font-semibold mb-3">SSL Termination (ALB)</div>
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span className="text-gray-400">Client</span>
+                  <span className="text-green-400">HTTPS →</span>
+                  <span className="text-purple-400">ALB</span>
+                  <span className="text-blue-400">→ HTTP</span>
+                  <span className="text-gray-400">Backend</span>
+                </div>
+                <div className="text-xs text-gray-300 mt-2">Decrypt at LB, forward HTTP to instances</div>
+              </div>
+
+              <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
+                <div className="text-blue-400 font-semibold mb-3">SSL Passthrough (NLB)</div>
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span className="text-gray-400">Client</span>
+                  <span className="text-green-400">HTTPS →</span>
+                  <span className="text-blue-400">NLB</span>
+                  <span className="text-green-400">→ HTTPS</span>
+                  <span className="text-gray-400">Backend</span>
+                </div>
+                <div className="text-xs text-gray-300 mt-2">Forward encrypted traffic, decrypt at instances</div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Choose termination for simpler certificate management, or passthrough for end-to-end encryption.
+            </div>
           </div>
         )}
       </div>
@@ -900,59 +1448,159 @@ export function HealthChecksExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-center gap-8">
-          {/* ALB */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">ALB</span>
-            </div>
-          </div>
-
-          {/* Health Check Arrows */}
-          <div className="flex flex-col gap-4">
-            {targets.map(target => (
-              <div key={target.id} className="flex items-center gap-2">
-                <div className={`w-8 h-1 rounded ${target.healthy ? "bg-green-500" : "bg-red-500"}`} />
-                <span className="text-xs text-gray-400">/health</span>
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">ALB</span>
+                </div>
+                <span className="text-sm text-gray-400">Load Balancer</span>
               </div>
-            ))}
-          </div>
-
-          {/* Targets */}
-          <div className="flex flex-col gap-4">
-            {targets.map(target => (
-              <div key={target.id} className={`w-16 h-16 rounded-lg flex items-center justify-center ${
-                target.healthy ? "bg-green-600" : "bg-red-600"
-              }`}>
-                <span className="text-white text-xs">
-                  {target.healthy ? "✓ Healthy" : "✗ Fail"}
-                </span>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-1 bg-green-500 rounded" />
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-1 bg-green-500 rounded" />
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-1 bg-red-500 rounded" />
+                  <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">✗</span>
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Health checks automatically detect unhealthy targets and stop routing traffic to them until they recover.</p>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Health Check Config */}
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          <div className="grid grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="text-gray-400">Path</span>
-              <div className="text-white">/health</div>
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-center gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">ALB</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4">
+                {targets.map(target => (
+                  <div key={target.id} className="flex items-center gap-2">
+                    <div className={`w-8 h-1 rounded ${target.healthy ? "bg-green-500" : "bg-red-500"}`} />
+                    <span className="text-xs text-gray-400">/health</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col gap-4">
+                {targets.map(target => (
+                  <div key={target.id} className={`w-16 h-16 rounded-lg flex items-center justify-center ${
+                    target.healthy ? "bg-green-600" : "bg-red-600"
+                  }`}>
+                    <span className="text-white text-xs">
+                      {target.healthy ? "✓ Healthy" : "✗ Fail"}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div>
-              <span className="text-gray-400">Interval</span>
-              <div className="text-white">30 sec</div>
-            </div>
-            <div>
-              <span className="text-gray-400">Timeout</span>
-              <div className="text-white">5 sec</div>
-            </div>
-            <div>
-              <span className="text-gray-400">Healthy</span>
-              <div className="text-white">{healthyCount} checks</div>
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="grid grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Path</span>
+                  <div className="text-white">/health</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Interval</span>
+                  <div className="text-white">30 sec</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Timeout</span>
+                  <div className="text-white">5 sec</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Healthy</span>
+                  <div className="text-white">{healthyCount} checks</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="text-center mb-4">
+              <div className="inline-block bg-yellow-900/30 border border-yellow-600 rounded-lg p-3">
+                <div className="text-yellow-400 font-semibold">Grace Period: 300 seconds</div>
+                <div className="text-xs text-gray-400 mt-1">Wait before starting health checks</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-gray-700 rounded-lg p-4 text-center">
+                <div className="text-2xl mb-2">🕐</div>
+                <div className="text-sm text-gray-400">0-300s</div>
+                <div className="text-xs text-yellow-400 mt-1">Grace Period</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4 text-center">
+                <div className="text-2xl mb-2">🔍</div>
+                <div className="text-sm text-gray-400">After 300s</div>
+                <div className="text-xs text-green-400 mt-1">Start Checks</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4 text-center">
+                <div className="text-2xl mb-2">✓</div>
+                <div className="text-sm text-gray-400">{healthyCount} consecutive</div>
+                <div className="text-xs text-green-400 mt-1">Mark Healthy</div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Grace period prevents health check failures during application startup. New instances won't be marked unhealthy during this time.
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
+                <div className="text-blue-400 font-semibold mb-3">Cross-Zone: Disabled</div>
+                <div className="space-y-2">
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-xs text-gray-400">us-east-1a</div>
+                    <div className="text-sm text-white">2 targets (100% of AZ traffic)</div>
+                  </div>
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-xs text-gray-400">us-east-1b</div>
+                    <div className="text-sm text-white">1 target (100% of AZ traffic)</div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-3">Cross-Zone: Enabled</div>
+                <div className="space-y-2">
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-xs text-gray-400">us-east-1a</div>
+                    <div className="text-sm text-white">2 targets (~66% each)</div>
+                  </div>
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-xs text-gray-400">us-east-1b</div>
+                    <div className="text-sm text-white">1 target (~33%)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Cross-zone load balancing distributes traffic evenly across all healthy targets in all enabled AZs.
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step Info */}
@@ -1043,7 +1691,39 @@ export function Route53HostedZonesExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        {zoneType === "public" ? (
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">🌐</span>
+                </div>
+                <span className="text-sm text-gray-400">Domain</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="w-24 h-24 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-12 h-12 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Hosted Zone</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="flex flex-col gap-2 mb-2">
+                  <div className="w-12 h-8 bg-green-600 rounded flex items-center justify-center text-xs text-white">A</div>
+                  <div className="w-12 h-8 bg-green-600 rounded flex items-center justify-center text-xs text-white">CNAME</div>
+                  <div className="w-12 h-8 bg-green-600 rounded flex items-center justify-center text-xs text-white">MX</div>
+                </div>
+                <span className="text-sm text-gray-400">DNS Records</span>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">A hosted zone is a container for DNS records that define how to route traffic for a domain and its subdomains.</p>
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-center">
@@ -1070,7 +1750,9 @@ export function Route53HostedZonesExplainer() {
               Public zones resolve domain names for anyone on the internet. $0.50/month per zone.
             </div>
           </div>
-        ) : (
+        )}
+
+        {step === 2 && (
           <div className="space-y-4">
             <div className="p-4 bg-purple-900/20 border border-purple-500 rounded-lg">
               <div className="text-purple-400 font-semibold mb-3">Private Hosted Zone</div>
@@ -1087,6 +1769,29 @@ export function Route53HostedZonesExplainer() {
             </div>
             <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
               Private zones resolve within associated VPCs only. Enable DNS hostnames in VPC.
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Name Server (NS) Records</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-xs text-gray-400">NS Records</div>
+                  <div className="text-sm text-white mt-1">ns-123.awsdns-12.com</div>
+                  <div className="text-sm text-white">ns-456.awsdns-34.net</div>
+                  <div className="text-sm text-white">ns-789.awsdns-56.org</div>
+                  <div className="text-sm text-white">ns-012.awsdns-78.co.uk</div>
+                </div>
+                <div className="text-xs text-gray-300">
+                  Add these NS records to your domain registrar to delegate DNS to Route 53
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              NS records tell the internet which name servers contain the authoritative DNS records for your domain.
             </div>
           </div>
         )}
@@ -1180,66 +1885,178 @@ export function CloudFrontLambdaEdgeExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between gap-2">
-          <div className="text-center">
-            <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-xl">👤</span>
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <span className="text-sm text-gray-400">Viewer</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="p-3 bg-orange-600 rounded-lg">
+                  <Code className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Lambda@Edge</span>
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Edge Location</span>
+              </div>
             </div>
-            <span className="text-xs text-gray-400">Viewer</span>
-          </div>
-
-          <div className={`p-2 rounded-lg transition-all ${triggerType === "viewer-request" ? "bg-orange-600" : "bg-gray-700"}`}>
-            <Code className="w-4 h-4 text-white" />
-          </div>
-
-          <div className="text-center">
-            <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
-              <Cloud className="w-8 h-8 text-white" />
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Lambda@Edge runs serverless functions at CloudFront edge locations worldwide, enabling custom logic closer to users.</p>
             </div>
-            <span className="text-xs text-gray-400">Edge Cache</span>
           </div>
+        )}
 
-          <div className={`p-2 rounded-lg transition-all ${triggerType === "origin-request" ? "bg-orange-600" : "bg-gray-700"}`}>
-            <Code className="w-4 h-4 text-white" />
-          </div>
-
-          <div className="text-center">
-            <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <Database className="w-6 h-6 text-white" />
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">Viewer</span>
+              </div>
+              <div className="p-2 rounded-lg bg-orange-600">
+                <Code className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Edge Cache</span>
+              </div>
+              <div className="p-2 rounded-lg bg-gray-700">
+                <Code className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-center">
+                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Origin</span>
+              </div>
             </div>
-            <span className="text-xs text-gray-400">Origin</span>
+            <div className="mt-6 bg-orange-900/30 border border-orange-600 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-2">Viewer Request</div>
+              <div className="text-sm text-gray-300">Runs before CloudFront checks the cache</div>
+              <div className="mt-2 text-xs text-gray-400">Use cases: Auth, URL rewrites, A/B testing, device detection</div>
+            </div>
           </div>
+        )}
 
-          <div className={`p-2 rounded-lg transition-all ${triggerType === "origin-response" ? "bg-orange-600" : "bg-gray-700"}`}>
-            <Code className="w-4 h-4 text-white" />
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">Viewer</span>
+              </div>
+              <div className="p-2 rounded-lg bg-gray-700">
+                <Code className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Cache Miss</span>
+              </div>
+              <div className="p-2 rounded-lg bg-orange-600">
+                <Code className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-center">
+                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Origin</span>
+              </div>
+            </div>
+            <div className="mt-6 bg-orange-900/30 border border-orange-600 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-2">Origin Request</div>
+              <div className="text-sm text-gray-300">Runs on cache miss, before request goes to origin</div>
+              <div className="mt-2 text-xs text-gray-400">Use cases: Dynamic origin selection, add headers, modify query strings</div>
+            </div>
           </div>
+        )}
 
-          <div className={`p-2 rounded-lg transition-all ${triggerType === "viewer-response" ? "bg-orange-600" : "bg-gray-700"}`}>
-            <Code className="w-4 h-4 text-white" />
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">Viewer</span>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Edge</span>
+              </div>
+              <div className="p-2 rounded-lg bg-gray-700">
+                <Code className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-center">
+                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Origin</span>
+              </div>
+              <div className="p-2 rounded-lg bg-orange-600">
+                <Code className="w-4 h-4 text-white" />
+              </div>
+            </div>
+            <div className="mt-6 bg-orange-900/30 border border-orange-600 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-2">Origin Response</div>
+              <div className="text-sm text-gray-300">Runs after origin responds, before caching</div>
+              <div className="mt-2 text-xs text-gray-400">Use cases: Modify cache headers, compress images, transform content</div>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          <div className="text-orange-400 font-semibold mb-2">{triggers[triggerType].label}</div>
-          <div className="text-sm text-gray-300">{triggers[triggerType].desc}</div>
-          <div className="mt-2 text-xs text-gray-400">
-            {triggerType === "viewer-request" && "Use cases: Auth, URL rewrites, A/B testing, device detection"}
-            {triggerType === "origin-request" && "Use cases: Dynamic origin selection, add headers"}
-            {triggerType === "origin-response" && "Use cases: Modify cache headers, compress images"}
-            {triggerType === "viewer-response" && "Use cases: Add security headers, modify cookies"}
+        {step === 4 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">Viewer</span>
+              </div>
+              <div className="p-2 rounded-lg bg-orange-600">
+                <Code className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Edge Cache</span>
+              </div>
+            </div>
+            <div className="mt-6 bg-orange-900/30 border border-orange-600 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-2">Viewer Response</div>
+              <div className="text-sm text-gray-300">Runs before returning response to viewer</div>
+              <div className="mt-2 text-xs text-gray-400">Use cases: Add security headers, modify cookies, insert tracking pixels</div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-3">
+                <div className="text-sm font-semibold text-orange-400">Lambda@Edge</div>
+                <div className="text-xs text-gray-300 mt-1">Node.js/Python, up to 10GB, 30s timeout</div>
+              </div>
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+                <div className="text-sm font-semibold text-blue-400">CloudFront Functions</div>
+                <div className="text-xs text-gray-300 mt-1">JavaScript only, lightweight, 1ms max</div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-3">
-            <div className="text-sm font-semibold text-orange-400">Lambda@Edge</div>
-            <div className="text-xs text-gray-300 mt-1">Node.js/Python, up to 10GB, 30s timeout</div>
-          </div>
-          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
-            <div className="text-sm font-semibold text-blue-400">CloudFront Functions</div>
-            <div className="text-xs text-gray-300 mt-1">JavaScript only, lightweight, 1ms max</div>
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1327,29 +2144,69 @@ export function CloudFrontOACExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        {accessType === "public" ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span>
-                  <span className="text-gray-300">User → CloudFront → S3</span>
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-red-400">✗</span>
-                  <span className="text-gray-300">User → S3 directly (bypasses CDN!)</span>
-                </div>
+                <span className="text-sm text-gray-400">User</span>
               </div>
-              <div className="p-4 bg-red-900/30 border-2 border-red-500 rounded-lg">
-                <div className="text-red-400 font-semibold">⚠️ Public Bucket</div>
-                <div className="text-xs text-gray-400 mt-1">Anyone can access directly</div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">CloudFront</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="p-3 bg-green-600 rounded-lg">
+                  <Lock className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">OAC</span>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">🪣</span>
+                </div>
+                <span className="text-sm text-gray-400">S3 Bucket</span>
               </div>
             </div>
-            <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300">
-              Problem: Users can bypass CloudFront and access S3 directly, skipping caching, WAF, and logging.
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Origin Access Control (OAC) ensures only CloudFront can access your S3 bucket, preventing direct public access.</p>
             </div>
           </div>
-        ) : (
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4">
+                <div className="text-yellow-400 font-semibold mb-3">OAI (Legacy)</div>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <div>• Origin Access Identity</div>
+                  <div>• CloudFront user approach</div>
+                  <div>• No SSE-KMS support</div>
+                  <div>• Being deprecated</div>
+                </div>
+              </div>
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-3">OAC (Modern)</div>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <div>✓ Origin Access Control</div>
+                  <div>✓ Service principal approach</div>
+                  <div>✓ SSE-KMS supported</div>
+                  <div>✓ AWS recommended</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              OAC is the modern replacement for OAI with better security and KMS encryption support.
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-4">
               <div className="text-center">
@@ -1394,6 +2251,39 @@ export function CloudFrontOACExplainer() {
   }
 }`}
               </pre>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-red-900/20 border border-red-500 rounded-lg p-4">
+                <div className="text-red-400 font-semibold mb-3">Without OAC</div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    <span className="text-gray-300">User → CloudFront → S3</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-400">✗</span>
+                    <span className="text-gray-300">User → S3 directly</span>
+                  </div>
+                  <div className="text-red-300 mt-2">Bypasses caching, WAF, logging</div>
+                </div>
+              </div>
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-3">With OAC</div>
+                <div className="space-y-2 text-xs text-gray-300">
+                  <div>✓ Only CloudFront can access S3</div>
+                  <div>✓ Enforce HTTPS delivery</div>
+                  <div>✓ Works with SSE-KMS</div>
+                  <div>✓ Centralized security control</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              OAC prevents direct S3 access, ensuring all requests go through CloudFront for caching, security, and monitoring.
             </div>
           </div>
         )}
@@ -1464,68 +2354,135 @@ export function NlbStaticIpExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="text-lg font-semibold text-green-400">Static IPs per AZ</div>
-            <div className="space-y-2">
-              {[
-                { az: "us-east-1a", ip: "52.1.2.3" },
-                { az: "us-east-1b", ip: "52.4.5.6" },
-                { az: "us-east-1c", ip: "52.7.8.9" }
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 bg-gray-700 rounded-lg p-3">
-                  <div className="w-20 text-sm text-gray-400">{item.az}</div>
-                  <div className="flex-1 h-1 bg-green-500 rounded" />
-                  <div className="font-mono text-green-400">{item.ip}</div>
-                </div>
-              ))}
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="space-y-4 mb-6">
+              <div className="text-lg font-semibold text-green-400">Static IPs per AZ</div>
+              <div className="space-y-2 max-w-md mx-auto">
+                {[
+                  { az: "us-east-1a", ip: "52.1.2.3" },
+                  { az: "us-east-1b", ip: "52.4.5.6" },
+                  { az: "us-east-1c", ip: "52.7.8.9" }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-gray-700 rounded-lg p-3">
+                    <div className="w-20 text-sm text-gray-400">{item.az}</div>
+                    <div className="flex-1 h-1 bg-green-500 rounded" />
+                    <div className="font-mono text-green-400">{item.ip}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="text-sm text-gray-400">
-              Each AZ gets one static IP (or your Elastic IP)
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">NLB provides one static IP address per Availability Zone for predictable, whitelist-friendly connectivity.</p>
             </div>
           </div>
+        )}
 
+        {step === 1 && (
           <div className="space-y-4">
-            <div className="text-lg font-semibold text-purple-400">PrivateLink (Endpoint Service)</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-gray-400 font-semibold mb-3">Auto-assigned IP</div>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <div>• AWS assigns static IP</div>
+                  <div>• Free</div>
+                  <div>• Released when deleted</div>
+                </div>
+              </div>
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-3">Elastic IP (Your own)</div>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <div>✓ Bring your own EIP</div>
+                  <div>✓ Keep after deletion</div>
+                  <div>✓ Pre-whitelisted IPs</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              You can optionally assign your own Elastic IPs to NLB for each AZ, allowing IP retention across NLB lifecycle.
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Firewall Whitelisting</div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gray-700 rounded p-3 flex-1">
+                    <div className="text-xs text-gray-400">Corporate Firewall</div>
+                    <div className="text-sm text-white mt-1">Allow: 52.1.2.3, 52.4.5.6, 52.7.8.9</div>
+                  </div>
+                  <div className="text-green-400">→</div>
+                  <div className="bg-green-600 rounded p-3">
+                    <div className="text-xs text-white">NLB</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-gray-300 mb-2">ALB vs NLB IP Behavior</div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-blue-900/30 p-3 rounded">
+                  <div className="text-blue-400 font-semibold">ALB</div>
+                  <div className="text-gray-300">Dynamic IPs, use DNS name only</div>
+                </div>
+                <div className="bg-green-900/30 p-3 rounded">
+                  <div className="text-green-400 font-semibold">NLB</div>
+                  <div className="text-gray-300">Static IPs, whitelist-friendly</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
             <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
-              <div className="flex items-center gap-4">
+              <div className="text-purple-400 font-semibold mb-4">PrivateLink (VPC Endpoint Service)</div>
+              <div className="flex items-center justify-center gap-6 mb-4">
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-1">
-                    <span className="text-xs text-white">VPC-A</span>
+                  <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                    <span className="text-sm text-white">VPC-A</span>
                   </div>
                   <span className="text-xs text-gray-400">Consumer</span>
                 </div>
-                <div className="flex-1 text-center">
+                <div className="flex-1 text-center max-w-xs">
                   <div className="h-1 bg-purple-500 rounded" />
-                  <div className="text-xs text-purple-400 mt-1">PrivateLink</div>
+                  <div className="text-xs text-purple-400 mt-1">Private Connection</div>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-1">
-                    <span className="text-xs text-white">NLB</span>
+                  <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2">
+                    <Server className="w-8 h-8 text-white" />
                   </div>
-                  <span className="text-xs text-gray-400">Provider</span>
+                  <span className="text-xs text-gray-400">NLB Service</span>
                 </div>
               </div>
-              <div className="text-xs text-gray-300 mt-3">
-                Expose your service to other VPCs/accounts privately
+              <div className="text-sm text-gray-300">
+                PrivateLink allows you to expose services to other VPCs/accounts without internet or VPC peering
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="bg-gray-700 rounded p-3">
+                <div className="text-green-400 font-semibold">Benefits</div>
+                <div className="text-gray-300 space-y-1 mt-2">
+                  <div>• Private connectivity</div>
+                  <div>• No internet exposure</div>
+                  <div>• Cross-account access</div>
+                </div>
+              </div>
+              <div className="bg-gray-700 rounded p-3">
+                <div className="text-blue-400 font-semibold">Use Cases</div>
+                <div className="text-gray-300 space-y-1 mt-2">
+                  <div>• SaaS integration</div>
+                  <div>• Partner access</div>
+                  <div>• Multi-account arch</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          <div className="text-sm font-semibold text-gray-300 mb-2">ALB vs NLB IP Behavior</div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="bg-blue-900/30 p-3 rounded">
-              <div className="text-blue-400 font-semibold">ALB</div>
-              <div className="text-gray-300">Dynamic IPs, use DNS name only</div>
-            </div>
-            <div className="bg-green-900/30 p-3 rounded">
-              <div className="text-green-400 font-semibold">NLB</div>
-              <div className="text-gray-300">Static IPs, whitelist-friendly</div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1635,51 +2592,116 @@ export function Route53RecordTypesExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="bg-gray-700 rounded-lg p-4 mb-4">
-          <div className="text-lg font-semibold text-blue-400 mb-2">{records[recordType].name}</div>
-          <div className="font-mono text-green-400 mb-2">{records[recordType].example}</div>
-          <div className="text-sm text-gray-300">{records[recordType].description}</div>
-          <div className="mt-2">
-            <span className={`text-xs px-2 py-1 rounded ${records[recordType].canApex ? "bg-green-600" : "bg-red-600"}`}>
-              {records[recordType].canApex ? "✓ Can use at apex" : "✗ Cannot use at apex"}
-            </span>
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="grid grid-cols-2 gap-4 mb-6 max-w-2xl mx-auto">
+              <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
+                <div className="text-blue-400 font-semibold mb-2">A / AAAA</div>
+                <div className="text-xs text-gray-300">IPv4 / IPv6 addresses</div>
+              </div>
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-2">CNAME</div>
+                <div className="text-xs text-gray-300">Hostname to hostname</div>
+              </div>
+              <div className="bg-purple-900/20 border border-purple-600 rounded-lg p-4">
+                <div className="text-purple-400 font-semibold mb-2">Alias</div>
+                <div className="text-xs text-gray-300">AWS resources (free)</div>
+              </div>
+              <div className="bg-orange-900/20 border border-orange-600 rounded-lg p-4">
+                <div className="text-orange-400 font-semibold mb-2">MX</div>
+                <div className="text-xs text-gray-300">Mail exchange</div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">DNS record types define how domain names map to IP addresses, other domains, or AWS resources.</p>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4">
-            <div className="text-sm font-semibold text-blue-400 mb-2">CNAME vs Alias</div>
-            <table className="w-full text-xs">
-              <tbody>
-                <tr className="border-b border-gray-600">
-                  <td className="py-1 text-gray-400">Apex domain</td>
-                  <td className="text-red-400">CNAME: No</td>
-                  <td className="text-green-400">Alias: Yes</td>
-                </tr>
-                <tr className="border-b border-gray-600">
-                  <td className="py-1 text-gray-400">Query cost</td>
-                  <td className="text-yellow-400">CNAME: Paid</td>
-                  <td className="text-green-400">Alias: Free</td>
-                </tr>
-                <tr>
-                  <td className="py-1 text-gray-400">Health checks</td>
-                  <td className="text-gray-400">CNAME: Yes</td>
-                  <td className="text-green-400">Alias: Yes</td>
-                </tr>
-              </tbody>
-            </table>
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
+              <div className="text-lg font-semibold text-blue-400 mb-3">A / AAAA Records</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-sm text-gray-400">A Record (IPv4)</div>
+                  <div className="font-mono text-green-400 mt-1">www.example.com → 54.123.45.67</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-sm text-gray-400">AAAA Record (IPv6)</div>
+                  <div className="font-mono text-green-400 mt-1">www.example.com → 2001:0db8::1</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              A records map domain names to IPv4 addresses. AAAA records map to IPv6 addresses. Both can be used at apex domain.
+            </div>
           </div>
-          <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-4">
-            <div className="text-sm font-semibold text-green-400 mb-2">Alias Targets</div>
-            <ul className="text-xs text-gray-300 space-y-1">
-              <li>• CloudFront distributions</li>
-              <li>• ELB (ALB, NLB, CLB)</li>
-              <li>• S3 website endpoints</li>
-              <li>• API Gateway</li>
-              <li>• Another Route 53 record</li>
-            </ul>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+              <div className="text-lg font-semibold text-green-400 mb-3">CNAME Record</div>
+              <div className="bg-gray-700 rounded p-3 mb-3">
+                <div className="font-mono text-green-400">api.example.com → lb-123.us-east-1.elb.amazonaws.com</div>
+              </div>
+              <div className="bg-red-900/30 border border-red-500 rounded p-3">
+                <div className="text-red-400 font-semibold mb-2">⚠️ Cannot use at apex domain!</div>
+                <div className="text-xs text-gray-300">CNAME not allowed for example.com, only subdomains like www.example.com</div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              CNAME maps a hostname to another hostname. Cannot be used at the zone apex (root domain).
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="bg-purple-900/20 border border-purple-600 rounded-lg p-4">
+              <div className="text-lg font-semibold text-purple-400 mb-3">Alias Record (AWS)</div>
+              <div className="bg-gray-700 rounded p-3 mb-3">
+                <div className="font-mono text-green-400">example.com → d123.cloudfront.net</div>
+                <div className="text-xs text-gray-400 mt-1">✓ Works at apex domain</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4">
+                <div className="text-sm font-semibold text-blue-400 mb-2">CNAME vs Alias</div>
+                <table className="w-full text-xs">
+                  <tbody>
+                    <tr className="border-b border-gray-600">
+                      <td className="py-1 text-gray-400">Apex domain</td>
+                      <td className="text-red-400">CNAME: No</td>
+                      <td className="text-green-400">Alias: Yes</td>
+                    </tr>
+                    <tr className="border-b border-gray-600">
+                      <td className="py-1 text-gray-400">Query cost</td>
+                      <td className="text-yellow-400">CNAME: Paid</td>
+                      <td className="text-green-400">Alias: Free</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1 text-gray-400">Health checks</td>
+                      <td className="text-gray-400">CNAME: Yes</td>
+                      <td className="text-green-400">Alias: Yes</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-4">
+                <div className="text-sm font-semibold text-green-400 mb-2">Alias Targets</div>
+                <ul className="text-xs text-gray-300 space-y-1">
+                  <li>• CloudFront distributions</li>
+                  <li>• ELB (ALB, NLB, CLB)</li>
+                  <li>• S3 website endpoints</li>
+                  <li>• API Gateway</li>
+                  <li>• Another Route 53 record</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1768,54 +2790,143 @@ export function ConnectionDrainingExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between gap-4">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">ALB</span>
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">ALB</span>
+                </div>
+                <span className="text-sm text-gray-400">Load Balancer</span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-1 bg-green-500 rounded" />
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                  <span className="text-xs text-green-400">Active</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-1 bg-yellow-500 rounded" />
+                  <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center">
+                    <Timer className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xs text-yellow-400">Draining</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Connection draining allows in-flight requests to complete before removing a target from the load balancer.</p>
             </div>
           </div>
+        )}
 
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-500 rounded-full" />
-              <div className="flex-1 h-1 bg-green-500 rounded" />
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs">✓</span>
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4">
+              <div className="text-yellow-400 font-semibold mb-3">Deregistration Delay</div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="bg-gray-700 rounded p-3 text-center flex-1 mx-2">
+                  <div className="text-sm text-gray-400">Minimum</div>
+                  <div className="text-lg text-white font-semibold">0 sec</div>
+                  <div className="text-xs text-gray-500">Disabled</div>
+                </div>
+                <div className="bg-yellow-600 rounded p-3 text-center flex-1 mx-2">
+                  <div className="text-sm text-white">Default</div>
+                  <div className="text-lg text-white font-semibold">300 sec</div>
+                  <div className="text-xs text-yellow-200">5 minutes</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3 text-center flex-1 mx-2">
+                  <div className="text-sm text-gray-400">Maximum</div>
+                  <div className="text-lg text-white font-semibold">3600 sec</div>
+                  <div className="text-xs text-gray-500">1 hour</div>
+                </div>
               </div>
-              <span className="text-xs text-green-400">Healthy</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-yellow-500 rounded-full animate-pulse" />
-              <div className="flex-1 h-1 bg-yellow-500 rounded" />
-              <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center">
-                <Timer className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xs text-yellow-400">Draining</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gray-500 rounded-full" />
-              <div className="flex-1 h-1 bg-gray-500 rounded opacity-30" />
-              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs">✗</span>
-              </div>
-              <span className="text-xs text-gray-400">Deregistered</span>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Configure how long the load balancer waits before forcibly closing connections to a deregistering target.
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          <div className="text-sm font-semibold text-yellow-400 mb-2">During Draining ({drainingTime}s)</div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span className="text-gray-300">Existing connections continue</span>
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">ALB</span>
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-500 rounded-full" />
+                  <div className="flex-1 h-1 bg-green-500 rounded" />
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                  <span className="text-xs text-green-400">Healthy</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-yellow-500 rounded-full animate-pulse" />
+                  <div className="flex-1 h-1 bg-yellow-500 rounded" />
+                  <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center">
+                    <Timer className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xs text-yellow-400">Draining</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-500 rounded-full" />
+                  <div className="flex-1 h-1 bg-gray-500 rounded opacity-30" />
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">✗</span>
+                  </div>
+                  <span className="text-xs text-gray-400">Deregistered</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-red-400">✗</span>
-              <span className="text-gray-300">No new connections</span>
+
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-yellow-400 mb-2">During Draining ({drainingTime}s)</div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400">✓</span>
+                  <span className="text-gray-300">Existing connections continue</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-red-400">✗</span>
+                  <span className="text-gray-300">No new connections</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4 text-center">
+                <div className="text-2xl mb-2">🚀</div>
+                <div className="text-sm font-semibold text-blue-400">Deployments</div>
+                <div className="text-xs text-gray-300 mt-2">Graceful updates</div>
+              </div>
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4 text-center">
+                <div className="text-2xl mb-2">📉</div>
+                <div className="text-sm font-semibold text-green-400">Scale Down</div>
+                <div className="text-xs text-gray-300 mt-2">Remove instances</div>
+              </div>
+              <div className="bg-purple-900/20 border border-purple-600 rounded-lg p-4 text-center">
+                <div className="text-2xl mb-2">🔧</div>
+                <div className="text-sm font-semibold text-purple-400">Maintenance</div>
+                <div className="text-xs text-gray-300 mt-2">Zero downtime</div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Use connection draining for blue-green deployments, auto-scaling, and maintenance without disrupting active users.
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1903,64 +3014,110 @@ export function StickySessionsExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <div className="text-center">
-            <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
-              <span className="text-xl">👤</span>
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">User</span>
+              </div>
+              <div className="flex-1 max-w-xs space-y-1">
+                <div className="h-1 bg-purple-500 rounded" />
+                <div className="text-center text-xs text-purple-400">Cookie: SessionID</div>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">ALB</span>
+                </div>
+              </div>
+              <div className="flex-1 max-w-xs h-1 bg-green-500 rounded" />
+              <div className="text-center">
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center border-2 border-yellow-400 mb-2">
+                  <span className="text-white text-xs">Same Target</span>
+                </div>
+                <span className="text-xs text-gray-400">Always routed here</span>
+              </div>
             </div>
-            <span className="text-xs text-gray-400">User</span>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Sticky sessions (session affinity) route a user's requests to the same target, maintaining session state.</p>
+            </div>
           </div>
+        )}
 
-          <div className="flex-1 space-y-1">
-            <div className="h-1 bg-purple-500 rounded" />
-            <div className="text-center text-xs text-purple-400">
-              Cookie: {stickyType === "duration" ? "AWSALB" : "CUSTOM_COOKIE"}
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-lg font-semibold text-purple-400 mb-3">Duration-Based Stickiness</div>
+              <div className="bg-gray-700 rounded p-3 mb-3">
+                <div className="text-sm text-gray-400 mb-2">Cookie Generated by ALB</div>
+                <div className="font-mono text-green-400">AWSALB=base64encodedvalue</div>
+                <div className="text-xs text-gray-400 mt-1">Expiration: 1 second - 7 days</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-400">Default</div>
+                  <div className="text-white">1 day (86400s)</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-400">Configurable</div>
+                  <div className="text-white">Target group level</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              ALB generates and manages the cookie automatically. Simplest option for session stickiness.
             </div>
           </div>
+        )}
 
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">ALB</span>
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-lg font-semibold text-blue-400 mb-3">Application-Based Stickiness</div>
+              <div className="bg-gray-700 rounded p-3 mb-3">
+                <div className="text-sm text-gray-400 mb-2">Cookie Generated by Your App</div>
+                <div className="font-mono text-green-400">CUSTOM_SESSION_ID=abcd1234</div>
+                <div className="text-xs text-gray-400 mt-1">ALB reads this cookie to route requests</div>
+              </div>
+              <div className="space-y-2 text-sm text-gray-300">
+                <div>• Custom cookie name (defined by you)</div>
+                <div>• Cookie managed by your application</div>
+                <div>• More control over session lifecycle</div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Your application creates the cookie, ALB routes based on it. Provides more control but requires app changes.
             </div>
           </div>
+        )}
 
-          <div className="flex-1 h-1 bg-green-500 rounded" />
-
-          <div className="flex flex-col gap-2">
-            <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center border-2 border-yellow-400">
-              <span className="text-white text-xs">Target</span>
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-3">Benefits</div>
+                <div className="text-sm text-gray-300 space-y-2">
+                  <div>✓ Maintain session state</div>
+                  <div>✓ User always goes to same target</div>
+                  <div>✓ No distributed session store needed</div>
+                </div>
+              </div>
+              <div className="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4">
+                <div className="text-yellow-400 font-semibold mb-3">Trade-offs</div>
+                <div className="text-sm text-gray-300 space-y-2">
+                  <div>⚠️ Can cause uneven load</div>
+                  <div>⚠️ Lost sessions if target fails</div>
+                  <div>⚠️ Harder to scale down</div>
+                </div>
+              </div>
             </div>
-            <div className="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center">
-              <span className="text-gray-400 text-xs">Target</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className={`p-4 rounded-lg border ${stickyType === "duration" ? "bg-purple-900/30 border-purple-500" : "bg-gray-700 border-gray-600"}`}>
-            <div className="text-sm font-semibold text-purple-400 mb-2">Duration-Based</div>
-            <div className="text-xs text-gray-300 space-y-1">
-              <div>• Cookie: AWSALB (ALB generates)</div>
-              <div>• Expiration: 1 sec - 7 days</div>
-              <div>• Simpler to configure</div>
-            </div>
-          </div>
-          <div className={`p-4 rounded-lg border ${stickyType === "app" ? "bg-blue-900/30 border-blue-500" : "bg-gray-700 border-gray-600"}`}>
-            <div className="text-sm font-semibold text-blue-400 mb-2">Application-Based</div>
-            <div className="text-xs text-gray-300 space-y-1">
-              <div>• Cookie: Your app generates</div>
-              <div>• Custom cookie name</div>
-              <div>• More control over session</div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Consider using distributed caching (ElastiCache, DynamoDB) instead of sticky sessions for better scalability.
             </div>
           </div>
-        </div>
-
-        <div className="mt-4 bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-3">
-          <div className="text-sm text-yellow-400 font-semibold mb-1">⚠️ Trade-off</div>
-          <div className="text-xs text-gray-300">
-            Stickiness can cause uneven load if one target gets more long-lived sessions.
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -2048,77 +3205,143 @@ export function CloudFrontSignedUrlsExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        {accessType === "url" ? (
-          <div className="space-y-4">
-            <div className="text-lg font-semibold text-green-400">Signed URL</div>
-            <div className="bg-gray-700 rounded-lg p-4">
-              <div className="text-sm text-gray-300 mb-2">Single file access with embedded policy:</div>
-              <div className="font-mono text-xs text-green-400 bg-gray-800 p-2 rounded break-all">
-                https://d123.cloudfront.net/video.mp4?<br/>
-                Policy=eyJ...&<br/>
-                Signature=abc...&<br/>
-                Key-Pair-Id=K12345
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <span className="text-sm text-gray-400">User</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="p-3 bg-green-600 rounded-lg">
+                  <Lock className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Signed</span>
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">CloudFront</span>
+              </div>
+              <div className="text-gray-500 text-2xl">→</div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <FileText className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">Private Content</span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-gray-700 rounded p-2 text-center">
-                <div className="text-xs text-gray-400">Expiration</div>
-                <div className="text-sm text-white">24 hours</div>
-              </div>
-              <div className="bg-gray-700 rounded p-2 text-center">
-                <div className="text-xs text-gray-400">IP Restriction</div>
-                <div className="text-sm text-white">Optional</div>
-              </div>
-              <div className="bg-gray-700 rounded p-2 text-center">
-                <div className="text-xs text-gray-400">Files</div>
-                <div className="text-sm text-white">1 file</div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="text-lg font-semibold text-blue-400">Signed Cookie</div>
-            <div className="bg-gray-700 rounded-lg p-4">
-              <div className="text-sm text-gray-300 mb-2">Multiple file access via cookies:</div>
-              <div className="space-y-2 font-mono text-xs bg-gray-800 p-2 rounded">
-                <div className="text-blue-400">Set-Cookie: CloudFront-Policy=...</div>
-                <div className="text-blue-400">Set-Cookie: CloudFront-Signature=...</div>
-                <div className="text-blue-400">Set-Cookie: CloudFront-Key-Pair-Id=...</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-gray-700 rounded p-2 text-center">
-                <div className="text-xs text-gray-400">Expiration</div>
-                <div className="text-sm text-white">Configurable</div>
-              </div>
-              <div className="bg-gray-700 rounded p-2 text-center">
-                <div className="text-xs text-gray-400">Path Pattern</div>
-                <div className="text-sm text-white">/videos/*</div>
-              </div>
-              <div className="bg-gray-700 rounded p-2 text-center">
-                <div className="text-xs text-gray-400">Files</div>
-                <div className="text-sm text-white">Multiple</div>
-              </div>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Signed URLs and Cookies restrict access to CloudFront content, perfect for premium content or user-specific files.</p>
             </div>
           </div>
         )}
 
-        <div className="mt-4 bg-gray-700 rounded-lg p-4">
-          <div className="text-sm font-semibold text-gray-300 mb-2">When to Use</div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <div className="text-green-400 font-semibold">Signed URL</div>
-              <ul className="text-xs text-gray-300 mt-1 space-y-1">
-                <li>• Single file downloads</li>
-                <li>• RTMP streaming</li>
-                <li>• Client doesn't support cookies</li>
-              </ul>
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+              <div className="text-lg font-semibold text-green-400 mb-3">Signed URL</div>
+              <div className="bg-gray-700 rounded-lg p-4 mb-3">
+                <div className="text-sm text-gray-300 mb-2">Single file access with embedded policy:</div>
+                <div className="font-mono text-xs text-green-400 bg-gray-800 p-2 rounded break-all">
+                  https://d123.cloudfront.net/video.mp4?<br/>
+                  Policy=eyJ...&<br/>
+                  Signature=abc...&<br/>
+                  Key-Pair-Id=K12345
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-xs text-gray-400">Expiration</div>
+                  <div className="text-sm text-white">24 hours</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-xs text-gray-400">IP Restriction</div>
+                  <div className="text-sm text-white">Optional</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-xs text-gray-400">Files</div>
+                  <div className="text-sm text-white">1 file</div>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="text-blue-400 font-semibold">Signed Cookie</div>
-              <ul className="text-xs text-gray-300 mt-1 space-y-1">
-                <li>• Multiple restricted files</li>
-                <li>• HLS/DASH streaming</li>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Use signed URLs when you need to restrict access to individual files with time-based expiration.
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
+              <div className="text-lg font-semibold text-blue-400 mb-3">Signed Cookie</div>
+              <div className="bg-gray-700 rounded-lg p-4 mb-3">
+                <div className="text-sm text-gray-300 mb-2">Multiple file access via cookies:</div>
+                <div className="space-y-2 font-mono text-xs bg-gray-800 p-2 rounded">
+                  <div className="text-blue-400">Set-Cookie: CloudFront-Policy=...</div>
+                  <div className="text-blue-400">Set-Cookie: CloudFront-Signature=...</div>
+                  <div className="text-blue-400">Set-Cookie: CloudFront-Key-Pair-Id=...</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-xs text-gray-400">Expiration</div>
+                  <div className="text-sm text-white">Configurable</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-xs text-gray-400">Path Pattern</div>
+                  <div className="text-sm text-white">/videos/*</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-xs text-gray-400">Files</div>
+                  <div className="text-sm text-white">Multiple</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              Use signed cookies when users need access to multiple files (e.g., all videos in a course).
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="bg-purple-900/20 border border-purple-600 rounded-lg p-4">
+              <div className="text-lg font-semibold text-purple-400 mb-3">Trusted Key Groups</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-sm text-gray-400 mb-2">1. Create RSA key pair</div>
+                  <div className="font-mono text-xs text-green-400">openssl genrsa -out private_key.pem 2048</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-sm text-gray-400 mb-2">2. Upload public key to CloudFront</div>
+                  <div className="text-xs text-gray-300">Create trusted key group in CloudFront</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-sm text-gray-400 mb-2">3. Sign URLs/Cookies with private key</div>
+                  <div className="text-xs text-gray-300">Use AWS SDK or custom signing logic</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-gray-300 mb-2">When to Use</div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-green-400 font-semibold">Signed URL</div>
+                  <ul className="text-xs text-gray-300 mt-1 space-y-1">
+                    <li>• Single file downloads</li>
+                    <li>• RTMP streaming</li>
+                    <li>• Client doesn't support cookies</li>
+                  </ul>
+                </div>
+                <div>
+                  <div className="text-blue-400 font-semibold">Signed Cookie</div>
+                  <ul className="text-xs text-gray-300 mt-1 space-y-1">
+                    <li>• Multiple restricted files</li>
+                    <li>• HLS/DASH streaming</li>
                 <li>• Don't want to change URLs</li>
               </ul>
             </div>
@@ -2203,66 +3426,182 @@ export function CrossZoneLoadBalancingExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="grid grid-cols-2 gap-4">
-          {/* AZ-A */}
-          <div className="p-4 bg-blue-900/20 border border-blue-500/50 rounded-lg">
-            <div className="text-blue-400 font-semibold mb-3">AZ-A (50% traffic)</div>
-            <div className="text-center mb-3">
-              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
-                <span className="text-white text-xs">LB</span>
+        {step === 0 && (
+          <div className="text-center py-4">
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">LB</span>
+                </div>
+                <span className="text-sm text-gray-400">Load Balancer</span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="text-blue-400 text-xs">AZ-A</div>
+                  <div className="w-12 h-1 bg-green-500 rounded" />
+                  <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                    <span className="text-white text-xs">T1</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-green-400 text-xs">AZ-B</div>
+                  <div className="w-12 h-1 bg-green-500 rounded" />
+                  <div className="flex gap-1">
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">T2</span>
+                    </div>
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">T3</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex justify-center gap-2">
-              <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">{crossZone ? "25%" : "50%"}</span>
-              </div>
+            <div className="bg-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-gray-300 text-sm">Cross-zone load balancing determines whether traffic is distributed evenly across all targets in all AZs.</p>
             </div>
-            <div className="text-xs text-center text-gray-400 mt-2">1 target</div>
           </div>
+        )}
 
-          {/* AZ-B */}
-          <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-lg">
-            <div className="text-green-400 font-semibold mb-3">AZ-B (50% traffic)</div>
-            <div className="text-center mb-3">
-              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
-                <span className="text-white text-xs">LB</span>
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4">
+              <div className="text-yellow-400 font-semibold mb-3">Without Cross-Zone Load Balancing</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-blue-900/20 border border-blue-500/50 rounded-lg">
+                  <div className="text-blue-400 font-semibold mb-3">AZ-A (50% traffic)</div>
+                  <div className="text-center mb-3">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
+                      <span className="text-white text-xs">LB</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">50%</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-center text-gray-400 mt-2">1 target</div>
+                </div>
+
+                <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-lg">
+                  <div className="text-green-400 font-semibold mb-3">AZ-B (50% traffic)</div>
+                  <div className="text-center mb-3">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
+                      <span className="text-white text-xs">LB</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">17%</span>
+                    </div>
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">17%</span>
+                    </div>
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">17%</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-center text-gray-400 mt-2">3 targets</div>
+                </div>
               </div>
             </div>
-            <div className="flex justify-center gap-2">
-              <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">{crossZone ? "25%" : "17%"}</span>
-              </div>
-              <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">{crossZone ? "25%" : "17%"}</span>
-              </div>
-              <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">{crossZone ? "25%" : "17%"}</span>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-yellow-400">
+              ⚠️ Uneven: AZ-A target gets 50%, AZ-B targets get ~17% each. Each AZ node only routes to targets in its AZ.
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">With Cross-Zone Load Balancing</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-blue-900/20 border border-blue-500/50 rounded-lg">
+                  <div className="text-blue-400 font-semibold mb-3">AZ-A (50% traffic)</div>
+                  <div className="text-center mb-3">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
+                      <span className="text-white text-xs">LB</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">25%</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-center text-gray-400 mt-2">1 target</div>
+                </div>
+
+                <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-lg">
+                  <div className="text-green-400 font-semibold mb-3">AZ-B (50% traffic)</div>
+                  <div className="text-center mb-3">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
+                      <span className="text-white text-xs">LB</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">25%</span>
+                    </div>
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">25%</span>
+                    </div>
+                    <div className="w-10 h-10 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">25%</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-center text-gray-400 mt-2">3 targets</div>
+                </div>
               </div>
             </div>
-            <div className="text-xs text-center text-gray-400 mt-2">3 targets</div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-green-400">
+              ✓ Even distribution: Each target gets 25% (total 4 targets). Each node routes to all targets across all AZs.
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="mt-4 bg-gray-700 rounded-lg p-4">
-          <div className={`text-sm ${crossZone ? "text-green-400" : "text-yellow-400"}`}>
-            {crossZone ? (
-              <span>✓ Even distribution: Each target gets 25% (total 4 targets)</span>
-            ) : (
-              <span>⚠️ Uneven: AZ-A target gets 50%, AZ-B targets get ~17% each</span>
-            )}
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-4">
+                <div className="text-blue-400 font-semibold mb-3">ALB (Application LB)</div>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    <span>Always enabled</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    <span>No extra charge</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    <span>Cannot be disabled</span>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-green-900/20 border border-green-600 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-3">NLB (Network LB)</div>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400">⚠️</span>
+                    <span>Disabled by default</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400">⚠️</span>
+                    <span>Charges for inter-AZ traffic</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-400">i</span>
+                    <span>Must enable manually</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm text-gray-300">
+              GWLB also has cross-zone disabled by default with inter-AZ charges, similar to NLB.
+            </div>
           </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-          <div className="bg-blue-900/30 rounded-lg p-3">
-            <div className="text-blue-400 font-semibold">ALB</div>
-            <div className="text-gray-300">Always enabled, no extra charge</div>
-          </div>
-          <div className="bg-green-900/30 rounded-lg p-3">
-            <div className="text-green-400 font-semibold">NLB</div>
-            <div className="text-gray-300">Disabled by default, charges apply</div>
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
