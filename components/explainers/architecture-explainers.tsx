@@ -41,67 +41,311 @@ export function ServerlessArchitectureExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          {/* Client */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-2xl">📱</span>
+        {step === 0 && (
+          <>
+            <div className="flex items-center justify-between">
+              {/* Client */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">📱</span>
+                </div>
+                <span className="text-sm text-gray-400">Client</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* API Gateway */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">API GW</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* Lambda */}
+              <div className="text-center relative">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-3xl">λ</span>
+                </div>
+                <span className="text-sm text-gray-400">Lambda</span>
+              </div>
+
+              {/* Arrows to services */}
+              <div className="text-gray-500">→</div>
+
+              {/* Backend Services */}
+              <div className="flex flex-col gap-2">
+                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">S3</span>
+                </div>
+              </div>
             </div>
-            <span className="text-sm text-gray-400">Client</span>
-          </div>
+          </>
+        )}
 
-          {/* Arrow */}
-          <div className="text-gray-500">→</div>
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-between">
+              {/* Client */}
+              <div className="text-center opacity-50">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">📱</span>
+                </div>
+                <span className="text-sm text-gray-400">Client</span>
+              </div>
 
-          {/* API Gateway */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
-              <Globe className="w-8 h-8 text-white" />
+              {/* Arrow */}
+              <div className="text-yellow-400 font-bold">→</div>
+
+              {/* API Gateway - Highlighted */}
+              <div className="text-center">
+                <div className="w-20 h-20 bg-purple-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-yellow-400 font-bold">API Gateway</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-yellow-400 font-bold">→</div>
+
+              {/* Lambda - Highlighted */}
+              <div className="text-center relative">
+                <div className="w-24 h-24 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-4xl">λ</span>
+                </div>
+                <span className="text-sm text-yellow-400 font-bold">Lambda Function</span>
+              </div>
+
+              {/* Arrows to services */}
+              <div className="text-gray-500 opacity-50">→</div>
+
+              {/* Backend Services */}
+              <div className="flex flex-col gap-2 opacity-50">
+                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">S3</span>
+                </div>
+              </div>
             </div>
-            <span className="text-sm text-gray-400">API GW</span>
-          </div>
-
-          {/* Arrow */}
-          <div className="text-gray-500">→</div>
-
-          {/* Lambda */}
-          <div className="text-center relative">
-            <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
-              <span className="text-3xl">λ</span>
-              <span className="text-xs text-white">x{Math.max(1, Math.floor(requestCount / 10))}</span>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              HTTP requests trigger Lambda functions via API Gateway
             </div>
-            <span className="text-sm text-gray-400">Lambda</span>
-          </div>
+          </>
+        )}
 
-          {/* Arrows to services */}
-          <div className="text-gray-500">→</div>
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              {/* Client */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">📱</span>
+                </div>
+                <span className="text-sm text-gray-400">Client</span>
+                <div className="text-xs text-yellow-400 mt-1">{requestCount} req/s</div>
+              </div>
 
-          {/* Backend Services */}
-          <div className="flex flex-col gap-2">
-            <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Database className="w-6 h-6 text-white" />
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* API Gateway */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">API GW</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* Lambda - Multiple Instances */}
+              <div className="text-center relative">
+                <div className="relative w-32 h-24 mb-2">
+                  {[...Array(Math.min(5, Math.max(1, Math.floor(requestCount / 10))))].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-16 h-16 bg-orange-600 rounded-lg flex flex-col items-center justify-center ring-2 ring-yellow-400"
+                      style={{
+                        left: `${i * 16}px`,
+                        top: `${i * 4}px`,
+                        zIndex: i,
+                      }}
+                    >
+                      <span className="text-2xl">λ</span>
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm text-yellow-400 font-bold">Auto-scaled: x{Math.max(1, Math.floor(requestCount / 10))}</span>
+              </div>
+
+              {/* Arrows to services */}
+              <div className="text-gray-500">→</div>
+
+              {/* Backend Services */}
+              <div className="flex flex-col gap-2">
+                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">S3</span>
+                </div>
+              </div>
             </div>
-            <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">S3</span>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Lambda automatically scales from zero to thousands of concurrent executions
             </div>
-          </div>
-        </div>
+          </>
+        )}
 
-        {/* Metrics */}
-        <div className="mt-6 grid grid-cols-3 gap-4">
-          <div className="bg-gray-700 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-yellow-400">{requestCount}</div>
-            <div className="text-xs text-gray-400">Active Requests</div>
-          </div>
-          <div className="bg-gray-700 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-green-400">$0.00</div>
-            <div className="text-xs text-gray-400">Idle Cost</div>
-          </div>
-          <div className="bg-gray-700 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-blue-400">∞</div>
-            <div className="text-xs text-gray-400">Scale Limit</div>
-          </div>
-        </div>
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              {/* Client */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">📱</span>
+                </div>
+                <span className="text-sm text-gray-400">Client</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* API Gateway */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-sm text-gray-400">API GW</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* Lambda */}
+              <div className="text-center relative">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-3xl">λ</span>
+                  <span className="text-xs text-white">x{Math.max(1, Math.floor(requestCount / 10))}</span>
+                </div>
+                <span className="text-sm text-gray-400">Lambda</span>
+              </div>
+
+              {/* Arrows to services */}
+              <div className="text-gray-500">→</div>
+
+              {/* Backend Services */}
+              <div className="flex flex-col gap-2">
+                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">S3</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Metrics - Highlighted */}
+            <div className="mt-6 grid grid-cols-3 gap-4">
+              <div className="bg-gray-700 rounded-lg p-4 text-center ring-2 ring-yellow-400">
+                <div className="text-2xl font-bold text-yellow-400">{requestCount}</div>
+                <div className="text-xs text-gray-400">Active Requests</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4 text-center ring-2 ring-green-400">
+                <div className="text-2xl font-bold text-green-400">$0.00</div>
+                <div className="text-xs text-gray-400">Idle Cost</div>
+                <div className="text-xs text-green-300 mt-1">Pay only when running!</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4 text-center ring-2 ring-blue-400">
+                <div className="text-2xl font-bold text-blue-400">∞</div>
+                <div className="text-xs text-gray-400">Scale Limit</div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="flex items-center justify-between">
+              {/* Client */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">📱</span>
+                </div>
+                <span className="text-sm text-gray-400">Client</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* API Gateway */}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2 ring-2 ring-purple-400">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-sm text-purple-300">API GW</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="text-gray-500">→</div>
+
+              {/* Lambda */}
+              <div className="text-center relative">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-2 ring-orange-400">
+                  <span className="text-3xl">λ</span>
+                </div>
+                <span className="text-sm text-orange-300">Lambda</span>
+              </div>
+
+              {/* Arrows to services */}
+              <div className="text-gray-500">→</div>
+
+              {/* Backend Services - Highlighted */}
+              <div className="flex flex-col gap-2">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center ring-2 ring-blue-400">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-xs text-blue-300 text-center">DynamoDB</div>
+                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center ring-2 ring-green-400">
+                  <span className="text-white text-sm">S3</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Managed Services */}
+            <div className="mt-6 grid grid-cols-4 gap-3">
+              <div className="bg-red-900/30 border border-red-500 rounded-lg p-3 text-center">
+                <div className="text-sm font-bold text-red-300">SNS</div>
+                <div className="text-xs text-gray-400">Pub/Sub</div>
+              </div>
+              <div className="bg-yellow-900/30 border border-yellow-500 rounded-lg p-3 text-center">
+                <div className="text-sm font-bold text-yellow-300">SQS</div>
+                <div className="text-xs text-gray-400">Queues</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-3 text-center">
+                <div className="text-sm font-bold text-purple-300">EventBridge</div>
+                <div className="text-xs text-gray-400">Events</div>
+              </div>
+              <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-3 text-center">
+                <div className="text-sm font-bold text-blue-300">Step Functions</div>
+                <div className="text-xs text-gray-400">Orchestration</div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Fully serverless stack - all managed services, zero server management
+            </div>
+          </>
+        )}
       </div>
 
       {/* Step Info */}
@@ -182,66 +426,194 @@ export function MicroservicesArchitectureExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        {/* API Gateway */}
-        <div className="flex justify-center mb-6">
-          <div className="w-full max-w-md bg-purple-600 rounded-lg p-4 text-center">
-            <Globe className="w-6 h-6 text-white mx-auto mb-1" />
-            <span className="text-white text-sm">API Gateway / ALB</span>
-          </div>
-        </div>
-
-        {/* Services Grid */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {services.map((service, i) => (
-            <div
-              key={i}
-              onClick={() => setSelectedService(selectedService === service.name ? null : service.name)}
-              className={`p-4 rounded-lg cursor-pointer transition-all ${
-                selectedService === service.name
-                  ? "ring-2 ring-white scale-105"
-                  : ""
-              }`}
-              style={{
-                backgroundColor:
-                  service.color === "blue" ? "#1e40af" :
-                  service.color === "green" ? "#166534" :
-                  service.color === "yellow" ? "#854d0e" :
-                  "#7e22ce"
-              }}
-            >
-              <div className="text-center">
-                <span className="text-2xl">{service.icon}</span>
-                <div className="text-white text-xs mt-2">{service.name}</div>
+        {step === 0 && (
+          <>
+            {/* API Gateway */}
+            <div className="flex justify-center mb-6">
+              <div className="w-full max-w-md bg-purple-600 rounded-lg p-4 text-center">
+                <Globe className="w-6 h-6 text-white mx-auto mb-1" />
+                <span className="text-white text-sm">API Gateway / ALB</span>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Service Communication */}
-        <div className="bg-gray-700 rounded-lg p-4">
-          <div className="text-sm font-semibold text-gray-300 mb-3">Communication Patterns</div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-600 rounded-lg p-3">
-              <div className="text-green-400 text-sm font-semibold">Synchronous</div>
-              <div className="text-xs text-gray-400 mt-1">REST/gRPC via ALB</div>
+            {/* Services Grid */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              {services.map((service, i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-lg"
+                  style={{
+                    backgroundColor:
+                      service.color === "blue" ? "#1e40af" :
+                      service.color === "green" ? "#166534" :
+                      service.color === "yellow" ? "#854d0e" :
+                      "#7e22ce"
+                  }}
+                >
+                  <div className="text-center">
+                    <span className="text-2xl">{service.icon}</span>
+                    <div className="text-white text-xs mt-2">{service.name}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="bg-gray-600 rounded-lg p-3">
-              <div className="text-orange-400 text-sm font-semibold">Asynchronous</div>
-              <div className="text-xs text-gray-400 mt-1">Events via SQS/SNS/EventBridge</div>
+            <div className="text-center text-sm text-blue-300 bg-blue-900/30 p-3 rounded-lg">
+              Application decomposed into small, independent services
             </div>
-          </div>
-        </div>
+          </>
+        )}
 
-        {/* Selected Service Details */}
-        {selectedService && (
-          <div className="mt-4 bg-blue-900/30 border border-blue-500 rounded-lg p-4">
-            <div className="text-blue-400 font-semibold">{selectedService}</div>
-            <div className="text-sm text-gray-300 mt-2">
-              • Own database (bounded context)<br />
-              • Independent deployment<br />
-              • Scales independently
+        {step === 1 && (
+          <>
+            <div className="grid grid-cols-2 gap-6 mb-6">
+              {services.map((service, i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-lg border-2 border-blue-400"
+                  style={{
+                    backgroundColor:
+                      service.color === "blue" ? "#1e40af" :
+                      service.color === "green" ? "#166534" :
+                      service.color === "yellow" ? "#854d0e" :
+                      "#7e22ce"
+                  }}
+                >
+                  <div className="text-center mb-3">
+                    <span className="text-3xl">{service.icon}</span>
+                    <div className="text-white font-bold mt-2">{service.name}</div>
+                  </div>
+                  <div className="text-xs text-gray-200 space-y-1">
+                    <div>✓ Own database</div>
+                    <div>✓ Independent deployment</div>
+                    <div>✓ Scales independently</div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+            <div className="text-center text-sm text-blue-300 bg-blue-900/30 p-3 rounded-lg">
+              Each service is fully autonomous with its own data and lifecycle
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            {/* Service Communication */}
+            <div className="mb-6">
+              <div className="flex justify-center items-center gap-4 mb-6">
+                <div className="p-4 rounded-lg bg-blue-700">
+                  <span className="text-2xl">👤</span>
+                  <div className="text-white text-xs mt-1">User Service</div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="text-green-400 font-bold">→ REST/gRPC →</div>
+                  <div className="text-orange-400 font-bold">← Events ←</div>
+                </div>
+                <div className="p-4 rounded-lg bg-green-700">
+                  <span className="text-2xl">📦</span>
+                  <div className="text-white text-xs mt-1">Order Service</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-gray-300 mb-3">Communication Patterns</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-600 rounded-lg p-3 ring-2 ring-green-400">
+                  <div className="text-green-400 text-sm font-semibold">Synchronous</div>
+                  <div className="text-xs text-gray-400 mt-1">REST/gRPC via ALB</div>
+                  <div className="text-xs text-green-300 mt-1">Direct request/response</div>
+                </div>
+                <div className="bg-gray-600 rounded-lg p-3 ring-2 ring-orange-400">
+                  <div className="text-orange-400 text-sm font-semibold">Asynchronous</div>
+                  <div className="text-xs text-gray-400 mt-1">Events via SQS/SNS/EventBridge</div>
+                  <div className="text-xs text-orange-300 mt-1">Decoupled messaging</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="mb-4">
+              <div className="bg-purple-900/30 border border-purple-400 rounded-lg p-4 mb-4">
+                <div className="text-center text-purple-300 font-bold mb-2">ECS / EKS / Fargate</div>
+                <div className="text-xs text-gray-300 text-center">Container Orchestration Layer</div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-3">
+                {services.map((service, i) => (
+                  <div key={i} className="text-center">
+                    <div
+                      className="p-3 rounded-lg border-2 border-yellow-400 mb-2"
+                      style={{
+                        backgroundColor:
+                          service.color === "blue" ? "#1e40af" :
+                          service.color === "green" ? "#166534" :
+                          service.color === "yellow" ? "#854d0e" :
+                          "#7e22ce"
+                      }}
+                    >
+                      <span className="text-xl">{service.icon}</span>
+                    </div>
+                    <div className="text-xs text-gray-400">Container</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="text-center text-sm text-blue-300 bg-blue-900/30 p-3 rounded-lg">
+              ECS Fargate or EKS for serverless container hosting
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="mb-4">
+              <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-400 rounded-lg p-4 mb-4">
+                <div className="text-center text-purple-300 font-bold mb-2">AWS App Mesh</div>
+                <div className="text-xs text-gray-300 text-center">Service Mesh - Traffic Management & Observability</div>
+              </div>
+
+              <div className="relative">
+                {/* Services with mesh connections */}
+                <div className="grid grid-cols-2 gap-6">
+                  {services.map((service, i) => (
+                    <div key={i} className="relative">
+                      <div
+                        className="p-4 rounded-lg border-2 border-purple-400"
+                        style={{
+                          backgroundColor:
+                            service.color === "blue" ? "#1e40af" :
+                            service.color === "green" ? "#166534" :
+                            service.color === "yellow" ? "#854d0e" :
+                            "#7e22ce"
+                        }}
+                      >
+                        <div className="text-center">
+                          <span className="text-2xl">{service.icon}</span>
+                          <div className="text-white text-xs mt-2">{service.name}</div>
+                          <div className="text-xs text-purple-300 mt-1">+ Envoy Proxy</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-4">
+              <div className="bg-purple-900/30 border border-purple-500 rounded p-2 text-center">
+                <div className="text-xs text-purple-300">Traffic Control</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500 rounded p-2 text-center">
+                <div className="text-xs text-purple-300">Observability</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500 rounded p-2 text-center">
+                <div className="text-xs text-purple-300">Security</div>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
@@ -324,73 +696,228 @@ export function EventDrivenArchitectureExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          {/* Producer */}
-          <div className="text-center">
-            <div className="w-20 h-20 bg-blue-600 rounded-lg flex flex-col items-center justify-center mb-2">
-              <span className="text-2xl">📦</span>
-              <span className="text-xs text-white">Producer</span>
-            </div>
-            <div className="text-xs text-gray-400">Order Created</div>
-          </div>
+        {step === 0 && (
+          <>
+            <div className="flex items-center justify-between">
+              {/* Producer */}
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-2xl">📦</span>
+                  <span className="text-xs text-white">Producer</span>
+                </div>
+              </div>
 
-          {/* Event Flow */}
-          <div className="flex-1 mx-4">
-            <div className="relative">
-              <div className="h-1 bg-green-500 rounded animate-pulse" />
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gray-700 px-2 py-1 rounded text-xs text-green-400">
-                Event #{eventCount}
+              {/* Event Flow */}
+              <div className="flex-1 mx-4">
+                <div className="relative">
+                  <div className="h-1 bg-green-500 rounded animate-pulse" />
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gray-700 px-2 py-1 rounded text-xs text-green-400">
+                    Event #{eventCount}
+                  </div>
+                </div>
+              </div>
+
+              {/* EventBridge */}
+              <div className="text-center">
+                <div className="w-24 h-24 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-2xl">⚡</span>
+                  <span className="text-xs text-white">EventBridge</span>
+                </div>
+              </div>
+
+              {/* Fan-out arrows */}
+              <div className="flex-1 mx-4">
+                <div className="space-y-2">
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                </div>
+              </div>
+
+              {/* Consumers */}
+              <div className="flex flex-col gap-2">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xl">λ</span>
+                </div>
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xs text-white">SQS</span>
+                </div>
+                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xs text-white">Step Fn</span>
+                </div>
               </div>
             </div>
-          </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Loosely coupled systems communicate through asynchronous events
+            </div>
+          </>
+        )}
 
-          {/* EventBridge */}
-          <div className="text-center">
-            <div className="w-24 h-24 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
-              <span className="text-2xl">⚡</span>
-              <span className="text-xs text-white">EventBridge</span>
-            </div>
-            <div className="text-xs text-gray-400">Event Bus</div>
-          </div>
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-center gap-8 mb-6">
+              {/* Producer - Highlighted */}
+              <div className="text-center">
+                <div className="w-32 h-32 bg-blue-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-green-400">
+                  <span className="text-4xl">📦</span>
+                  <span className="text-sm text-white font-bold mt-2">Event Producer</span>
+                </div>
+                <div className="text-xs text-green-400 font-bold mt-2">Emits events on state change</div>
+              </div>
 
-          {/* Fan-out arrows */}
-          <div className="flex-1 mx-4">
-            <div className="space-y-2">
-              <div className="h-1 bg-green-500 rounded" />
-              <div className="h-1 bg-green-500 rounded" />
-              <div className="h-1 bg-green-500 rounded" />
-            </div>
-          </div>
+              <div className="text-green-400 text-2xl">→</div>
 
-          {/* Consumers */}
-          <div className="flex flex-col gap-2">
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-xl">λ</span>
-            </div>
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-xs text-white">SQS</span>
-            </div>
-            <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
-              <span className="text-xs text-white">Step Fn</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Event Schema */}
-        <div className="mt-6 bg-gray-900 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-2">Event Schema</div>
-          <pre className="text-xs font-mono text-green-400">
+              <div className="flex-1 max-w-sm">
+                <div className="bg-gray-900 rounded-lg p-4">
+                  <div className="text-sm text-gray-400 mb-2">Event Published</div>
+                  <pre className="text-xs font-mono text-green-400">
 {`{
   "source": "orders.service",
   "detail-type": "Order Created",
   "detail": {
-    "orderId": "ord-123",
-    "customerId": "cust-456",
-    "amount": 99.99
+    "orderId": "ord-123"
   }
 }`}
-          </pre>
-        </div>
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div className="text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Producers emit events when business state changes occur
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-50">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-2xl">📦</span>
+                </div>
+              </div>
+
+              <div className="text-green-400 text-2xl">→</div>
+
+              {/* EventBridge - Highlighted */}
+              <div className="text-center">
+                <div className="w-40 h-40 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-green-400">
+                  <span className="text-5xl">⚡</span>
+                  <span className="text-sm text-white font-bold mt-2">EventBridge</span>
+                  <span className="text-xs text-orange-200">Event Router</span>
+                </div>
+              </div>
+
+              <div className="text-green-400 text-2xl">→</div>
+
+              <div className="text-center opacity-50">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xl">λ</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="bg-gray-700 rounded-lg p-3 text-center">
+                <div className="text-orange-300 font-bold text-sm">Event Filtering</div>
+                <div className="text-xs text-gray-400 mt-1">Route based on content</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3 text-center">
+                <div className="text-orange-300 font-bold text-sm">Fan-out</div>
+                <div className="text-xs text-gray-400 mt-1">Multiple targets per event</div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-50">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">📦</span>
+                </div>
+              </div>
+
+              <div className="text-gray-500">→</div>
+
+              <div className="text-center opacity-50">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">⚡</span>
+                </div>
+              </div>
+
+              {/* Fan-out arrows */}
+              <div className="flex-1 mx-4">
+                <div className="space-y-2">
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                </div>
+              </div>
+
+              {/* Consumers - Highlighted */}
+              <div className="flex flex-col gap-3">
+                <div className="w-20 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center ring-2 ring-green-400">
+                  <span className="text-2xl">λ</span>
+                  <span className="text-xs text-white">Lambda</span>
+                </div>
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex flex-col items-center justify-center ring-2 ring-green-400">
+                  <span className="text-xs text-white">SQS</span>
+                  <span className="text-xs text-white">Queue</span>
+                </div>
+                <div className="w-20 h-20 bg-green-600 rounded-lg flex flex-col items-center justify-center ring-2 ring-green-400">
+                  <span className="text-xs text-white">Step Fn</span>
+                  <span className="text-xs text-white">Workflow</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Multiple independent consumers can react to the same event
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="mb-4">
+              <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-400 rounded-lg p-4 mb-4">
+                <div className="text-center text-purple-300 font-bold mb-2">Event Sourcing</div>
+                <div className="text-xs text-gray-300 text-center">Store all state changes as immutable events</div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center gap-3">
+                  <div className="bg-green-600 rounded px-2 py-1 text-xs text-white">Event 1</div>
+                  <div className="text-xs text-gray-300">Order Created</div>
+                  <div className="ml-auto text-xs text-gray-400">t=0</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center gap-3">
+                  <div className="bg-green-600 rounded px-2 py-1 text-xs text-white">Event 2</div>
+                  <div className="text-xs text-gray-300">Payment Processed</div>
+                  <div className="ml-auto text-xs text-gray-400">t=1</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center gap-3">
+                  <div className="bg-green-600 rounded px-2 py-1 text-xs text-white">Event 3</div>
+                  <div className="text-xs text-gray-300">Order Shipped</div>
+                  <div className="ml-auto text-xs text-gray-400">t=2</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 flex items-center gap-3">
+                  <div className="bg-green-600 rounded px-2 py-1 text-xs text-white">Event 4</div>
+                  <div className="text-xs text-gray-300">Order Delivered</div>
+                  <div className="ml-auto text-xs text-gray-400">t=3</div>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-purple-900/30 border border-purple-500 rounded p-3 text-center">
+                <div className="text-xs text-purple-300">Full audit trail</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500 rounded p-3 text-center">
+                <div className="text-xs text-purple-300">Time travel debugging</div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Step Info */}
@@ -463,68 +990,196 @@ export function MultiTierArchitectureExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="space-y-6">
-          {/* Presentation Tier */}
-          <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
-            <div className="text-blue-400 font-semibold mb-3">Presentation Tier</div>
-            <div className="flex items-center justify-center gap-4">
-              <div className="text-center">
-                <div className="w-14 h-14 bg-orange-600 rounded-lg flex items-center justify-center mb-1">
-                  <span className="text-white text-xs">CF</span>
-                </div>
-                <span className="text-xs text-gray-400">CloudFront</span>
-              </div>
-              <div className="text-gray-500">→</div>
-              <div className="text-center">
-                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center mb-1">
-                  <span className="text-white text-xs">S3</span>
-                </div>
-                <span className="text-xs text-gray-400">Static</span>
-              </div>
-              <div className="text-center">
-                <div className="w-14 h-14 bg-purple-600 rounded-lg flex items-center justify-center mb-1">
-                  <span className="text-white text-xs">ALB</span>
-                </div>
-                <span className="text-xs text-gray-400">Load Bal</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Application Tier */}
-          <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
-            <div className="text-green-400 font-semibold mb-3">Application Tier</div>
-            <div className="flex items-center justify-center gap-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="text-center">
+        {step === 0 && (
+          <div className="space-y-6">
+            {/* Presentation Tier */}
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Presentation Tier</div>
+              <div className="flex items-center justify-center gap-4">
+                <div className="text-center">
                   <div className="w-14 h-14 bg-orange-600 rounded-lg flex items-center justify-center mb-1">
-                    <span className="text-white text-xs">EC2</span>
+                    <span className="text-white text-xs">CF</span>
                   </div>
-                  <span className="text-xs text-gray-400">App {i}</span>
+                  <span className="text-xs text-gray-400">CloudFront</span>
                 </div>
-              ))}
+                <div className="text-gray-500">→</div>
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center mb-1">
+                    <span className="text-white text-xs">S3</span>
+                  </div>
+                  <span className="text-xs text-gray-400">Static</span>
+                </div>
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-purple-600 rounded-lg flex items-center justify-center mb-1">
+                    <span className="text-white text-xs">ALB</span>
+                  </div>
+                  <span className="text-xs text-gray-400">Load Bal</span>
+                </div>
+              </div>
             </div>
-            <div className="text-center text-xs text-gray-500 mt-2">Auto Scaling Group</div>
-          </div>
 
-          {/* Data Tier */}
-          <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
-            <div className="text-purple-400 font-semibold mb-3">Data Tier</div>
-            <div className="flex items-center justify-center gap-4">
-              <div className="text-center">
-                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-1">
-                  <Database className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xs text-gray-400">RDS</span>
+            {/* Application Tier */}
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Application Tier</div>
+              <div className="flex items-center justify-center gap-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="text-center">
+                    <div className="w-14 h-14 bg-orange-600 rounded-lg flex items-center justify-center mb-1">
+                      <span className="text-white text-xs">EC2</span>
+                    </div>
+                    <span className="text-xs text-gray-400">App {i}</span>
+                  </div>
+                ))}
               </div>
-              <div className="text-center">
-                <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center mb-1">
-                  <span className="text-white text-xs">EC</span>
+              <div className="text-center text-xs text-gray-500 mt-2">Auto Scaling Group</div>
+            </div>
+
+            {/* Data Tier */}
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-3">Data Tier</div>
+              <div className="flex items-center justify-center gap-4">
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-1">
+                    <Database className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-gray-400">RDS</span>
                 </div>
-                <span className="text-xs text-gray-400">ElastiCache</span>
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center mb-1">
+                    <span className="text-white text-xs">EC</span>
+                  </div>
+                  <span className="text-xs text-gray-400">ElastiCache</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {step === 1 && (
+          <>
+            {/* Presentation Tier - Highlighted */}
+            <div className="bg-blue-900/50 border-2 border-blue-400 rounded-lg p-6 mb-4">
+              <div className="text-blue-300 font-bold text-lg mb-4 text-center">Presentation Tier</div>
+              <div className="flex items-center justify-center gap-6">
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-orange-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-blue-400">
+                    <span className="text-white text-xl font-bold">CF</span>
+                  </div>
+                  <span className="text-sm text-blue-300 font-bold">CloudFront</span>
+                  <div className="text-xs text-gray-400 mt-1">CDN + Edge Locations</div>
+                </div>
+                <div className="text-blue-400 text-2xl">+</div>
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-green-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-blue-400">
+                    <span className="text-white text-lg font-bold">S3</span>
+                  </div>
+                  <span className="text-sm text-blue-300 font-bold">Static Assets</span>
+                  <div className="text-xs text-gray-400 mt-1">HTML, CSS, JS, Images</div>
+                </div>
+                <div className="text-blue-400 text-2xl">+</div>
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-purple-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-blue-400">
+                    <span className="text-white text-lg font-bold">ALB</span>
+                  </div>
+                  <span className="text-sm text-blue-300 font-bold">Load Balancer</span>
+                  <div className="text-xs text-gray-400 mt-1">Distributes traffic</div>
+                </div>
+              </div>
+            </div>
+            <div className="text-center text-sm text-blue-300 bg-blue-900/30 p-3 rounded-lg">
+              Frontend layer serving users - static content and load balancing
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            {/* Application Tier - Highlighted */}
+            <div className="bg-green-900/50 border-2 border-green-400 rounded-lg p-6 mb-4">
+              <div className="text-green-300 font-bold text-lg mb-4 text-center">Application Tier</div>
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center gap-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="text-center">
+                      <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-1 ring-2 ring-green-400">
+                        <span className="text-white font-bold">EC2</span>
+                      </div>
+                      <span className="text-xs text-green-300">Instance {i}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-green-800 rounded-lg p-3 text-center">
+                  <div className="text-green-300 font-bold text-sm">Auto Scaling Group</div>
+                  <div className="text-xs text-gray-400 mt-1">Scales based on demand</div>
+                </div>
+              </div>
+            </div>
+            <div className="text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Business logic layer - stateless app servers that scale horizontally
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            {/* Data Tier - Highlighted */}
+            <div className="bg-purple-900/50 border-2 border-purple-400 rounded-lg p-6 mb-4">
+              <div className="text-purple-300 font-bold text-lg mb-4 text-center">Data Tier</div>
+              <div className="flex items-center justify-center gap-8">
+                <div className="text-center">
+                  <div className="w-28 h-28 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-purple-400">
+                    <Database className="w-12 h-12 text-white" />
+                  </div>
+                  <span className="text-sm text-purple-300 font-bold">RDS / Aurora</span>
+                  <div className="text-xs text-gray-400 mt-1">Relational Database</div>
+                  <div className="text-xs text-blue-300 mt-1">Multi-AZ for HA</div>
+                </div>
+                <div className="text-center">
+                  <div className="w-28 h-28 bg-red-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-purple-400">
+                    <span className="text-white text-2xl font-bold">EC</span>
+                  </div>
+                  <span className="text-sm text-purple-300 font-bold">ElastiCache</span>
+                  <div className="text-xs text-gray-400 mt-1">In-Memory Cache</div>
+                  <div className="text-xs text-red-300 mt-1">Redis or Memcached</div>
+                </div>
+              </div>
+            </div>
+            <div className="text-center text-sm text-purple-300 bg-purple-900/30 p-3 rounded-lg">
+              Persistent data storage layer with caching for performance
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-red-900/50 to-orange-900/50 border border-red-500 rounded-lg p-4">
+                <div className="text-red-300 font-bold text-center mb-3">High Availability - Multi-AZ</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-800 rounded-lg p-4 border-2 border-green-500">
+                    <div className="text-green-400 font-bold text-sm mb-3 text-center">Availability Zone A</div>
+                    <div className="space-y-2">
+                      <div className="bg-blue-700 rounded p-2 text-xs text-center text-white">ALB</div>
+                      <div className="bg-orange-700 rounded p-2 text-xs text-center text-white">EC2 Instances</div>
+                      <div className="bg-blue-600 rounded p-2 text-xs text-center text-white">RDS Primary</div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-4 border-2 border-yellow-500">
+                    <div className="text-yellow-400 font-bold text-sm mb-3 text-center">Availability Zone B</div>
+                    <div className="space-y-2">
+                      <div className="bg-blue-700 rounded p-2 text-xs text-center text-white">ALB</div>
+                      <div className="bg-orange-700 rounded p-2 text-xs text-center text-white">EC2 Instances</div>
+                      <div className="bg-blue-600 rounded p-2 text-xs text-center text-white">RDS Standby</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="text-center text-sm text-red-300 bg-red-900/30 p-3 rounded-lg mt-4">
+              Distribute resources across multiple AZs for fault tolerance
+            </div>
+          </>
+        )}
       </div>
 
       {/* Step Info */}
@@ -588,6 +1243,20 @@ export function DisasterRecoveryPatternsExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  // Sync pattern with step for animation
+  useEffect(() => {
+    const stepToPattern: Record<number, "backup" | "pilot" | "warm" | "hot"> = {
+      0: "warm",
+      1: "backup",
+      2: "pilot",
+      3: "warm",
+      4: "hot"
+    }
+    if (stepToPattern[step]) {
+      setPattern(stepToPattern[step])
+    }
+  }, [step])
 
   const patterns = {
     backup: { name: "Backup & Restore", rto: "Hours", rpo: "Hours", cost: "💵", activeInDR: false },
@@ -765,6 +1434,13 @@ export function WellArchitectedPillarsExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  // Sync pillar with step for animation
+  useEffect(() => {
+    if (step > 0 && step <= 6) {
+      setSelectedPillar(step - 1)
+    }
+  }, [step])
+
   const pillars = [
     { name: "Operational Excellence", icon: "⚙️", color: "blue", tips: ["Automate", "Document", "Learn from failures"] },
     { name: "Security", icon: "🔐", color: "red", tips: ["Least privilege", "Enable traceability", "Protect data"] },
@@ -887,6 +1563,19 @@ export function BlueGreenDeploymentExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  // Sync environment with step for animation
+  useEffect(() => {
+    if (step === 0 || step === 1) {
+      setActiveEnv("blue")
+    } else if (step === 2) {
+      setActiveEnv("green")
+    } else if (step === 3) {
+      setActiveEnv("green")
+    } else if (step === 4) {
+      setActiveEnv("blue")
+    }
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1016,6 +1705,20 @@ export function CanaryDeploymentExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  // Sync canary percentage with step for animation
+  useEffect(() => {
+    const stepToPercent: Record<number, number> = {
+      0: 0,
+      1: 10,
+      2: 10,
+      3: 50,
+      4: 0
+    }
+    if (stepToPercent[step] !== undefined) {
+      setCanaryPercent(stepToPercent[step])
+    }
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1151,66 +1854,254 @@ export function FanOutPatternExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">Producer</span>
-            </div>
-            <div className="text-xs text-gray-400">1 message</div>
-          </div>
-
-          <div className="flex-1 mx-4 relative">
-            <div className="h-1 bg-orange-500 rounded animate-pulse" />
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-xs text-orange-400">
-              #{messageCount}
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
-              <span className="text-2xl">📢</span>
-              <span className="text-white text-xs">SNS</span>
-            </div>
-          </div>
-
-          <div className="flex-1 mx-4">
-            <div className="space-y-3">
-              <div className="h-1 bg-green-500 rounded" />
-              <div className="h-1 bg-green-500 rounded" />
-              <div className="h-1 bg-green-500 rounded" />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="w-16 h-14 bg-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">SQS</span>
-            </div>
-            <div className="w-16 h-14 bg-yellow-600 rounded-lg flex items-center justify-center">
-              <span className="text-xl">λ</span>
-            </div>
-            <div className="w-16 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">HTTP</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          <div className="text-sm font-semibold text-gray-300 mb-2">Benefits</div>
-          <div className="grid grid-cols-3 gap-4 text-xs">
+        {step === 0 && (
+          <div className="flex items-center justify-between">
             <div className="text-center">
-              <div className="text-green-400 font-semibold">Decoupled</div>
-              <div className="text-gray-400">Producers & consumers independent</div>
+              <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                <span className="text-white text-xs font-bold">Producer</span>
+              </div>
+              <div className="text-xs text-gray-400">1 message</div>
             </div>
-            <div className="text-center">
-              <div className="text-green-400 font-semibold">Reliable</div>
-              <div className="text-gray-400">SQS ensures delivery</div>
+
+            <div className="flex-1 mx-4 relative">
+              <div className="h-1 bg-orange-500 rounded" />
             </div>
+
             <div className="text-center">
-              <div className="text-green-400 font-semibold">Scalable</div>
-              <div className="text-gray-400">Add subscribers anytime</div>
+              <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                <span className="text-2xl">📢</span>
+                <span className="text-white text-xs">SNS</span>
+              </div>
+            </div>
+
+            <div className="flex-1 mx-4">
+              <div className="space-y-3">
+                <div className="h-1 bg-green-500 rounded" />
+                <div className="h-1 bg-green-500 rounded" />
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="w-16 h-14 bg-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">SQS</span>
+              </div>
+              <div className="w-16 h-14 bg-yellow-600 rounded-lg flex items-center justify-center">
+                <span className="text-xl">λ</span>
+              </div>
+              <div className="w-16 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">HTTP</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-white text-sm font-bold">Producer</span>
+                </div>
+                <div className="text-sm text-yellow-400 font-bold">Sends 1 message</div>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="h-2 bg-yellow-400 rounded animate-pulse" />
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm text-yellow-400 font-bold">
+                  Message #{messageCount}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-3xl">📢</span>
+                  <span className="text-white text-sm font-bold">SNS Topic</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="space-y-3">
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 opacity-30">
+                <div className="w-16 h-14 bg-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">SQS</span>
+                </div>
+                <div className="w-16 h-14 bg-yellow-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xl">λ</span>
+                </div>
+                <div className="w-16 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">HTTP</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Publisher sends a single message to SNS Topic
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Producer</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-orange-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-2xl">📢</span>
+                  <span className="text-white text-xs">SNS</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="space-y-3">
+                  <div className="h-2 bg-yellow-400 rounded animate-pulse" />
+                  <div className="h-2 bg-yellow-400 rounded animate-pulse" style={{ animationDelay: '0.2s' }} />
+                  <div className="h-2 bg-yellow-400 rounded animate-pulse" style={{ animationDelay: '0.4s' }} />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="w-18 h-16 bg-purple-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                  <span className="text-white text-sm font-bold">SQS</span>
+                </div>
+                <div className="w-18 h-16 bg-yellow-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                  <span className="text-2xl">λ</span>
+                </div>
+                <div className="w-18 h-16 bg-blue-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                  <span className="text-white text-sm font-bold">HTTP</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              SNS fans out to multiple subscribers: SQS queues, Lambda functions, HTTP endpoints
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Producer</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-orange-500 rounded" />
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-2xl">📢</span>
+                  <span className="text-white text-xs">SNS</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="space-y-3">
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="w-20 h-16 bg-purple-600 rounded-lg flex items-center justify-center ring-4 ring-green-400 relative">
+                  <span className="text-white text-sm font-bold">SQS</span>
+                  <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-green-400 text-xs font-bold">Processing...</div>
+                </div>
+                <div className="w-20 h-16 bg-yellow-600 rounded-lg flex items-center justify-center ring-4 ring-green-400 relative">
+                  <span className="text-2xl">λ</span>
+                  <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-green-400 text-xs font-bold">Processing...</div>
+                </div>
+                <div className="w-20 h-16 bg-blue-600 rounded-lg flex items-center justify-center ring-4 ring-green-400 relative">
+                  <span className="text-white text-sm font-bold">HTTP</span>
+                  <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-green-400 text-xs font-bold">Processing...</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              All subscribers process the message independently and in parallel
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Producer</span>
+                </div>
+                <div className="text-xs text-green-400 font-bold">Doesn't know subscribers</div>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="h-1 bg-orange-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-green-400">
+                  <span className="text-2xl">📢</span>
+                  <span className="text-white text-xs">SNS</span>
+                </div>
+                <div className="text-xs text-green-400 font-bold">Decoupling Layer</div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="space-y-3">
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                  <div className="h-1 bg-green-500 rounded" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="w-16 h-14 bg-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">SQS</span>
+                </div>
+                <div className="w-16 h-14 bg-yellow-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xl">λ</span>
+                </div>
+                <div className="w-16 h-14 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">HTTP</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-gray-300 mb-2">Benefits</div>
+              <div className="grid grid-cols-3 gap-4 text-xs">
+                <div className="text-center">
+                  <div className="text-green-400 font-semibold">Decoupled</div>
+                  <div className="text-gray-400">Producers & consumers independent</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-green-400 font-semibold">Reliable</div>
+                  <div className="text-gray-400">SQS ensures delivery</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-green-400 font-semibold">Scalable</div>
+                  <div className="text-gray-400">Add subscribers anytime</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1279,65 +2170,263 @@ export function StaticWebsiteHostingExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
-              <span className="text-xl">👤</span>
+        {step === 0 && (
+          <div className="flex items-center justify-between">
+            <div className="text-center">
+              <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                <span className="text-xl">👤</span>
+              </div>
+              <span className="text-xs text-gray-400">User</span>
             </div>
-            <span className="text-xs text-gray-400">User</span>
-          </div>
 
-          <ArrowRight className="w-6 h-6 text-gray-500" />
+            <ArrowRight className="w-6 h-6 text-gray-500" />
 
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <Globe className="w-8 h-8 text-white" />
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                <Globe className="w-8 h-8 text-white" />
+              </div>
+              <span className="text-xs text-gray-400">Route 53</span>
             </div>
-            <span className="text-xs text-gray-400">Route 53</span>
+
+            <ArrowRight className="w-6 h-6 text-gray-500" />
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2 relative">
+                <Cloud className="w-10 h-10 text-white" />
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <Lock className="w-3 h-3 text-white" />
+                </div>
+              </div>
+              <span className="text-xs text-gray-400">CloudFront</span>
+            </div>
+
+            <ArrowRight className="w-6 h-6 text-gray-500" />
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2">
+                <span className="text-2xl">🪣</span>
+              </div>
+              <span className="text-xs text-gray-400">S3 (Private)</span>
+            </div>
           </div>
+        )}
 
-          <ArrowRight className="w-6 h-6 text-gray-500" />
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">User</span>
+              </div>
 
-          <div className="text-center">
-            <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2 relative">
-              <Cloud className="w-10 h-10 text-white" />
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                <Lock className="w-3 h-3 text-white" />
+              <ArrowRight className="w-6 h-6 text-gray-500 opacity-30" />
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Route 53</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-gray-500 opacity-30" />
+
+              <div className="text-center opacity-30">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2">
+                  <Cloud className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">CloudFront</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-gray-500 opacity-30" />
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-green-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-3xl">🪣</span>
+                </div>
+                <span className="text-sm text-yellow-400 font-bold">S3 Bucket</span>
               </div>
             </div>
-            <span className="text-xs text-gray-400">CloudFront</span>
-          </div>
-
-          <ArrowRight className="w-6 h-6 text-gray-500" />
-
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-2xl">🪣</span>
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-green-400 mb-2">S3 Bucket Contents</div>
+              <div className="space-y-1 text-xs text-gray-300">
+                <div>📄 index.html</div>
+                <div>📁 css/styles.css</div>
+                <div>📁 js/app.js</div>
+                <div>🖼️ images/logo.png</div>
+              </div>
             </div>
-            <span className="text-xs text-gray-400">S3 (Private)</span>
-          </div>
-        </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Store all static assets (HTML, CSS, JS, images) in an S3 bucket
+            </div>
+          </>
+        )}
 
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-semibold text-green-400 mb-2">S3 Bucket Contents</div>
-            <div className="space-y-1 text-xs text-gray-300">
-              <div>📄 index.html</div>
-              <div>📁 css/styles.css</div>
-              <div>📁 js/app.js</div>
-              <div>🖼️ images/logo.png</div>
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">User</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-gray-500 opacity-30" />
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Route 53</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-yellow-400" />
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-orange-600 rounded-lg flex items-center justify-center mb-2 relative ring-4 ring-yellow-400">
+                  <Cloud className="w-12 h-12 text-white" />
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+                <span className="text-sm text-yellow-400 font-bold">CloudFront CDN</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-yellow-400" />
+
+              <div className="text-center">
+                <div className="w-18 h-18 bg-green-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">🪣</span>
+                </div>
+                <span className="text-xs text-gray-400">S3</span>
+              </div>
             </div>
-          </div>
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-semibold text-orange-400 mb-2">CloudFront Config</div>
-            <div className="space-y-1 text-xs text-gray-300">
-              <div>Origin: S3 with OAC</div>
-              <div>HTTPS: ACM Certificate</div>
-              <div>Cache: Optimized</div>
-              <div>Error Pages: Custom 404</div>
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-orange-400 mb-2">CloudFront Config</div>
+              <div className="space-y-1 text-xs text-gray-300">
+                <div>Origin: S3 with OAC</div>
+                <div>HTTPS: ACM Certificate</div>
+                <div>Cache: Optimized</div>
+                <div>Error Pages: Custom 404</div>
+              </div>
             </div>
-          </div>
-        </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              CloudFront CDN provides global low-latency delivery with edge caching
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">User</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-yellow-400 animate-pulse" />
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-yellow-400 font-bold">Route 53 DNS</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-yellow-400" />
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2 relative">
+                  <Cloud className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">CloudFront</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-gray-500" />
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-2xl">🪣</span>
+                </div>
+                <span className="text-xs text-gray-400">S3</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Route 53 provides custom domain (e.g., www.example.com) with SSL certificate from ACM
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-xl">👤</span>
+                </div>
+                <span className="text-xs text-gray-400">User</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-gray-500 opacity-30" />
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">Route 53</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-gray-500 opacity-30" />
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-600 rounded-lg flex items-center justify-center mb-2 relative ring-4 ring-green-400">
+                  <Cloud className="w-10 h-10 text-white" />
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center ring-2 ring-yellow-400">
+                    <Lock className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+                <span className="text-sm text-green-400 font-bold">CloudFront + OAC</span>
+              </div>
+
+              <ArrowRight className="w-6 h-6 text-green-400" />
+
+              <div className="text-center">
+                <div className="w-18 h-18 bg-green-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-green-400 relative">
+                  <span className="text-2xl">🪣</span>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                    <Lock className="w-3 h-3 text-white" />
+                  </div>
+                </div>
+                <span className="text-sm text-green-400 font-bold">S3 (Private)</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Origin Access Control (OAC) ensures S3 bucket is private - only CloudFront can access it
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="bg-gray-700 rounded-lg p-3">
+                <div className="text-xs font-semibold text-green-400 mb-2">Security Benefits</div>
+                <div className="space-y-1 text-xs text-gray-300">
+                  <div>✓ S3 bucket stays private</div>
+                  <div>✓ No public access needed</div>
+                  <div>✓ CloudFront-only access</div>
+                </div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3">
+                <div className="text-xs font-semibold text-orange-400 mb-2">OAC vs OAI</div>
+                <div className="space-y-1 text-xs text-gray-300">
+                  <div>✓ OAC is newer standard</div>
+                  <div>✓ Better security</div>
+                  <div>✓ Use OAC, not OAI</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1406,47 +2495,29 @@ export function CacheAsidePatternExplainer() {
         <h2 className="text-2xl font-bold text-white">Cache-Aside Pattern</h2>
       </div>
 
-      <div className="flex justify-center mb-6">
-        <button
-          onClick={() => setCacheHit(!cacheHit)}
-          className={`px-6 py-2 rounded-lg font-medium transition-all ${
-            cacheHit ? "bg-green-600 text-white" : "bg-yellow-600 text-white"
-          }`}
-        >
-          {cacheHit ? "Cache Hit" : "Cache Miss"}
-        </button>
-      </div>
-
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">App</span>
-            </div>
-          </div>
+        {step === 0 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">App</span>
+                </div>
+              </div>
 
-          <div className="flex-1 mx-4">
-            <div className="text-center text-xs text-gray-400 mb-1">1. Check cache</div>
-            <div className="h-1 bg-green-500 rounded" />
-          </div>
-
-          <div className="text-center">
-            <div className={`w-20 h-20 rounded-lg flex flex-col items-center justify-center mb-2 ${
-              cacheHit ? "bg-green-600" : "bg-gray-600"
-            }`}>
-              <Zap className="w-8 h-8 text-white" />
-              <span className="text-white text-xs">ElastiCache</span>
-            </div>
-            <span className={`text-xs ${cacheHit ? "text-green-400" : "text-yellow-400"}`}>
-              {cacheHit ? "HIT!" : "MISS"}
-            </span>
-          </div>
-
-          {!cacheHit && (
-            <>
               <div className="flex-1 mx-4">
-                <div className="text-center text-xs text-gray-400 mb-1">2. Fetch from DB</div>
-                <div className="h-1 bg-yellow-500 rounded" />
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-green-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <Zap className="w-8 h-8 text-white" />
+                  <span className="text-white text-xs">ElastiCache</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="h-1 bg-gray-500 rounded" />
               </div>
 
               <div className="text-center">
@@ -1455,29 +2526,202 @@ export function CacheAsidePatternExplainer() {
                 </div>
                 <span className="text-xs text-gray-400">RDS</span>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-4">
+                <div className="text-sm font-semibold text-green-400 mb-2">Cache Hit Flow</div>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <div>1. App checks ElastiCache</div>
+                  <div>2. Data found → return</div>
+                  <div className="text-green-400">Latency: ~1ms</div>
+                </div>
+              </div>
+              <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4">
+                <div className="text-sm font-semibold text-yellow-400 mb-2">Cache Miss Flow</div>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <div>1. App checks ElastiCache</div>
+                  <div>2. Miss → query RDS</div>
+                  <div>3. Store result in cache</div>
+                  <div className="text-yellow-400">Latency: ~50-100ms</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-4">
-            <div className="text-sm font-semibold text-green-400 mb-2">Cache Hit Flow</div>
-            <div className="text-xs text-gray-300 space-y-1">
-              <div>1. App checks ElastiCache</div>
-              <div>2. Data found → return</div>
-              <div className="text-green-400">Latency: ~1ms</div>
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-white text-sm font-bold">App</span>
+                </div>
+                <span className="text-xs text-yellow-400 font-bold">Request Data</span>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="text-center text-xs text-yellow-400 mb-1 font-bold">1. Check cache</div>
+                <div className="h-2 bg-yellow-400 rounded animate-pulse" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-green-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <Zap className="w-10 h-10 text-white" />
+                  <span className="text-white text-sm font-bold">ElastiCache</span>
+                </div>
+                <span className="text-sm text-green-400 font-bold">HIT! ✓</span>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-gray-500 rounded" />
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">RDS</span>
+              </div>
             </div>
-          </div>
-          <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4">
-            <div className="text-sm font-semibold text-yellow-400 mb-2">Cache Miss Flow</div>
-            <div className="text-xs text-gray-300 space-y-1">
-              <div>1. App checks ElastiCache</div>
-              <div>2. Miss → query RDS</div>
-              <div>3. Store result in cache</div>
-              <div className="text-yellow-400">Latency: ~50-100ms</div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Cache Hit: Data found in ElastiCache, return immediately (~1ms latency)
             </div>
-          </div>
-        </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-white text-sm font-bold">App</span>
+                </div>
+                <span className="text-xs text-yellow-400 font-bold">Request Data</span>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="text-center text-xs text-yellow-400 mb-1 font-bold">1. Check cache</div>
+                <div className="h-2 bg-yellow-400 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gray-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-red-400">
+                  <Zap className="w-10 h-10 text-white" />
+                  <span className="text-white text-sm">ElastiCache</span>
+                </div>
+                <span className="text-sm text-red-400 font-bold">MISS ✗</span>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="text-center text-xs text-yellow-400 mb-1 font-bold">2. Fetch from DB</div>
+                <div className="h-2 bg-yellow-400 rounded animate-pulse" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <Database className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-sm text-yellow-400 font-bold">RDS Query</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Cache Miss: Data not in cache, application queries RDS database
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-green-400">
+                  <span className="text-white text-sm font-bold">App</span>
+                </div>
+                <span className="text-xs text-green-400 font-bold">Populate Cache</span>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="text-center text-xs text-green-400 mb-1 font-bold">3. Store in cache</div>
+                <div className="h-2 bg-green-400 rounded animate-pulse" />
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <div className="text-green-400 text-xl">←</div>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-green-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-green-400">
+                  <Zap className="w-10 h-10 text-white" />
+                  <span className="text-white text-sm font-bold">ElastiCache</span>
+                </div>
+                <span className="text-sm text-green-400 font-bold">Writing...</span>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-gray-500 rounded" />
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">RDS</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Application stores the fetched data in cache for future requests
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">App</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-gray-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-orange-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-orange-400 relative">
+                  <Zap className="w-10 h-10 text-white" />
+                  <span className="text-white text-sm">ElastiCache</span>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">TTL</span>
+                  </div>
+                </div>
+                <span className="text-sm text-orange-400 font-bold">Expiring...</span>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-gray-500 rounded" />
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+                <span className="text-xs text-gray-400">RDS</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-orange-300 bg-orange-900/30 p-3 rounded-lg">
+              TTL (Time To Live) ensures cached data expires, maintaining data freshness
+            </div>
+            <div className="mt-4 bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-gray-300 mb-2">TTL Best Practices</div>
+              <div className="text-xs text-gray-300 space-y-1">
+                <div>• Short TTL (seconds): Frequently changing data</div>
+                <div>• Medium TTL (minutes): Semi-static data</div>
+                <div>• Long TTL (hours): Rarely changing data</div>
+                <div>• Balance: freshness vs cache hit rate</div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1546,30 +2790,165 @@ export function ReadReplicaPatternExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-center gap-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">App</span>
-            </div>
-          </div>
+        {step === 0 && (
+          <>
+            <div className="flex items-center justify-center gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">App</span>
+                </div>
+              </div>
 
-          <div className="flex flex-col gap-8">
-            <div className="flex items-center gap-4">
-              <div className="text-xs text-green-400 w-16">Writes</div>
-              <ArrowRight className="w-6 h-6 text-green-500" />
-              <div className="p-4 bg-green-900/30 border-2 border-green-500 rounded-lg">
-                <div className="text-green-400 font-semibold mb-2">Primary</div>
-                <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
-                  <Database className="w-8 h-8 text-white" />
+              <div className="flex flex-col gap-8">
+                <div className="flex items-center gap-4">
+                  <div className="text-xs text-green-400 w-16">Writes</div>
+                  <ArrowRight className="w-6 h-6 text-green-500" />
+                  <div className="p-4 bg-green-900/30 border-2 border-green-500 rounded-lg">
+                    <div className="text-green-400 font-semibold mb-2">Primary</div>
+                    <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                      <Database className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="text-xs text-blue-400 w-16">Reads</div>
+                  <ArrowRight className="w-6 h-6 text-blue-500" />
+                  <div className="p-4 bg-blue-900/30 border-2 border-blue-500 rounded-lg">
+                    <div className="text-blue-400 font-semibold mb-2">Read Replicas</div>
+                    <div className="flex gap-2">
+                      <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <Database className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <Database className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <Database className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="text-xs text-blue-400 w-16">Reads</div>
-              <ArrowRight className="w-6 h-6 text-blue-500" />
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="grid grid-cols-3 gap-4 text-center text-sm">
+                <div>
+                  <div className="text-green-400 font-semibold">Up to 15</div>
+                  <div className="text-xs text-gray-400">Aurora replicas</div>
+                </div>
+                <div>
+                  <div className="text-blue-400 font-semibold">Up to 5</div>
+                  <div className="text-xs text-gray-400">RDS replicas</div>
+                </div>
+                <div>
+                  <div className="text-yellow-400 font-semibold">Cross-Region</div>
+                  <div className="text-xs text-gray-400">DR support</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-center gap-8">
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">App</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-yellow-400 font-bold w-16">Writes</div>
+                <ArrowRight className="w-8 h-8 text-yellow-400 animate-pulse" />
+                <div className="p-6 bg-green-900/30 border-4 border-yellow-400 rounded-lg">
+                  <div className="text-yellow-400 font-bold mb-2 text-lg">Primary Instance</div>
+                  <div className="w-20 h-20 bg-green-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                    <Database className="w-12 h-12 text-white" />
+                  </div>
+                  <div className="mt-2 text-xs text-green-300">Handles ALL writes</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              The primary instance is the only database that accepts write operations
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-center gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">App</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4 opacity-30">
+                  <div className="text-xs text-green-400 w-16">Writes</div>
+                  <ArrowRight className="w-6 h-6 text-green-500" />
+                  <div className="p-3 bg-green-900/30 border-2 border-green-500 rounded-lg">
+                    <div className="text-green-400 font-semibold mb-1">Primary</div>
+                    <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                      <Database className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="text-sm text-yellow-400 font-bold w-16">Reads</div>
+                  <ArrowRight className="w-8 h-8 text-yellow-400 animate-pulse" />
+                  <div className="p-6 bg-blue-900/30 border-4 border-yellow-400 rounded-lg">
+                    <div className="text-yellow-400 font-bold mb-2 text-lg">Read Replicas</div>
+                    <div className="flex gap-3">
+                      <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                        <Database className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                        <Database className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                        <Database className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-blue-300">Handle read traffic</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Read replicas handle read traffic, reducing load on the primary instance
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="p-4 bg-green-900/30 border-2 border-green-500 rounded-lg">
+                <div className="text-green-400 font-semibold mb-2">Primary</div>
+                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+                <div className="mt-2 text-xs text-green-300">Write operations</div>
+              </div>
+
+              <div className="flex-1 mx-6 relative">
+                <div className="h-2 bg-yellow-400 rounded animate-pulse" />
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm text-yellow-400 font-bold">
+                  Async Replication
+                </div>
+                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-orange-400">
+                  Slight replication lag
+                </div>
+              </div>
+
               <div className="p-4 bg-blue-900/30 border-2 border-blue-500 rounded-lg">
-                <div className="text-blue-400 font-semibold mb-2">Read Replicas</div>
+                <div className="text-blue-400 font-semibold mb-2">Replicas</div>
                 <div className="flex gap-2">
                   <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                     <Database className="w-6 h-6 text-white" />
@@ -1577,31 +2956,72 @@ export function ReadReplicaPatternExplainer() {
                   <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                     <Database className="w-6 h-6 text-white" />
                   </div>
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <Database className="w-6 h-6 text-white" />
+                </div>
+                <div className="mt-2 text-xs text-blue-300">Read operations</div>
+              </div>
+            </div>
+            <div className="mt-6 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Data is replicated asynchronously - replicas may have slight lag (eventual consistency)
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 bg-blue-900/30 border-2 border-blue-500 rounded-lg">
+                <div className="text-blue-400 font-semibold mb-3 text-center">Region: us-east-1</div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center ring-2 ring-green-400">
+                      <Database className="w-8 h-8 text-white" />
+                    </div>
+                    <span className="text-xs text-green-400 font-bold">Primary</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <Database className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-400">Replica 1</span>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          <div className="grid grid-cols-3 gap-4 text-center text-sm">
-            <div>
-              <div className="text-green-400 font-semibold">Up to 15</div>
-              <div className="text-xs text-gray-400">Aurora replicas</div>
+              <div className="p-4 bg-purple-900/30 border-2 border-purple-500 rounded-lg ring-4 ring-yellow-400">
+                <div className="text-purple-400 font-semibold mb-3 text-center">Region: eu-west-1</div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center ring-2 ring-yellow-400">
+                      <Database className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-xs text-yellow-400 font-bold">Cross-Region Replica</span>
+                  </div>
+                  <div className="text-xs text-purple-300">• Disaster Recovery</div>
+                  <div className="text-xs text-purple-300">• Low latency reads</div>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="text-blue-400 font-semibold">Up to 5</div>
-              <div className="text-xs text-gray-400">RDS replicas</div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Cross-region read replicas provide disaster recovery and low-latency reads globally
             </div>
-            <div>
-              <div className="text-yellow-400 font-semibold">Cross-Region</div>
-              <div className="text-xs text-gray-400">DR support</div>
+            <div className="mt-4 bg-gray-700 rounded-lg p-4">
+              <div className="grid grid-cols-3 gap-4 text-center text-sm">
+                <div>
+                  <div className="text-green-400 font-semibold">Up to 15</div>
+                  <div className="text-xs text-gray-400">Aurora replicas</div>
+                </div>
+                <div>
+                  <div className="text-blue-400 font-semibold">Up to 5</div>
+                  <div className="text-xs text-gray-400">RDS replicas</div>
+                </div>
+                <div>
+                  <div className="text-yellow-400 font-semibold">Cross-Region</div>
+                  <div className="text-xs text-gray-400">DR support</div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1670,71 +3090,240 @@ export function DecoupledArchitectureExplainer() {
         <h2 className="text-2xl font-bold text-white">Decoupled Architecture</h2>
       </div>
 
-      <div className="bg-gray-700 rounded-lg p-4 mb-6">
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Queue Depth: {queueDepth} messages
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="20"
-          value={queueDepth}
-          onChange={(e) => setQueueDepth(parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-        />
-      </div>
-
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">Producer</span>
+        {step === 0 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Producer</span>
+                </div>
+                <div className="text-xs text-gray-400">API / Lambda</div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="h-1 bg-purple-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-xl">📬</span>
+                  <span className="text-white text-xs">SQS</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="flex gap-1">
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">λ</span>
+                  </div>
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">λ</span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-400 mt-2">Consumers</div>
+              </div>
             </div>
-            <div className="text-xs text-gray-400">API / Lambda</div>
-          </div>
 
-          <div className="flex-1 mx-4">
-            <div className="h-1 bg-purple-500 rounded animate-pulse" />
-          </div>
-
-          <div className="text-center">
-            <div className="w-24 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2">
-              <span className="text-xl">📬</span>
-              <span className="text-white text-xs">SQS</span>
-              <span className="text-purple-200 text-xs">{queueDepth} msgs</span>
+            <div className="mt-6 grid grid-cols-3 gap-4">
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3 text-center">
+                <div className="text-blue-400 font-semibold text-sm">Async</div>
+                <div className="text-xs text-gray-400">Non-blocking</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3 text-center">
+                <div className="text-purple-400 font-semibold text-sm">Buffered</div>
+                <div className="text-xs text-gray-400">Handle spikes</div>
+              </div>
+              <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-3 text-center">
+                <div className="text-green-400 font-semibold text-sm">Resilient</div>
+                <div className="text-xs text-gray-400">Retry on failure</div>
+              </div>
             </div>
-          </div>
+          </>
+        )}
 
-          <div className="flex-1 mx-4">
-            <div className="h-1 bg-green-500 rounded" />
-          </div>
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-white text-sm font-bold">Producer</span>
+                </div>
+                <div className="text-sm text-yellow-400 font-bold">Sends messages</div>
+              </div>
 
-          <div className="text-center">
-            <div className="flex gap-1">
-              {Array(Math.max(1, Math.min(5, Math.ceil(queueDepth / 4)))).fill(0).map((_, i) => (
-                <div key={i} className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+              <div className="flex-1 mx-4 relative">
+                <div className="h-2 bg-yellow-400 rounded animate-pulse" />
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-yellow-400">
+                  Async send
+                </div>
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-24 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-xl">📬</span>
+                  <span className="text-white text-xs">SQS</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
                   <span className="text-xl">λ</span>
                 </div>
-              ))}
+              </div>
             </div>
-            <div className="text-xs text-gray-400 mt-2">Consumers (auto-scaled)</div>
-          </div>
-        </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Producer sends messages asynchronously - doesn't wait for processing
+            </div>
+          </>
+        )}
 
-        <div className="mt-6 grid grid-cols-3 gap-4">
-          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3 text-center">
-            <div className="text-blue-400 font-semibold text-sm">Async</div>
-            <div className="text-xs text-gray-400">Non-blocking</div>
-          </div>
-          <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3 text-center">
-            <div className="text-purple-400 font-semibold text-sm">Buffered</div>
-            <div className="text-xs text-gray-400">Handle spikes</div>
-          </div>
-          <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-3 text-center">
-            <div className="text-green-400 font-semibold text-sm">Resilient</div>
-            <div className="text-xs text-gray-400">Retry on failure</div>
-          </div>
-        </div>
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Producer</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-purple-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-32 h-28 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2 ring-4 ring-yellow-400">
+                  <span className="text-3xl">📬</span>
+                  <span className="text-white text-sm font-bold">SQS Queue</span>
+                  <span className="text-yellow-300 text-sm font-bold">Buffer</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-xl">λ</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              SQS queue buffers messages, handling traffic spikes smoothly
+            </div>
+            <div className="mt-4 bg-gray-700 rounded-lg p-3">
+              <div className="text-xs text-gray-300 space-y-1">
+                <div>• Retention: 1 min to 14 days</div>
+                <div>• Handles bursts and spikes</div>
+                <div>• Decouples producer from consumer</div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Producer</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-purple-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-xl">📬</span>
+                  <span className="text-white text-xs">SQS</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="h-2 bg-yellow-400 rounded animate-pulse" />
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-yellow-400">
+                  Poll messages
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="w-18 h-18 bg-green-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                  <span className="text-2xl">λ</span>
+                </div>
+                <div className="text-sm text-yellow-400 font-bold mt-2">Consumer</div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Consumers process messages at their own pace, independent of producer
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="bg-gray-700 rounded-lg p-4 mb-4">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Queue Depth: {queueDepth} messages
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="20"
+                value={queueDepth}
+                onChange={(e) => setQueueDepth(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Producer</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-1 bg-purple-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center mb-2">
+                  <span className="text-xl">📬</span>
+                  <span className="text-white text-xs">SQS</span>
+                  <span className="text-purple-200 text-xs">{queueDepth} msgs</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="h-1 bg-green-500 rounded" />
+              </div>
+
+              <div className="text-center">
+                <div className="flex gap-1">
+                  {Array(Math.max(1, Math.min(5, Math.ceil(queueDepth / 4)))).fill(0).map((_, i) => (
+                    <div key={i} className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center ring-2 ring-yellow-400">
+                      <span className="text-xl">λ</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-sm text-yellow-400 font-bold mt-2">Auto-Scaled ({Math.max(1, Math.min(5, Math.ceil(queueDepth / 4)))})</div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Scale consumers independently based on queue depth - try adjusting the slider!
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1803,51 +3392,198 @@ export function GlobalArchitectureExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {[
-            { region: "us-east-1", label: "N. Virginia", users: "🇺🇸" },
-            { region: "eu-west-1", label: "Ireland", users: "🇪🇺" },
-            { region: "ap-northeast-1", label: "Tokyo", users: "🇯🇵" }
-          ].map((r, i) => (
-            <div key={i} className="bg-gray-700 rounded-lg p-4">
+        {step === 0 && (
+          <>
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              {[
+                { region: "us-east-1", label: "N. Virginia", users: "🇺🇸" },
+                { region: "eu-west-1", label: "Ireland", users: "🇪🇺" },
+                { region: "ap-northeast-1", label: "Tokyo", users: "🇯🇵" }
+              ].map((r, i) => (
+                <div key={i} className="bg-gray-700 rounded-lg p-4">
+                  <div className="text-center mb-3">
+                    <span className="text-2xl">{r.users}</span>
+                  </div>
+                  <div className="text-green-400 font-semibold text-sm text-center mb-2">{r.label}</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="w-full h-8 bg-blue-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">ALB + App</span>
+                    </div>
+                    <div className="w-full h-8 bg-purple-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">DynamoDB</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="flex-1 h-1 bg-green-500 rounded" />
+              <div className="p-3 bg-orange-600 rounded-lg">
+                <Globe className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1 h-1 bg-green-500 rounded" />
+            </div>
+            <div className="text-center text-sm text-gray-400">Global Accelerator / Route 53</div>
+          </>
+        )}
+
+        {step === 1 && (
+          <>
+            <div className="text-center text-yellow-400 font-bold mb-4">Multi-Region Deployment</div>
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              {[
+                { region: "us-east-1", label: "N. Virginia", users: "🇺🇸" },
+                { region: "eu-west-1", label: "Ireland", users: "🇪🇺" },
+                { region: "ap-northeast-1", label: "Tokyo", users: "🇯🇵" }
+              ].map((r, i) => (
+                <div key={i} className="bg-gray-700 rounded-lg p-4 ring-4 ring-yellow-400">
+                  <div className="text-center mb-3">
+                    <span className="text-3xl">{r.users}</span>
+                  </div>
+                  <div className="text-yellow-400 font-bold text-sm text-center mb-2">{r.label}</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="w-full h-8 bg-blue-600 rounded flex items-center justify-center ring-2 ring-yellow-400">
+                      <span className="text-white text-xs font-bold">ALB + App</span>
+                    </div>
+                    <div className="w-full h-8 bg-purple-600 rounded flex items-center justify-center ring-2 ring-yellow-400">
+                      <span className="text-white text-xs font-bold">DynamoDB</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Deploy identical application stacks in multiple AWS regions for global reach
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="grid grid-cols-3 gap-4 mb-6 opacity-50">
+              {[
+                { label: "N. Virginia", users: "🇺🇸" },
+                { label: "Ireland", users: "🇪🇺" },
+                { label: "Tokyo", users: "🇯🇵" }
+              ].map((r, i) => (
+                <div key={i} className="bg-gray-700 rounded-lg p-3 text-center">
+                  <span className="text-xl">{r.users}</span>
+                  <div className="text-xs text-gray-400 mt-1">{r.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="flex-1 h-2 bg-yellow-400 rounded animate-pulse" />
+              <div className="p-4 bg-orange-600 rounded-lg ring-4 ring-yellow-400">
+                <Globe className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1 h-2 bg-yellow-400 rounded animate-pulse" />
+            </div>
+            <div className="text-center text-lg text-yellow-400 font-bold mb-4">AWS Global Accelerator</div>
+            <div className="text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Global Accelerator uses AWS backbone network for faster, more reliable routing
+            </div>
+            <div className="mt-4 bg-gray-700 rounded-lg p-3">
+              <div className="text-xs text-gray-300 space-y-1">
+                <div>• 2 static Anycast IPs</div>
+                <div>• Routes via AWS backbone (not public internet)</div>
+                <div>• Auto failover between regions</div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              {[
+                { label: "N. Virginia", users: "🇺🇸" },
+                { label: "Ireland", users: "🇪🇺" },
+                { label: "Tokyo", users: "🇯🇵" }
+              ].map((r, i) => (
+                <div key={i} className="bg-gray-700 rounded-lg p-4">
+                  <div className="text-center mb-2">
+                    <span className="text-2xl">{r.users}</span>
+                  </div>
+                  <div className="text-gray-400 text-xs text-center mb-2">{r.label}</div>
+                  <div className="w-full h-10 bg-purple-600 rounded flex items-center justify-center ring-4 ring-yellow-400">
+                    <span className="text-white text-xs font-bold">DynamoDB</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {[0, 1].map((i) => (
+                <div key={i} className="h-1 w-20 bg-yellow-400 rounded animate-pulse" />
+              ))}
+            </div>
+            <div className="text-center text-sm text-yellow-400 font-bold mb-4">Bi-directional Replication</div>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <div className="text-sm font-semibold text-gray-300 mb-2">Data Replication Options</div>
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="bg-purple-900/30 p-3 rounded ring-2 ring-yellow-400">
+                  <span className="text-purple-400 font-semibold">DynamoDB Global Tables</span>
+                  <div className="text-gray-400">Multi-region, active-active, auto replication</div>
+                </div>
+                <div className="bg-blue-900/30 p-3 rounded">
+                  <span className="text-blue-400 font-semibold">Aurora Global Database</span>
+                  <div className="text-gray-400">Cross-region read replicas, <1s replication</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Global data replication ensures consistency across regions
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="mb-6 p-4 bg-orange-900/30 border-2 border-orange-500 rounded-lg">
               <div className="text-center mb-3">
-                <span className="text-2xl">{r.users}</span>
+                <Globe className="w-10 h-10 text-orange-400 mx-auto mb-2" />
+                <div className="text-orange-400 font-bold">Route 53 DNS Routing</div>
               </div>
-              <div className="text-green-400 font-semibold text-sm text-center mb-2">{r.label}</div>
-              <div className="flex flex-col gap-2">
-                <div className="w-full h-8 bg-blue-600 rounded flex items-center justify-center">
-                  <span className="text-white text-xs">ALB + App</span>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="bg-gray-700 p-2 rounded text-center">
+                  <div className="text-green-400 font-semibold">Latency</div>
+                  <div className="text-gray-400">Route to lowest latency</div>
                 </div>
-                <div className="w-full h-8 bg-purple-600 rounded flex items-center justify-center">
-                  <span className="text-white text-xs">DynamoDB</span>
+                <div className="bg-gray-700 p-2 rounded text-center">
+                  <div className="text-blue-400 font-semibold">Geolocation</div>
+                  <div className="text-gray-400">Route by user location</div>
+                </div>
+                <div className="bg-gray-700 p-2 rounded text-center">
+                  <div className="text-purple-400 font-semibold">Failover</div>
+                  <div className="text-gray-400">Health check routing</div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <div className="flex-1 h-1 bg-green-500 rounded" />
-          <div className="p-3 bg-orange-600 rounded-lg">
-            <Globe className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1 h-1 bg-green-500 rounded" />
-        </div>
-        <div className="text-center text-sm text-gray-400 mb-4">Global Accelerator / Route 53</div>
-
-        <div className="bg-gray-700 rounded-lg p-4">
-          <div className="text-sm font-semibold text-gray-300 mb-2">Data Replication Options</div>
-          <div className="grid grid-cols-2 gap-4 text-xs">
-            <div className="bg-purple-900/30 p-2 rounded">
-              <span className="text-purple-400 font-semibold">DynamoDB Global Tables</span>
-              <div className="text-gray-400">Multi-region, active-active</div>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: "N. Virginia", users: "🇺🇸", latency: "10ms" },
+                { label: "Ireland", users: "🇪🇺", latency: "95ms" },
+                { label: "Tokyo", users: "🇯🇵", latency: "180ms" }
+              ].map((r, i) => (
+                <div key={i} className={`bg-gray-700 rounded-lg p-3 ${i === 0 ? 'ring-4 ring-green-400' : 'opacity-50'}`}>
+                  <div className="text-center mb-2">
+                    <span className="text-2xl">{r.users}</span>
+                  </div>
+                  <div className="text-xs text-gray-400 text-center mb-1">{r.label}</div>
+                  <div className={`text-xs text-center font-bold ${i === 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                    {r.latency}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="bg-blue-900/30 p-2 rounded">
-              <span className="text-blue-400 font-semibold">Aurora Global Database</span>
-              <div className="text-gray-400">Cross-region read replicas</div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Route 53 latency routing directs users to the closest region automatically
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1916,58 +3652,168 @@ export function HybridArchitectureExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="grid grid-cols-2 gap-8">
-          <div className="p-4 bg-gray-700 border-2 border-gray-500 rounded-lg">
-            <div className="text-gray-300 font-semibold mb-3 text-center">On-Premises</div>
-            <div className="flex justify-center gap-2 mb-4">
-              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                <Server className="w-6 h-6 text-white" />
+        {(step === 0 || step === 1 || step === 2) && (
+          <>
+            <div className="grid grid-cols-2 gap-8">
+              <div className={`p-4 bg-gray-700 border-2 rounded-lg ${step >= 1 ? 'border-yellow-400 ring-2 ring-yellow-400' : 'border-gray-500'}`}>
+                <div className={`font-semibold mb-3 text-center ${step >= 1 ? 'text-yellow-400' : 'text-gray-300'}`}>On-Premises</div>
+                <div className="flex justify-center gap-2 mb-4">
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <Server className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <Database className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <HardDrive className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="text-xs text-gray-400 text-center">Corporate Data Center</div>
               </div>
-              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                <Database className="w-6 h-6 text-white" />
-              </div>
-              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                <HardDrive className="w-6 h-6 text-white" />
+
+              <div className={`p-4 bg-orange-900/20 border-2 rounded-lg ${step >= 1 ? 'border-yellow-400 ring-2 ring-yellow-400' : 'border-orange-500'}`}>
+                <div className={`font-semibold mb-3 text-center ${step >= 1 ? 'text-yellow-400' : 'text-orange-400'}`}>AWS Cloud</div>
+                <div className="flex justify-center gap-2 mb-4">
+                  <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">EC2</span>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">RDS</span>
+                  </div>
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs">S3</span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-400 text-center">AWS VPC</div>
               </div>
             </div>
-            <div className="text-xs text-gray-400 text-center">Corporate Data Center</div>
-          </div>
 
-          <div className="p-4 bg-orange-900/20 border-2 border-orange-500 rounded-lg">
-            <div className="text-orange-400 font-semibold mb-3 text-center">AWS Cloud</div>
-            <div className="flex justify-center gap-2 mb-4">
-              <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs">EC2</span>
+            <div className="flex items-center justify-center my-4">
+              <div className={`flex-1 h-2 bg-gradient-to-r rounded ${step === 1 ? 'from-yellow-400 to-purple-500 animate-pulse' : step === 2 ? 'from-blue-400 to-blue-500' : 'from-gray-500 to-purple-500'}`} />
+              <div className={`mx-4 p-2 rounded-lg ${step >= 1 ? 'bg-yellow-600 ring-4 ring-yellow-400' : 'bg-purple-600'}`}>
+                <Lock className="w-5 h-5 text-white" />
               </div>
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs">RDS</span>
+              <div className={`flex-1 h-2 bg-gradient-to-l rounded ${step === 1 ? 'from-yellow-400 to-purple-500 animate-pulse' : step === 2 ? 'from-blue-400 to-blue-500' : 'from-orange-500 to-purple-500'}`} />
+            </div>
+
+            {step === 1 && (
+              <div className="mb-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+                Site-to-Site VPN: Encrypted tunnel over public internet, quick and cost-effective
               </div>
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs">S3</span>
+            )}
+            {step === 2 && (
+              <div className="mb-4 text-center text-sm text-blue-300 bg-blue-900/30 p-3 rounded-lg">
+                Direct Connect: Dedicated private connection with consistent low latency
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className={`bg-purple-900/30 border rounded-lg p-3 ${step === 1 ? 'border-yellow-500 ring-2 ring-yellow-400' : 'border-purple-500/50'}`}>
+                <div className={`text-sm font-semibold ${step === 1 ? 'text-yellow-400' : 'text-purple-400'}`}>Site-to-Site VPN</div>
+                <div className="text-xs text-gray-300 mt-1">Encrypted over internet, quick setup</div>
+              </div>
+              <div className={`bg-blue-900/30 border rounded-lg p-3 ${step === 2 ? 'border-yellow-500 ring-2 ring-yellow-400' : 'border-blue-500/50'}`}>
+                <div className={`text-sm font-semibold ${step === 2 ? 'text-yellow-400' : 'text-blue-400'}`}>Direct Connect</div>
+                <div className="text-xs text-gray-300 mt-1">Dedicated line, consistent latency</div>
               </div>
             </div>
-            <div className="text-xs text-gray-400 text-center">AWS VPC</div>
-          </div>
-        </div>
+          </>
+        )}
 
-        <div className="flex items-center justify-center my-4">
-          <div className="flex-1 h-2 bg-gradient-to-r from-gray-500 to-purple-500 rounded" />
-          <div className="mx-4 p-2 bg-purple-600 rounded-lg">
-            <Lock className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1 h-2 bg-gradient-to-l from-orange-500 to-purple-500 rounded" />
-        </div>
+        {step === 3 && (
+          <>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 bg-gray-700 border-2 border-gray-500 rounded-lg">
+                <div className="text-gray-300 font-semibold mb-3 text-center">On-Premises</div>
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                    <HardDrive className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+                <div className="text-sm text-yellow-400 text-center font-bold">Local Storage</div>
+              </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3">
-            <div className="text-sm font-semibold text-purple-400">Site-to-Site VPN</div>
-            <div className="text-xs text-gray-300 mt-1">Encrypted over internet, quick setup</div>
-          </div>
-          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
-            <div className="text-sm font-semibold text-blue-400">Direct Connect</div>
-            <div className="text-xs text-gray-300 mt-1">Dedicated line, consistent latency</div>
-          </div>
-        </div>
+              <div className="p-4 bg-orange-900/20 border-2 border-orange-500 rounded-lg">
+                <div className="text-orange-400 font-semibold mb-3 text-center">AWS Cloud</div>
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                    <span className="text-white text-sm font-bold">S3</span>
+                  </div>
+                </div>
+                <div className="text-sm text-yellow-400 text-center font-bold">Cloud Storage</div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center my-4">
+              <div className="flex-1 h-2 bg-yellow-400 rounded animate-pulse" />
+              <div className="mx-4 p-3 bg-purple-600 rounded-lg ring-4 ring-yellow-400">
+                <span className="text-white text-sm font-bold">Storage Gateway</span>
+              </div>
+              <div className="flex-1 h-2 bg-yellow-400 rounded animate-pulse" />
+            </div>
+
+            <div className="text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Storage Gateway: Hybrid cloud storage integration (File, Volume, Tape)
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+              <div className="bg-gray-700 p-2 rounded text-center">
+                <div className="text-purple-400 font-semibold">File Gateway</div>
+                <div className="text-gray-400">NFS/SMB to S3</div>
+              </div>
+              <div className="bg-gray-700 p-2 rounded text-center">
+                <div className="text-blue-400 font-semibold">Volume Gateway</div>
+                <div className="text-gray-400">iSCSI block storage</div>
+              </div>
+              <div className="bg-gray-700 p-2 rounded text-center">
+                <div className="text-green-400 font-semibold">Tape Gateway</div>
+                <div className="text-gray-400">VTL to Glacier</div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="p-6 bg-orange-900/30 border-4 border-orange-500 rounded-lg ring-4 ring-yellow-400">
+              <div className="text-orange-400 font-bold text-lg text-center mb-4">AWS Outposts</div>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="text-gray-300 font-semibold mb-3 text-center">Your Data Center</div>
+                  <div className="flex justify-center gap-2">
+                    <div className="w-14 h-14 bg-orange-600 rounded-lg flex items-center justify-center ring-2 ring-yellow-400">
+                      <span className="text-white text-xs font-bold">EC2</span>
+                    </div>
+                    <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center ring-2 ring-yellow-400">
+                      <span className="text-white text-xs font-bold">RDS</span>
+                    </div>
+                    <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center ring-2 ring-yellow-400">
+                      <span className="text-white text-xs font-bold">ECS</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-yellow-400 text-center mt-2 font-bold">AWS Hardware On-Prem</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="text-gray-300 font-semibold mb-3 text-center">AWS Region</div>
+                  <div className="flex justify-center">
+                    <Cloud className="w-16 h-16 text-orange-400" />
+                  </div>
+                  <div className="text-xs text-gray-400 text-center mt-2">Managed by AWS</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              AWS Outposts: Fully managed AWS infrastructure deployed in your data center
+            </div>
+            <div className="mt-4 bg-gray-700 rounded-lg p-3">
+              <div className="text-xs text-gray-300 space-y-1">
+                <div>• Run AWS services on-premises</div>
+                <div>• Low latency access to local systems</div>
+                <div>• Data residency compliance</div>
+                <div>• AWS manages the hardware</div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -2144,79 +3990,249 @@ export function CircuitBreakerPatternExplainer() {
         <h2 className="text-2xl font-bold text-white">Circuit Breaker Pattern</h2>
       </div>
 
-      <div className="flex justify-center gap-2 mb-6">
-        {["closed", "open", "half-open"].map((state) => (
-          <button
-            key={state}
-            onClick={() => setCircuitState(state as typeof circuitState)}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              circuitState === state
-                ? state === "closed" ? "bg-green-600 text-white" :
-                  state === "open" ? "bg-red-600 text-white" :
-                  "bg-yellow-600 text-white"
-                : "bg-gray-700 text-gray-300"
-            }`}
-          >
-            {state.charAt(0).toUpperCase() + state.slice(1)}
-          </button>
-        ))}
-      </div>
-
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">Client</span>
-            </div>
-          </div>
+        {step === 0 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Client</span>
+                </div>
+              </div>
 
-          <div className="flex-1 mx-4 relative">
-            <div className={`h-2 rounded ${
-              circuitState === "closed" ? "bg-green-500" :
-              circuitState === "open" ? "bg-red-500" :
-              "bg-yellow-500 animate-pulse"
-            }`} />
-          </div>
+              <div className="flex-1 mx-4">
+                <div className="h-1 bg-gray-500 rounded" />
+              </div>
 
-          <div className="text-center">
-            <div className={`w-20 h-20 rounded-lg flex flex-col items-center justify-center mb-2 border-4 ${
-              circuitState === "closed" ? "bg-green-600 border-green-400" :
-              circuitState === "open" ? "bg-red-600 border-red-400" :
-              "bg-yellow-600 border-yellow-400"
-            }`}>
-              <CircleAlert className="w-8 h-8 text-white" />
-              <span className="text-white text-xs">{circuitState}</span>
-            </div>
-          </div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-gray-600 rounded-lg flex flex-col items-center justify-center mb-2 border-4 border-gray-400">
+                  <CircleAlert className="w-8 h-8 text-white" />
+                  <span className="text-white text-xs">Breaker</span>
+                </div>
+              </div>
 
-          <div className={`flex-1 mx-4 ${circuitState === "open" ? "opacity-30" : ""}`}>
-            <div className="h-2 bg-gray-500 rounded" />
-          </div>
+              <div className="flex-1 mx-4">
+                <div className="h-1 bg-gray-500 rounded" />
+              </div>
 
-          <div className={`text-center ${circuitState === "open" ? "opacity-30" : ""}`}>
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
-              <span className="text-white text-xs font-bold">Service</span>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Service</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              <div className="text-gray-300">
+                Circuit Breaker prevents cascading failures by monitoring service health
+              </div>
+            </div>
+          </>
+        )}
 
-        <div className="mt-6 bg-gray-700 rounded-lg p-4">
-          {circuitState === "closed" && (
-            <div className="text-green-400">
-              <span className="font-semibold">Closed:</span> All requests pass through. Monitoring for failures.
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">Client</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="h-2 bg-green-500 rounded animate-pulse" />
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-green-400">
+                  Requests flow
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-green-600 rounded-lg flex flex-col items-center justify-center mb-2 border-4 border-green-400 ring-4 ring-yellow-400">
+                  <CircleAlert className="w-10 h-10 text-white" />
+                  <span className="text-white text-sm font-bold">CLOSED</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="h-2 bg-green-500 rounded animate-pulse" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-18 h-18 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">Service</span>
+                </div>
+                <span className="text-xs text-green-400">✓ Healthy</span>
+              </div>
             </div>
-          )}
-          {circuitState === "open" && (
-            <div className="text-red-400">
-              <span className="font-semibold">Open:</span> Requests fail immediately. Service is down. Waiting for timeout.
+            <div className="mt-6 bg-green-900/30 rounded-lg p-4">
+              <div className="text-green-400">
+                <span className="font-semibold">Closed State:</span> Normal operation - all requests pass through. Monitoring for failures.
+              </div>
             </div>
-          )}
-          {circuitState === "half-open" && (
-            <div className="text-yellow-400">
-              <span className="font-semibold">Half-Open:</span> Testing with limited requests. If successful, close circuit.
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">Client</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="h-2 bg-red-500 rounded" />
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-red-400">
+                  Fail fast!
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-red-600 rounded-lg flex flex-col items-center justify-center mb-2 border-4 border-red-400 ring-4 ring-yellow-400">
+                  <CircleAlert className="w-10 h-10 text-white" />
+                  <span className="text-white text-sm font-bold">OPEN</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 opacity-30">
+                <div className="h-2 bg-gray-500 rounded" />
+              </div>
+
+              <div className="text-center opacity-30">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Service</span>
+                </div>
+                <span className="text-xs text-red-400">✗ Down</span>
+              </div>
             </div>
-          )}
-        </div>
+            <div className="mt-6 bg-red-900/30 rounded-lg p-4">
+              <div className="text-red-400">
+                <span className="font-semibold">Open State:</span> Too many failures detected. Requests fail immediately without calling service.
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-18 h-18 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-sm font-bold">Client</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className="h-2 bg-yellow-500 rounded animate-pulse" />
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-yellow-400">
+                  Limited test
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="w-24 h-24 bg-yellow-600 rounded-lg flex flex-col items-center justify-center mb-2 border-4 border-yellow-400 ring-4 ring-yellow-400">
+                  <CircleAlert className="w-10 h-10 text-white" />
+                  <span className="text-white text-sm font-bold">HALF-OPEN</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4">
+                <div className="h-2 bg-yellow-500 rounded animate-pulse" />
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Service</span>
+                </div>
+                <span className="text-xs text-yellow-400">? Testing</span>
+              </div>
+            </div>
+            <div className="mt-6 bg-yellow-900/30 rounded-lg p-4">
+              <div className="text-yellow-400">
+                <span className="font-semibold">Half-Open State:</span> Testing with limited requests. If successful → Closed. If failed → Open.
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="flex justify-center gap-2 mb-6">
+              {["closed", "open", "half-open"].map((state) => (
+                <button
+                  key={state}
+                  onClick={() => setCircuitState(state as typeof circuitState)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    circuitState === state
+                      ? state === "closed" ? "bg-green-600 text-white ring-2 ring-yellow-400" :
+                        state === "open" ? "bg-red-600 text-white ring-2 ring-yellow-400" :
+                        "bg-yellow-600 text-white ring-2 ring-yellow-400"
+                      : "bg-gray-700 text-gray-300"
+                  }`}
+                >
+                  {state.charAt(0).toUpperCase() + state.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Client</span>
+                </div>
+              </div>
+
+              <div className="flex-1 mx-4 relative">
+                <div className={`h-2 rounded ${
+                  circuitState === "closed" ? "bg-green-500" :
+                  circuitState === "open" ? "bg-red-500" :
+                  "bg-yellow-500 animate-pulse"
+                }`} />
+              </div>
+
+              <div className="text-center">
+                <div className={`w-20 h-20 rounded-lg flex flex-col items-center justify-center mb-2 border-4 ${
+                  circuitState === "closed" ? "bg-green-600 border-green-400" :
+                  circuitState === "open" ? "bg-red-600 border-red-400" :
+                  "bg-yellow-600 border-yellow-400"
+                }`}>
+                  <CircleAlert className="w-8 h-8 text-white" />
+                  <span className="text-white text-xs">{circuitState}</span>
+                </div>
+              </div>
+
+              <div className={`flex-1 mx-4 ${circuitState === "open" ? "opacity-30" : ""}`}>
+                <div className="h-2 bg-gray-500 rounded" />
+              </div>
+
+              <div className={`text-center ${circuitState === "open" ? "opacity-30" : ""}`}>
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <span className="text-white text-xs font-bold">Service</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 bg-gray-700 rounded-lg p-4">
+              {circuitState === "closed" && (
+                <div className="text-green-400">
+                  <span className="font-semibold">Closed:</span> All requests pass through. Monitoring for failures.
+                </div>
+              )}
+              {circuitState === "open" && (
+                <div className="text-red-400">
+                  <span className="font-semibold">Open:</span> Requests fail immediately. Service is down. Waiting for timeout.
+                </div>
+              )}
+              {circuitState === "half-open" && (
+                <div className="text-yellow-400">
+                  <span className="font-semibold">Half-Open:</span> Testing with limited requests. If successful, close circuit.
+                </div>
+              )}
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Try clicking the buttons above to see how circuit state changes!
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -2285,56 +4301,230 @@ export function StranglerFigPatternExplainer() {
         <h2 className="text-2xl font-bold text-white">Strangler Fig Pattern</h2>
       </div>
 
-      <div className="bg-gray-700 rounded-lg p-4 mb-6">
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Migration Progress: {migrationProgress}%
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="10"
-          value={migrationProgress}
-          onChange={(e) => setMigrationProgress(parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-        />
-      </div>
-
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex justify-center mb-4">
-          <div className="w-24 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-xs font-bold">ALB Routing</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6">
-          <div className="p-4 bg-gray-700 rounded-lg" style={{ opacity: 1 - migrationProgress / 100 * 0.7 }}>
-            <div className="text-red-400 font-semibold mb-3 text-center">
-              Monolith ({100 - migrationProgress}%)
-            </div>
-            <div className="w-full h-32 bg-red-900/50 border-2 border-red-500 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <Server className="w-12 h-12 text-red-400 mx-auto" />
-                <span className="text-xs text-red-300">Legacy App</span>
+        {step === 0 && (
+          <>
+            <div className="flex justify-center mb-4">
+              <div className="w-24 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs font-bold">ALB Routing</span>
               </div>
             </div>
-          </div>
 
-          <div className="p-4 bg-gray-700 rounded-lg" style={{ opacity: 0.3 + migrationProgress / 100 * 0.7 }}>
-            <div className="text-green-400 font-semibold mb-3 text-center">
-              Microservices ({migrationProgress}%)
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {["Users", "Orders", "Payment", "Notif"].map((svc, i) => (
-                <div key={i} className={`h-14 rounded-lg flex items-center justify-center ${
-                  i < Math.ceil(migrationProgress / 25) ? "bg-green-600" : "bg-gray-600"
-                }`}>
-                  <span className="text-white text-xs">{svc}</span>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 bg-gray-700 rounded-lg">
+                <div className="text-red-400 font-semibold mb-3 text-center">
+                  Monolith (100%)
                 </div>
-              ))}
+                <div className="w-full h-32 bg-red-900/50 border-2 border-red-500 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Server className="w-12 h-12 text-red-400 mx-auto" />
+                    <span className="text-xs text-red-300">Legacy App</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-700 rounded-lg opacity-30">
+                <div className="text-gray-400 font-semibold mb-3 text-center">
+                  Microservices (0%)
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Users", "Orders", "Payment", "Notif"].map((svc, i) => (
+                    <div key={i} className="h-14 bg-gray-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">{svc}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
+
+        {step === 1 && (
+          <>
+            <div className="flex justify-center mb-4">
+              <div className="w-24 h-16 bg-purple-600 rounded-lg flex items-center justify-center ring-4 ring-yellow-400">
+                <span className="text-white text-xs font-bold">ALB Routing</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 bg-gray-700 rounded-lg">
+                <div className="text-red-400 font-semibold mb-3 text-center">
+                  Monolith (75%)
+                </div>
+                <div className="w-full h-32 bg-red-900/50 border-2 border-red-500 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Server className="w-12 h-12 text-red-400 mx-auto" />
+                    <span className="text-xs text-red-300">Legacy App</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-700 rounded-lg">
+                <div className="text-green-400 font-semibold mb-3 text-center">
+                  Microservices (25%)
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Users", "Orders", "Payment", "Notif"].map((svc, i) => (
+                    <div key={i} className={`h-14 rounded-lg flex items-center justify-center ${
+                      i === 0 ? "bg-green-600 ring-4 ring-yellow-400" : "bg-gray-600"
+                    }`}>
+                      <span className="text-white text-xs">{svc}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Start small: Extract one feature (Users service) first
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex justify-center mb-4">
+              <div className="w-32 h-20 bg-purple-600 rounded-lg flex flex-col items-center justify-center ring-4 ring-yellow-400">
+                <span className="text-white text-sm font-bold">ALB</span>
+                <span className="text-purple-200 text-xs">Path-based routing</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="text-sm text-yellow-400 font-bold">/users/* → New</div>
+              <div className="text-sm text-gray-400">/* → Old</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 bg-gray-700 rounded-lg opacity-70">
+                <div className="text-red-400 font-semibold mb-3 text-center">
+                  Monolith (75%)
+                </div>
+                <div className="w-full h-32 bg-red-900/50 border-2 border-red-500 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Server className="w-12 h-12 text-red-400 mx-auto" />
+                    <span className="text-xs text-red-300">Legacy</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-700 rounded-lg">
+                <div className="text-green-400 font-semibold mb-3 text-center">
+                  Microservices (25%)
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="h-14 bg-green-600 rounded-lg flex items-center justify-center ring-2 ring-yellow-400">
+                    <span className="text-white text-xs font-bold">Users</span>
+                  </div>
+                  {["Orders", "Payment", "Notif"].map((svc, i) => (
+                    <div key={i} className="h-14 bg-gray-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">{svc}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              ALB routes traffic based on path: /users/* goes to new microservice
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="bg-gray-700 rounded-lg p-4 mb-4">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Migration Progress: {migrationProgress}%
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="10"
+                value={migrationProgress}
+                onChange={(e) => setMigrationProgress(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            <div className="flex justify-center mb-4">
+              <div className="w-24 h-16 bg-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs font-bold">ALB Routing</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 bg-gray-700 rounded-lg" style={{ opacity: 1 - migrationProgress / 100 * 0.7 }}>
+                <div className="text-red-400 font-semibold mb-3 text-center">
+                  Monolith ({100 - migrationProgress}%)
+                </div>
+                <div className="w-full h-32 bg-red-900/50 border-2 border-red-500 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Server className="w-12 h-12 text-red-400 mx-auto" />
+                    <span className="text-xs text-red-300">Legacy App</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-700 rounded-lg" style={{ opacity: 0.3 + migrationProgress / 100 * 0.7 }}>
+                <div className="text-green-400 font-semibold mb-3 text-center">
+                  Microservices ({migrationProgress}%)
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Users", "Orders", "Payment", "Notif"].map((svc, i) => (
+                    <div key={i} className={`h-14 rounded-lg flex items-center justify-center ${
+                      i < Math.ceil(migrationProgress / 25) ? "bg-green-600" : "bg-gray-600"
+                    }`}>
+                      <span className="text-white text-xs">{svc}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Gradually migrate more features - try adjusting the slider!
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="flex justify-center mb-4">
+              <div className="w-24 h-16 bg-purple-600 rounded-lg flex items-center justify-center opacity-30">
+                <span className="text-white text-xs font-bold">ALB (retired)</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 bg-gray-700 rounded-lg opacity-20">
+                <div className="text-gray-400 font-semibold mb-3 text-center line-through">
+                  Monolith (0%)
+                </div>
+                <div className="w-full h-32 bg-gray-900/50 border-2 border-gray-600 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Server className="w-12 h-12 text-gray-500 mx-auto" />
+                    <span className="text-xs text-gray-500">Retired</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-700 rounded-lg ring-4 ring-green-400">
+                <div className="text-green-400 font-semibold mb-3 text-center">
+                  Microservices (100%)
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Users", "Orders", "Payment", "Notif"].map((svc, i) => (
+                    <div key={i} className="h-14 bg-green-600 rounded-lg flex items-center justify-center ring-2 ring-green-400">
+                      <span className="text-white text-xs font-bold">{svc}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-green-300 bg-green-900/30 p-3 rounded-lg">
+              Migration complete! Monolith retired, all services are now microservices
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -2525,55 +4715,158 @@ export function SagaPatternExplainer() {
         <h2 className="text-2xl font-bold text-white">Saga Pattern</h2>
       </div>
 
-      <div className="flex justify-center gap-2 mb-6">
-        {[0, 1, 2, 3, 4].map((s) => (
-          <button
-            key={s}
-            onClick={() => setSagaStep(s)}
-            className={`px-3 py-1 rounded text-xs ${
-              sagaStep === s ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"
-            }`}
-          >
-            Step {s}
-          </button>
-        ))}
-      </div>
-
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-6">
-          {sagaSteps.map((s, i) => (
-            <div key={i} className="flex items-center">
-              <div className={`w-16 h-16 rounded-lg flex flex-col items-center justify-center ${
-                s.status === "done" ? "bg-green-600" :
-                s.status === "active" ? "bg-blue-600 animate-pulse" :
-                s.status === "failed" ? "bg-red-600" :
-                "bg-gray-600"
-              }`}>
-                <span className="text-white text-xs text-center px-1">{s.name}</span>
-              </div>
-              {i < sagaSteps.length - 1 && (
-                <div className={`w-8 h-1 mx-1 ${
-                  sagaSteps[i + 1].status !== "pending" ? "bg-green-500" : "bg-gray-500"
-                }`} />
-              )}
+        {step === 0 && (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              {["Create Order", "Reserve Inv", "Payment", "Ship"].map((name, i) => (
+                <div key={i} className="flex items-center">
+                  <div className="w-16 h-16 bg-gray-600 rounded-lg flex flex-col items-center justify-center">
+                    <span className="text-white text-xs text-center px-1">{name}</span>
+                  </div>
+                  {i < 3 && <div className="w-8 h-1 mx-1 bg-gray-500" />}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <div className="text-center text-sm text-gray-300 bg-gray-700 p-3 rounded-lg">
+              Saga Pattern manages distributed transactions across microservices
+            </div>
+          </>
+        )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4">
-            <div className="text-sm font-semibold text-blue-400 mb-2">Orchestration (Step Functions)</div>
-            <div className="text-xs text-gray-300">
-              Central coordinator manages saga state and calls services.
+        {step === 1 && (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              {[
+                { name: "Create Order", status: "done" },
+                { name: "Reserve Inv", status: "done" },
+                { name: "Payment", status: "done" },
+                { name: "Ship", status: "done" }
+              ].map((s, i) => (
+                <div key={i} className="flex items-center">
+                  <div className="w-16 h-16 bg-green-600 rounded-lg flex flex-col items-center justify-center ring-4 ring-yellow-400">
+                    <span className="text-white text-xs text-center px-1">{s.name}</span>
+                    <span className="text-green-200 text-xs">✓</span>
+                  </div>
+                  {i < 3 && <div className="w-8 h-1 mx-1 bg-green-500" />}
+                </div>
+              ))}
             </div>
-          </div>
-          <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-4">
-            <div className="text-sm font-semibold text-orange-400 mb-2">Choreography (Events)</div>
-            <div className="text-xs text-gray-300">
-              Services publish events, others react. No central coordinator.
+            <div className="text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Each service completes its own local transaction independently
             </div>
-          </div>
-        </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              {[
+                { name: "Create Order", status: "compensate" },
+                { name: "Reserve Inv", status: "compensate" },
+                { name: "Payment", status: "failed" },
+                { name: "Ship", status: "cancelled" }
+              ].map((s, i) => (
+                <div key={i} className="flex items-center">
+                  <div className={`w-16 h-16 rounded-lg flex flex-col items-center justify-center ${
+                    s.status === "failed" ? "bg-red-600 ring-4 ring-red-400" :
+                    s.status === "compensate" ? "bg-orange-600 ring-4 ring-orange-400" :
+                    "bg-gray-600 opacity-30"
+                  }`}>
+                    <span className="text-white text-xs text-center px-1">{s.name}</span>
+                    {s.status === "failed" && <span className="text-red-200 text-xs">✗</span>}
+                    {s.status === "compensate" && <span className="text-orange-200 text-xs">↩</span>}
+                  </div>
+                  {i < 3 && (
+                    <div className={`w-8 h-1 mx-1 ${
+                      i >= 2 ? "bg-gray-500" : "bg-orange-500"
+                    }`} />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="text-center text-sm text-red-300 bg-red-900/30 p-3 rounded-lg mb-3">
+              Payment failed! Compensating transactions undo previous steps
+            </div>
+            <div className="bg-orange-900/30 rounded-lg p-3">
+              <div className="text-xs text-orange-300 space-y-1">
+                <div>1. Cancel order (compensate Create Order)</div>
+                <div>2. Release inventory (compensate Reserve Inventory)</div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className="mb-4 p-4 bg-blue-900/30 border-2 border-blue-500 rounded-lg ring-4 ring-yellow-400">
+              <div className="text-center mb-3">
+                <Repeat className="w-10 h-10 text-blue-400 mx-auto mb-2" />
+                <div className="text-blue-400 font-bold">Orchestration (Step Functions)</div>
+              </div>
+              <div className="text-xs text-gray-300 text-center">Central coordinator manages saga state</div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              {["Order", "Inventory", "Payment", "Shipping"].map((name, i) => (
+                <div key={i} className="w-14 h-14 bg-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs text-center">{name}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Step Functions orchestrates the saga, calling each service in sequence
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <div className="mb-4 p-4 bg-orange-900/30 border-2 border-orange-500 rounded-lg ring-4 ring-yellow-400">
+              <div className="text-center mb-3">
+                <span className="text-3xl">📡</span>
+                <div className="text-orange-400 font-bold mt-2">Choreography (Events)</div>
+              </div>
+              <div className="text-xs text-gray-300 text-center">Services communicate via events</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { name: "Order Service", event: "OrderCreated" },
+                { name: "Inventory", event: "InvReserved" },
+                { name: "Payment", event: "PaymentDone" },
+                { name: "Shipping", event: "OrderShipped" }
+              ].map((s, i) => (
+                <div key={i} className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-sm text-green-400 font-bold">{s.name}</div>
+                  <div className="text-xs text-orange-300 mt-1">→ {s.event}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 text-center text-sm text-yellow-300 bg-yellow-900/30 p-3 rounded-lg">
+              Each service publishes events via SNS/EventBridge, others react autonomously
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+                <div className="text-sm font-semibold text-blue-400 mb-1">Orchestration</div>
+                <div className="text-xs text-gray-300">
+                  ✓ Central control<br/>
+                  ✗ Single point of failure
+                </div>
+              </div>
+              <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-3">
+                <div className="text-sm font-semibold text-orange-400 mb-1">Choreography</div>
+                <div className="text-xs text-gray-300">
+                  ✓ Decentralized<br/>
+                  ✗ Harder to debug
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">

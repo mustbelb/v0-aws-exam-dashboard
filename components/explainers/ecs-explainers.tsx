@@ -71,77 +71,153 @@ export function EcsVsFargateExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="grid grid-cols-2 gap-6">
-          {/* Architecture Diagram */}
-          <div className={`p-4 rounded-lg border-2 ${
-            launchType === "ec2" ? "border-blue-500 bg-blue-900/20" : "border-orange-500 bg-orange-900/20"
-          }`}>
-            <h3 className={`text-lg font-bold mb-4 ${launchType === "ec2" ? "text-blue-400" : "text-orange-400"}`}>
-              {launchType === "ec2" ? "EC2 Launch Type" : "Fargate Launch Type"}
-            </h3>
-
-            {launchType === "ec2" ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Server className="w-8 h-8 text-blue-400" />
-                  <div className="text-sm text-gray-300">EC2 Instance (You manage)</div>
-                </div>
-                <div className="ml-10 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Container className="w-6 h-6 text-green-400" />
-                    <span className="text-sm text-gray-400">Container 1</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Container className="w-6 h-6 text-green-400" />
-                    <span className="text-sm text-gray-400">Container 2</span>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Install ECS Agent, manage capacity, patch OS
-                </div>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">Choose Your Launch Type</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg border-2 border-blue-500 bg-blue-900/20">
+                <Server className="w-12 h-12 text-blue-400 mx-auto mb-2" />
+                <div className="text-lg font-bold text-blue-400">EC2 Launch Type</div>
+                <div className="text-sm text-gray-300 mt-2">You manage instances</div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs">AWS</span>
-                  </div>
-                  <div className="text-sm text-gray-300">Fargate (AWS manages)</div>
-                </div>
-                <div className="ml-10 space-y-2">
-                  <div className="flex items-center gap-2 p-2 bg-gray-700 rounded">
-                    <Container className="w-6 h-6 text-orange-400" />
-                    <span className="text-sm text-gray-400">Task 1 (1 vCPU, 2GB)</span>
-                  </div>
-                  <div className="flex items-center gap-2 p-2 bg-gray-700 rounded">
-                    <Container className="w-6 h-6 text-orange-400" />
-                    <span className="text-sm text-gray-400">Task 2 (0.5 vCPU, 1GB)</span>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  No servers to manage, pay per task
-                </div>
+              <div className="p-4 rounded-lg border-2 border-orange-500 bg-orange-900/20">
+                <Container className="w-12 h-12 text-orange-400 mx-auto mb-2" />
+                <div className="text-lg font-bold text-orange-400">Fargate Launch Type</div>
+                <div className="text-sm text-gray-300 mt-2">AWS manages infrastructure</div>
               </div>
-            )}
+            </div>
           </div>
+        )}
 
-          {/* Feature Comparison */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-gray-300 mb-3">Features</h4>
-            {(launchType === "ec2" ? ec2Features : fargateFeatures).map((feature, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                  feature.supported ? "bg-green-500" : "bg-gray-600"
-                }`}>
-                  {feature.supported ? <span className="text-white text-xs">✓</span> : <span className="text-gray-400 text-xs">✗</span>}
-                </div>
-                <span className={feature.supported ? "text-white" : "text-gray-500"}>
-                  {feature.name}
-                </span>
+        {step === 1 && (
+          <div className="p-4 rounded-lg border-2 border-blue-500 bg-blue-900/20">
+            <h3 className="text-lg font-bold mb-4 text-blue-400">EC2 Launch Type</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Server className="w-8 h-8 text-blue-400" />
+                <div className="text-sm text-gray-300">EC2 Instance (You manage)</div>
               </div>
-            ))}
+              <div className="ml-10 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Container className="w-6 h-6 text-green-400" />
+                  <span className="text-sm text-gray-400">Container 1</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Container className="w-6 h-6 text-green-400" />
+                  <span className="text-sm text-gray-400">Container 2</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                Install ECS Agent, manage capacity, patch OS
+              </div>
+              <div className="mt-4 space-y-1">
+                {ec2Features.map((feature, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                      feature.supported ? "bg-green-500" : "bg-gray-600"
+                    }`}>
+                      {feature.supported ? <span className="text-white text-xs">✓</span> : <span className="text-gray-400 text-xs">✗</span>}
+                    </div>
+                    <span className={feature.supported ? "text-white" : "text-gray-500"}>
+                      {feature.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 2 && (
+          <div className="p-4 rounded-lg border-2 border-orange-500 bg-orange-900/20">
+            <h3 className="text-lg font-bold mb-4 text-orange-400">Fargate Launch Type</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs">AWS</span>
+                </div>
+                <div className="text-sm text-gray-300">Fargate (AWS manages)</div>
+              </div>
+              <div className="ml-10 space-y-2">
+                <div className="flex items-center gap-2 p-2 bg-gray-700 rounded">
+                  <Container className="w-6 h-6 text-orange-400" />
+                  <span className="text-sm text-gray-400">Task 1 (1 vCPU, 2GB)</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gray-700 rounded">
+                  <Container className="w-6 h-6 text-orange-400" />
+                  <span className="text-sm text-gray-400">Task 2 (0.5 vCPU, 1GB)</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                No servers to manage, pay per task
+              </div>
+              <div className="mt-4 space-y-1">
+                {fargateFeatures.map((feature, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                      feature.supported ? "bg-green-500" : "bg-gray-600"
+                    }`}>
+                      {feature.supported ? <span className="text-white text-xs">✓</span> : <span className="text-gray-400 text-xs">✗</span>}
+                    </div>
+                    <span className={feature.supported ? "text-white" : "text-gray-500"}>
+                      {feature.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Pricing Comparison</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-blue-900/30 rounded-lg border border-blue-500/50">
+                <div className="text-lg font-bold text-blue-400 mb-2">EC2 Pricing</div>
+                <div className="text-sm text-gray-300">Pay for EC2 instances (per hour)</div>
+                <div className="text-xs text-gray-400 mt-2">• Reserved Instances</div>
+                <div className="text-xs text-gray-400">• Spot Instances</div>
+                <div className="text-xs text-gray-400">• On-Demand</div>
+              </div>
+              <div className="p-4 bg-orange-900/30 rounded-lg border border-orange-500/50">
+                <div className="text-lg font-bold text-orange-400 mb-2">Fargate Pricing</div>
+                <div className="text-sm text-gray-300">Pay per vCPU/memory per second</div>
+                <div className="text-xs text-gray-400 mt-2">• No upfront costs</div>
+                <div className="text-xs text-gray-400">• Pay only for running tasks</div>
+                <div className="text-xs text-gray-400">• Fargate Spot available</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">When to Use Each</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-blue-900/30 rounded-lg border border-blue-500/50">
+                <div className="text-lg font-bold text-blue-400 mb-2">Use EC2 When...</div>
+                <div className="text-sm text-gray-300 space-y-1">
+                  <div>✓ Need GPU support</div>
+                  <div>✓ Custom AMIs required</div>
+                  <div>✓ Cost optimization with Reserved/Spot</div>
+                  <div>✓ Windows containers</div>
+                  <div>✓ Direct host access needed</div>
+                </div>
+              </div>
+              <div className="p-4 bg-orange-900/30 rounded-lg border border-orange-500/50">
+                <div className="text-lg font-bold text-orange-400 mb-2">Use Fargate When...</div>
+                <div className="text-sm text-gray-300 space-y-1">
+                  <div>✓ Want serverless simplicity</div>
+                  <div>✓ No server management</div>
+                  <div>✓ Variable workloads</div>
+                  <div>✓ Quick deployment</div>
+                  <div>✓ Small to medium workloads</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step Info */}
@@ -234,7 +310,25 @@ export function TaskDefinitionsExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        {selectedSection === "container" && (
+        {step === 0 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-blue-400 mb-4 text-center">What is a Task Definition?</h3>
+            <div className="text-center">
+              <FileText className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+              <div className="text-gray-300 mb-4">Blueprint for running containers in ECS</div>
+              <div className="bg-gray-700 rounded-lg p-4 text-sm text-left">
+                <div className="text-gray-400 mb-2">Like docker-compose.yml for ECS:</div>
+                <div className="text-green-400">• Which image to use</div>
+                <div className="text-green-400">• How much CPU/memory</div>
+                <div className="text-green-400">• Port mappings</div>
+                <div className="text-green-400">• Environment variables</div>
+                <div className="text-green-400">• IAM roles</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-blue-400 mb-4">Container Definition</h3>
             <div className="bg-gray-900 rounded-lg p-4 font-mono text-sm">
@@ -254,7 +348,31 @@ export function TaskDefinitionsExplainer() {
           </div>
         )}
 
-        {selectedSection === "task" && (
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-blue-400 mb-4">Task-Level Settings</h3>
+            <div className="space-y-3">
+              <div className="bg-gray-700 rounded-lg p-3">
+                <div className="text-white font-semibold">Network Mode</div>
+                <div className="text-sm text-gray-400">awsvpc (recommended), bridge, host, none</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3">
+                <div className="text-white font-semibold">IAM Roles</div>
+                <div className="text-sm text-gray-400">Task role & Execution role</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3">
+                <div className="text-white font-semibold">Volumes</div>
+                <div className="text-sm text-gray-400">EFS, bind mounts, Docker volumes</div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3">
+                <div className="text-white font-semibold">Launch Type</div>
+                <div className="text-sm text-gray-400">Fargate or EC2</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-blue-400 mb-4">Task vs Execution Roles</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -282,28 +400,29 @@ export function TaskDefinitionsExplainer() {
           </div>
         )}
 
-        {selectedSection === "network" && (
+        {step === 4 && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-blue-400 mb-4">Network Modes</h3>
-            <div className="space-y-3">
-              {[
-                { name: "awsvpc", desc: "Each task gets own ENI (required for Fargate)", recommended: true },
-                { name: "bridge", desc: "Docker's default bridge network (EC2 only)", recommended: false },
-                { name: "host", desc: "Task uses host's network (EC2 only)", recommended: false },
-                { name: "none", desc: "No external network connectivity", recommended: false }
-              ].map((mode, i) => (
-                <div key={i} className={`flex items-center gap-3 p-3 rounded-lg ${
-                  mode.recommended ? "bg-green-900/30 border border-green-600/30" : "bg-gray-700"
-                }`}>
-                  <div className={`w-16 font-mono text-sm ${mode.recommended ? "text-green-400" : "text-gray-400"}`}>
-                    {mode.name}
-                  </div>
-                  <div className="text-sm text-gray-300 flex-1">{mode.desc}</div>
-                  {mode.recommended && (
-                    <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">Recommended</span>
-                  )}
-                </div>
-              ))}
+            <h3 className="text-lg font-semibold text-blue-400 mb-4 text-center">Task Definition Revisions</h3>
+            <div className="text-center mb-4">
+              <RefreshCw className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+              <div className="text-gray-300">Task definitions are immutable</div>
+            </div>
+            <div className="space-y-2">
+              <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+                <span className="text-white">my-app:3 (latest)</span>
+                <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">Active</span>
+              </div>
+              <div className="bg-gray-700/50 rounded-lg p-3 flex items-center justify-between">
+                <span className="text-gray-400">my-app:2</span>
+                <span className="bg-gray-600 text-gray-300 text-xs px-2 py-1 rounded">Inactive</span>
+              </div>
+              <div className="bg-gray-700/50 rounded-lg p-3 flex items-center justify-between">
+                <span className="text-gray-400">my-app:1</span>
+                <span className="bg-gray-600 text-gray-300 text-xs px-2 py-1 rounded">Inactive</span>
+              </div>
+            </div>
+            <div className="text-xs text-gray-400 text-center mt-3">
+              Create new revision for updates - cannot modify existing
             </div>
           </div>
         )}
@@ -411,64 +530,155 @@ export function ServiceAutoScalingExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-center">
-            <div className="text-sm text-gray-400 mb-2">Current Tasks</div>
-            <div className="text-4xl font-bold text-white">{taskCount}</div>
-          </div>
-          <div className="flex-1 mx-8">
-            <div className="flex gap-2 justify-center flex-wrap">
-              {Array.from({ length: taskCount }).map((_, i) => (
-                <div key={i} className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
-                  <Container className="w-8 h-8 text-white" />
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">ECS Service Auto Scaling</h3>
+            <Scaling className="w-16 h-16 text-green-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Automatically adjust task count based on demand</div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-center">
+                <div className="text-sm text-gray-400 mb-2">Current Tasks</div>
+                <div className="text-4xl font-bold text-white">{taskCount}</div>
+              </div>
+              <div className="flex-1 mx-8">
+                <div className="flex gap-2 justify-center flex-wrap">
+                  {Array.from({ length: taskCount }).map((_, i) => (
+                    <div key={i} className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
+                      <Container className="w-8 h-8 text-white" />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-gray-400 mb-2">CPU</div>
+                <div className={`text-4xl font-bold ${
+                  cpuLoad > 70 ? "text-red-400" : cpuLoad < 30 ? "text-blue-400" : "text-green-400"
+                }`}>
+                  {cpuLoad}%
+                </div>
+              </div>
             </div>
           </div>
-          <div className="text-center">
-            <div className="text-sm text-gray-400 mb-2">CPU</div>
-            <div className={`text-4xl font-bold ${
-              cpuLoad > 70 ? "text-red-400" : cpuLoad < 30 ? "text-blue-400" : "text-green-400"
-            }`}>
-              {cpuLoad}%
-            </div>
-          </div>
-        </div>
+        )}
 
-        {/* Scaling Indicator */}
-        <div className="bg-gray-700 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <span className="text-gray-400">Min Tasks:</span>
-              <span className="text-white ml-2">1</span>
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Target Tracking Scaling</h3>
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-2">Simplest Approach</div>
+              <div className="text-sm text-gray-300 mb-3">Set a target value and ECS automatically scales to maintain it</div>
+              <div className="bg-gray-900 rounded-lg p-3 font-mono text-sm text-green-400">
+                Target: 50% CPU utilization
+              </div>
+              <div className="mt-3 text-xs text-gray-400">
+                • Scales out when metric exceeds target<br />
+                • Scales in when metric falls below target<br />
+                • Works with: CPU, Memory, ALB request count
+              </div>
             </div>
-            <div className="text-sm">
-              <span className="text-gray-400">Target CPU:</span>
-              <span className="text-yellow-400 ml-2">50%</span>
-            </div>
-            <div className="text-sm">
-              <span className="text-gray-400">Max Tasks:</span>
-              <span className="text-white ml-2">6</span>
+            <div className="flex items-center justify-center gap-4">
+              <div className="text-center">
+                <div className="text-2xl">📉</div>
+                <div className="text-xs text-gray-400">Low Load</div>
+              </div>
+              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-center">
+                <div className="text-2xl">🎯</div>
+                <div className="text-xs text-yellow-400">Target: 50%</div>
+              </div>
+              <div className="text-2xl text-gray-400">←</div>
+              <div className="text-center">
+                <div className="text-2xl">📈</div>
+                <div className="text-xs text-gray-400">High Load</div>
+              </div>
             </div>
           </div>
-          <div className="mt-3">
-            {cpuLoad > 70 && (
-              <div className="text-sm text-red-400 text-center">
-                ⬆️ Scaling OUT - CPU above threshold
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Step Scaling</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-2">Fine-Grained Control</div>
+              <div className="text-sm text-gray-300 mb-3">Scale by specific amounts based on alarm thresholds</div>
+              <div className="space-y-2">
+                <div className="bg-red-900/30 border border-red-500/50 rounded p-2 text-sm">
+                  <div className="text-red-400">CPU &gt; 80%: Add 3 tasks</div>
+                </div>
+                <div className="bg-orange-900/30 border border-orange-500/50 rounded p-2 text-sm">
+                  <div className="text-orange-400">CPU &gt; 60%: Add 2 tasks</div>
+                </div>
+                <div className="bg-yellow-900/30 border border-yellow-500/50 rounded p-2 text-sm">
+                  <div className="text-yellow-400">CPU &gt; 40%: Add 1 task</div>
+                </div>
+                <div className="bg-blue-900/30 border border-blue-500/50 rounded p-2 text-sm">
+                  <div className="text-blue-400">CPU &lt; 20%: Remove 1 task</div>
+                </div>
               </div>
-            )}
-            {cpuLoad < 30 && (
-              <div className="text-sm text-blue-400 text-center">
-                ⬇️ Scaling IN - CPU below threshold
-              </div>
-            )}
-            {cpuLoad >= 30 && cpuLoad <= 70 && (
-              <div className="text-sm text-green-400 text-center">
-                ✓ Stable - CPU within target range
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Scheduled Scaling</h3>
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-2">Time-Based Scaling</div>
+              <div className="text-sm text-gray-300 mb-3">Scale based on predictable patterns</div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 bg-gray-700 rounded p-3">
+                  <div className="text-2xl">🌅</div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm">Business Hours Start</div>
+                    <div className="text-xs text-gray-400">8:00 AM: Scale to 10 tasks</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-gray-700 rounded p-3">
+                  <div className="text-2xl">🌙</div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm">Business Hours End</div>
+                    <div className="text-xs text-gray-400">6:00 PM: Scale to 2 tasks</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-gray-700 rounded p-3">
+                  <div className="text-2xl">📅</div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm">Weekend Schedule</div>
+                    <div className="text-xs text-gray-400">Sat-Sun: Scale to 1 task</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Cooldown Periods</h3>
+            <div className="bg-orange-900/30 border border-orange-500 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-2">Prevent Rapid Scaling</div>
+              <div className="text-sm text-gray-300 mb-3">Wait before scaling again to stabilize</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white font-semibold mb-1">Scale-Out Cooldown</div>
+                  <div className="text-sm text-gray-400">Wait 60s after adding tasks</div>
+                  <div className="text-xs text-gray-500 mt-1">Allows new tasks to start handling load</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white font-semibold mb-1">Scale-In Cooldown</div>
+                  <div className="text-sm text-gray-400">Wait 300s after removing tasks</div>
+                  <div className="text-xs text-gray-500 mt-1">Prevents premature scale-in during traffic spikes</div>
+                </div>
+              </div>
+              <div className="mt-3 text-center">
+                <div className="inline-flex items-center gap-2 bg-gray-700 px-3 py-2 rounded">
+                  <span className="text-2xl">⏱️</span>
+                  <span className="text-sm text-gray-300">Cooldown prevents scaling thrashing</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step Info */}
@@ -561,8 +771,34 @@ export function EcrIntegrationExplainer() {
 
       {/* Visualization */}
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        {!showScan ? (
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">Elastic Container Registry (ECR)</h3>
+            <Package className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Fully managed Docker container registry</div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🔒</div>
+                <div className="text-sm text-white">Secure</div>
+                <div className="text-xs text-gray-400">Encrypted at rest</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🔍</div>
+                <div className="text-sm text-white">Scan Images</div>
+                <div className="text-xs text-gray-400">Vulnerability detection</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🔄</div>
+                <div className="text-sm text-white">Lifecycle</div>
+                <div className="text-xs text-gray-400">Auto cleanup</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
           <div className="space-y-6">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Push & Pull Images</h3>
             {/* Push Flow */}
             <div>
               <div className="text-sm font-semibold text-purple-400 mb-3">Push Image to ECR</div>
@@ -618,8 +854,11 @@ export function EcrIntegrationExplainer() {
               </div>
             </div>
           </div>
-        ) : (
+        )}
+
+        {step === 2 && (
           <div>
+            <h3 className="text-xl font-bold text-white text-center mb-4">Image Scanning</h3>
             <div className="text-lg font-semibold text-red-400 mb-4">Vulnerability Scan Results</div>
             <div className="grid grid-cols-4 gap-4 mb-4">
               {vulnerabilities.map((v, i) => (
@@ -644,17 +883,64 @@ export function EcrIntegrationExplainer() {
               ))}
             </div>
             <div className="bg-gray-700 rounded-lg p-4">
-              <div className="text-sm text-gray-300 mb-2">Scan Configuration</div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-400">Scan on push:</span>
-                  <span className="text-green-400 ml-2">Enabled</span>
+              <div className="text-sm text-gray-300 mb-2">Scan on push: automatic vulnerability detection</div>
+              <div className="text-xs text-gray-400">Basic scanning (free) or Enhanced with Inspector</div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Lifecycle Policies</h3>
+            <div className="bg-orange-900/30 border border-orange-500 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-2">Automatic Image Cleanup</div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                  <span className="text-white">Keep only 10 production images</span>
+                  <span className="text-green-400 text-sm">Priority: 1</span>
                 </div>
-                <div>
-                  <span className="text-gray-400">Enhanced scanning:</span>
-                  <span className="text-yellow-400 ml-2">Inspector (additional cost)</span>
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                  <span className="text-white">Delete dev images older than 14 days</span>
+                  <span className="text-yellow-400 text-sm">Priority: 2</span>
+                </div>
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                  <span className="text-white">Delete untagged images older than 1 day</span>
+                  <span className="text-red-400 text-sm">Priority: 3</span>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Cross-Account Access</h3>
+            <div className="flex items-center justify-between">
+              <div className="text-center flex-1">
+                <div className="w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🏢</span>
+                </div>
+                <div className="text-white text-sm">Account A</div>
+                <div className="text-xs text-gray-400">123456789012</div>
+              </div>
+              <div className="flex-1 text-center">
+                <div className="text-2xl mb-2">→</div>
+                <div className="bg-gray-700 rounded p-2 text-xs">
+                  <div className="text-purple-400">Resource Policy</div>
+                  <div className="text-gray-400">Grant access</div>
+                </div>
+                <div className="text-2xl mt-2">→</div>
+              </div>
+              <div className="text-center flex-1">
+                <div className="w-20 h-20 bg-green-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🏢</span>
+                </div>
+                <div className="text-white text-sm">Account B</div>
+                <div className="text-xs text-gray-400">987654321098</div>
+              </div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3 text-center">
+              <div className="text-sm text-gray-300">Share images across AWS accounts using ECR resource policies</div>
             </div>
           </div>
         )}
@@ -729,40 +1015,143 @@ export function EcsServiceDiscoveryExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
-              <span className="text-2xl">🔍</span>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">AWS Cloud Map Service Discovery</h3>
+            <Server className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Enables service-to-service communication via DNS</div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🔍</span>
+                </div>
+                <div className="text-white text-sm">Service A</div>
+                <div className="text-xs text-gray-400">api.local</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xs text-gray-400">DNS Query</div>
+                <div className="text-2xl">→</div>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">☁️</span>
+                </div>
+                <div className="text-white text-sm">Cloud Map</div>
+                <div className="text-xs text-gray-400">Route 53</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xs text-gray-400">IP Address</div>
+                <div className="text-2xl">→</div>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <div className="text-white text-sm">Service B</div>
+                <div className="text-xs text-gray-400">backend.local</div>
+              </div>
             </div>
-            <div className="text-white text-sm">Service A</div>
-            <div className="text-xs text-gray-400">api.local</div>
           </div>
-          <div className="text-center">
-            <div className="text-xs text-gray-400">DNS Query</div>
-            <div className="text-2xl">→</div>
-          </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
-              <span className="text-2xl">☁️</span>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">DNS Namespaces</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Private DNS Namespace</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white font-mono text-sm">myapp.local</div>
+                  <div className="text-xs text-gray-400 mt-1">Private namespace in Route 53</div>
+                </div>
+                <div className="ml-4 space-y-1">
+                  <div className="bg-gray-600 rounded p-2 text-sm text-gray-300">
+                    api.myapp.local
+                  </div>
+                  <div className="bg-gray-600 rounded p-2 text-sm text-gray-300">
+                    backend.myapp.local
+                  </div>
+                  <div className="bg-gray-600 rounded p-2 text-sm text-gray-300">
+                    db.myapp.local
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="text-white text-sm">Cloud Map</div>
-            <div className="text-xs text-gray-400">Route 53</div>
           </div>
-          <div className="text-center">
-            <div className="text-xs text-gray-400">IP Address</div>
-            <div className="text-2xl">→</div>
-          </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
-              <span className="text-2xl">🎯</span>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Service Registration</h3>
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Automatic Registration</div>
+              <div className="text-sm text-gray-300 mb-3">ECS automatically manages task registration</div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 bg-gray-700 rounded p-3">
+                  <div className="text-2xl">➕</div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm">Task Starts</div>
+                    <div className="text-xs text-gray-400">ECS registers task IP with Cloud Map</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-gray-700 rounded p-3">
+                  <div className="text-2xl">➖</div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm">Task Stops</div>
+                    <div className="text-xs text-gray-400">ECS deregisters task from Cloud Map</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="text-white text-sm">Service B</div>
-            <div className="text-xs text-gray-400">backend.local</div>
           </div>
-        </div>
-        <div className="bg-gray-700 rounded-lg p-3 font-mono text-xs text-green-400">
-          backend.myapp.local → 10.0.1.45, 10.0.2.78
-        </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">DNS Resolution</h3>
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-3">Service Discovery in Action</div>
+              <div className="space-y-3">
+                <div className="bg-gray-900 rounded-lg p-3 font-mono text-sm">
+                  <div className="text-gray-400 mb-2"># Service A calls Service B</div>
+                  <div className="text-green-400">curl http://backend.myapp.local/api</div>
+                </div>
+                <div className="text-center text-2xl">⬇️</div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Cloud Map Resolution</div>
+                  <div className="font-mono text-xs text-green-400">backend.myapp.local → 10.0.1.45, 10.0.2.78</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Health Checks</h3>
+            <div className="bg-red-900/30 border border-red-500 rounded-lg p-4">
+              <div className="text-red-400 font-semibold mb-3">Automatic Health Monitoring</div>
+              <div className="text-sm text-gray-300 mb-3">Cloud Map monitors task health</div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-green-900/50 border border-green-500/50 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">✓</div>
+                  <div className="text-xs text-gray-300">Healthy</div>
+                  <div className="text-xs text-green-400">In DNS</div>
+                </div>
+                <div className="bg-yellow-900/50 border border-yellow-500/50 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">⚠️</div>
+                  <div className="text-xs text-gray-300">Degraded</div>
+                  <div className="text-xs text-yellow-400">Monitoring</div>
+                </div>
+                <div className="bg-red-900/50 border border-red-500/50 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">✗</div>
+                  <div className="text-xs text-gray-300">Unhealthy</div>
+                  <div className="text-xs text-red-400">Removed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -827,39 +1216,147 @@ export function EcsLoadBalancingExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
-              <span className="text-2xl">🌐</span>
-            </div>
-            <div className="text-white text-sm">Traffic</div>
-          </div>
-          <div className="text-2xl text-gray-400">→</div>
-          <div className="text-center">
-            <div className={`w-20 h-20 ${lbType === "alb" ? "bg-green-600" : "bg-blue-600"} rounded-lg flex items-center justify-center mb-2 mx-auto`}>
-              <span className="text-2xl">{lbType === "alb" ? "⚖️" : "🔗"}</span>
-            </div>
-            <div className="text-white text-sm">{lbType === "alb" ? "ALB" : "NLB"}</div>
-            <div className="text-xs text-gray-400">{lbType === "alb" ? "Layer 7" : "Layer 4"}</div>
-          </div>
-          <div className="text-2xl text-gray-400">→</div>
-          <div className="flex flex-col gap-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex items-center gap-2 bg-orange-600 rounded-lg p-2">
-                <Container className="w-4 h-4 text-white" />
-                <span className="text-white text-xs">Task {i}</span>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">Load Balancer Integration</h3>
+            <Layers className="w-16 h-16 text-green-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Distribute traffic across ECS tasks</div>
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🌐</span>
+                </div>
+                <div className="text-white text-sm">Traffic</div>
               </div>
-            ))}
+              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-center">
+                <div className="w-20 h-20 bg-green-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">⚖️</span>
+                </div>
+                <div className="text-white text-sm">Load Balancer</div>
+                <div className="text-xs text-gray-400">ALB or NLB</div>
+              </div>
+              <div className="text-2xl text-gray-400">→</div>
+              <div className="flex flex-col gap-2">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex items-center gap-2 bg-orange-600 rounded-lg p-2">
+                    <Container className="w-4 h-4 text-white" />
+                    <span className="text-white text-xs">Task {i}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="mt-4 bg-gray-700 rounded-lg p-3">
-          <div className="text-xs text-gray-400 mb-1">{lbType === "alb" ? "ALB Features" : "NLB Features"}</div>
-          {lbType === "alb" ? (
-            <div className="text-sm text-green-400">Path routing, Host routing, HTTP/2, WebSocket, WAF</div>
-          ) : (
-            <div className="text-sm text-blue-400">Static IP, TCP/UDP, Ultra-low latency, Millions RPS</div>
-          )}
-        </div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Dynamic Port Mapping</h3>
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Run Multiple Tasks on Same Host</div>
+              <div className="text-sm text-gray-300 mb-3">ALB supports dynamic host ports</div>
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="text-white font-semibold mb-2">EC2 Instance</div>
+                <div className="space-y-2 ml-4">
+                  <div className="flex items-center gap-2 bg-gray-600 rounded p-2">
+                    <Container className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-gray-300">Task 1: container port 80 → host port 32768</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-gray-600 rounded p-2">
+                    <Container className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-gray-300">Task 2: container port 80 → host port 32769</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-gray-600 rounded p-2">
+                    <Container className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-gray-300">Task 3: container port 80 → host port 32770</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Target Groups</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Auto-Registration</div>
+              <div className="text-sm text-gray-300 mb-3">ECS automatically manages target group membership</div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 bg-gray-700 rounded p-3">
+                  <div className="text-2xl">➕</div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm">Task Starts</div>
+                    <div className="text-xs text-gray-400">ECS registers task IP:port with target group</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-gray-700 rounded p-3">
+                  <div className="text-2xl">➖</div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm">Task Stops</div>
+                    <div className="text-xs text-gray-400">ECS deregisters task from target group</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Health Checks</h3>
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-3">Load Balancer Health Monitoring</div>
+              <div className="text-sm text-gray-300 mb-3">LB health checks determine task health</div>
+              <div className="bg-gray-900 rounded-lg p-3 font-mono text-sm mb-3">
+                <div className="text-gray-400 mb-1">Health Check:</div>
+                <div className="text-green-400">Path: /health</div>
+                <div className="text-green-400">Interval: 30s</div>
+                <div className="text-green-400">Threshold: 2 consecutive checks</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-green-900/50 border border-green-500/50 rounded p-2 text-center">
+                  <div className="text-xs text-green-400">Healthy → Receives traffic</div>
+                </div>
+                <div className="bg-red-900/50 border border-red-500/50 rounded p-2 text-center">
+                  <div className="text-xs text-red-400">Unhealthy → Replaced</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">ALB vs NLB</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+                <div className="text-green-400 font-semibold mb-2">ALB (Layer 7)</div>
+                <div className="text-sm text-gray-300 mb-3">Application Load Balancer</div>
+                <div className="space-y-1 text-xs text-gray-400">
+                  <div>✓ HTTP/HTTPS</div>
+                  <div>✓ Path-based routing</div>
+                  <div>✓ Host-based routing</div>
+                  <div>✓ WebSocket support</div>
+                  <div>✓ HTTP/2 support</div>
+                  <div>✓ WAF integration</div>
+                </div>
+              </div>
+              <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+                <div className="text-blue-400 font-semibold mb-2">NLB (Layer 4)</div>
+                <div className="text-sm text-gray-300 mb-3">Network Load Balancer</div>
+                <div className="space-y-1 text-xs text-gray-400">
+                  <div>✓ TCP/UDP/TLS</div>
+                  <div>✓ Ultra-low latency</div>
+                  <div>✓ Static IP addresses</div>
+                  <div>✓ Millions of RPS</div>
+                  <div>✓ Preserve source IP</div>
+                  <div>✓ High performance</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -924,35 +1421,124 @@ export function EcsSecretsManagementExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="text-center flex-1">
-            <div className={`w-16 h-16 ${secretType === "secrets" ? "bg-yellow-600" : "bg-blue-600"} rounded-lg flex items-center justify-center mb-2 mx-auto`}>
-              <span className="text-2xl">🔐</span>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">Secrets in ECS</h3>
+            <Lock className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Inject secrets without hardcoding credentials</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🔐</div>
+                <div className="text-sm text-white">Secrets Manager</div>
+                <div className="text-xs text-gray-400">Auto-rotation, secure</div>
+              </div>
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">📦</div>
+                <div className="text-sm text-white">Parameter Store</div>
+                <div className="text-xs text-gray-400">Free tier, config + secrets</div>
+              </div>
             </div>
-            <div className="text-white text-sm">{secretType === "secrets" ? "Secrets Manager" : "Parameter Store"}</div>
           </div>
-          <div className="text-2xl text-gray-400">→</div>
-          <div className="text-center flex-1">
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
-              <span className="text-2xl">📋</span>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">AWS Secrets Manager</h3>
+            <div className="bg-yellow-900/30 border border-yellow-500 rounded-lg p-4">
+              <div className="text-yellow-400 font-semibold mb-3">Fully Managed Secret Storage</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Automatic Rotation</div>
+                  <div className="text-xs text-gray-400">Rotate database credentials automatically</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Encryption</div>
+                  <div className="text-xs text-gray-400">Encrypted at rest with KMS</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Cost</div>
+                  <div className="text-xs text-gray-400">$0.40 per secret per month + API calls</div>
+                </div>
+              </div>
             </div>
-            <div className="text-white text-sm">Task Definition</div>
           </div>
-          <div className="text-2xl text-gray-400">→</div>
-          <div className="text-center flex-1">
-            <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
-              <Container className="w-8 h-8 text-white" />
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">SSM Parameter Store</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Configuration + Secrets Storage</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Free Tier</div>
+                  <div className="text-xs text-gray-400">Standard parameters are free</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">SecureString</div>
+                  <div className="text-xs text-gray-400">Encrypted parameters for sensitive data</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Limitations</div>
+                  <div className="text-xs text-gray-400">No automatic rotation (standard tier)</div>
+                </div>
+              </div>
             </div>
-            <div className="text-white text-sm">Container</div>
-            <div className="text-xs text-gray-400">ENV: DB_PASSWORD</div>
           </div>
-        </div>
-        <div className="mt-4 bg-gray-700 rounded-lg p-3 font-mono text-xs text-green-400">
-          {secretType === "secrets" ?
-            '"secrets": [{"name": "DB_PASSWORD", "valueFrom": "arn:aws:secretsmanager:..."}]' :
-            '"secrets": [{"name": "DB_PASSWORD", "valueFrom": "arn:aws:ssm:.../DB_PASSWORD"}]'
-          }
-        </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Task Definition Reference</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-center flex-1">
+                <div className="w-16 h-16 bg-yellow-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🔐</span>
+                </div>
+                <div className="text-white text-sm">Secrets Manager</div>
+              </div>
+              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-center flex-1">
+                <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">📋</span>
+                </div>
+                <div className="text-white text-sm">Task Definition</div>
+              </div>
+              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-center flex-1">
+                <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <Container className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-white text-sm">Container</div>
+              </div>
+            </div>
+            <div className="bg-gray-900 rounded-lg p-3 font-mono text-xs text-green-400">
+              "secrets": [{"{"}<br />
+              &nbsp;&nbsp;"name": "DB_PASSWORD",<br />
+              &nbsp;&nbsp;"valueFrom": "arn:aws:secretsmanager:..."<br />
+              {"}"}]
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">IAM Permissions</h3>
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-3">Execution Role Permissions</div>
+              <div className="text-sm text-gray-300 mb-3">ECS agent needs permission to fetch secrets</div>
+              <div className="bg-gray-900 rounded-lg p-3 font-mono text-xs">
+                <div className="text-gray-400 mb-2">Required IAM permissions:</div>
+                <div className="text-green-400">• secretsmanager:GetSecretValue</div>
+                <div className="text-green-400">• ssm:GetParameters</div>
+                <div className="text-green-400">• kms:Decrypt (if encrypted)</div>
+              </div>
+              <div className="mt-3 bg-yellow-900/30 border border-yellow-500/50 rounded p-2">
+                <div className="text-xs text-yellow-300">⚠️ Attach to Execution Role, not Task Role</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1017,34 +1603,122 @@ export function EcsCapacityProvidersExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        {providerType === "fargate" ? (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg border-2 border-purple-500 bg-purple-900/20">
-              <div className="text-lg font-bold text-purple-400 mb-2">FARGATE</div>
-              <div className="text-sm text-gray-300">On-demand pricing</div>
-              <div className="text-xs text-gray-400 mt-2">Best for: Production, steady workloads</div>
-            </div>
-            <div className="p-4 rounded-lg border-2 border-green-500 bg-green-900/20">
-              <div className="text-lg font-bold text-green-400 mb-2">FARGATE_SPOT</div>
-              <div className="text-sm text-gray-300">Up to 70% savings</div>
-              <div className="text-xs text-gray-400 mt-2">Best for: Batch, fault-tolerant</div>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">ECS Capacity Providers</h3>
+            <Cpu className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Define infrastructure strategy for running tasks</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">☁️</div>
+                <div className="text-sm text-white">Fargate Providers</div>
+                <div className="text-xs text-gray-400">Serverless containers</div>
+              </div>
+              <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🖥️</div>
+                <div className="text-sm text-white">EC2 Providers</div>
+                <div className="text-xs text-gray-400">Auto Scaling Groups</div>
+              </div>
             </div>
           </div>
-        ) : (
-          <div className="text-center">
-            <div className="w-24 h-24 bg-orange-600 rounded-lg flex items-center justify-center mb-4 mx-auto">
-              <Server className="w-12 h-12 text-white" />
-            </div>
-            <div className="text-white font-bold mb-2">Auto Scaling Group</div>
-            <div className="text-sm text-gray-400">Managed scaling: ECS adds/removes EC2 instances based on tasks</div>
-            <div className="mt-4 flex justify-center gap-4">
-              <div className="text-center">
-                <div className="text-2xl text-orange-400">📈</div>
-                <div className="text-xs text-gray-400">Scale Out</div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Fargate Providers</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg border-2 border-purple-500 bg-purple-900/20">
+                <div className="text-lg font-bold text-purple-400 mb-2">FARGATE</div>
+                <div className="text-sm text-gray-300 mb-2">On-demand pricing</div>
+                <div className="text-xs text-gray-400 space-y-1">
+                  <div>✓ Consistent pricing</div>
+                  <div>✓ Always available</div>
+                  <div>✓ Production workloads</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl text-orange-400">📉</div>
-                <div className="text-xs text-gray-400">Scale In</div>
+              <div className="p-4 rounded-lg border-2 border-green-500 bg-green-900/20">
+                <div className="text-lg font-bold text-green-400 mb-2">FARGATE_SPOT</div>
+                <div className="text-sm text-gray-300 mb-2">Up to 70% savings</div>
+                <div className="text-xs text-gray-400 space-y-1">
+                  <div>✓ Huge cost savings</div>
+                  <div>⚠️ Can be interrupted</div>
+                  <div>✓ Batch/fault-tolerant</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">EC2 Capacity Providers</h3>
+            <div className="bg-orange-900/30 border border-orange-500 rounded-lg p-4">
+              <div className="text-center mb-4">
+                <div className="w-24 h-24 bg-orange-600 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <Server className="w-12 h-12 text-white" />
+                </div>
+                <div className="text-white font-bold mb-2">Auto Scaling Group</div>
+                <div className="text-sm text-gray-400">Managed scaling based on task demand</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="bg-gray-700 rounded p-3 text-center">
+                  <div className="text-2xl mb-1">📈</div>
+                  <div className="text-white text-sm">Scale Out</div>
+                  <div className="text-xs text-gray-400">Add EC2 instances</div>
+                </div>
+                <div className="bg-gray-700 rounded p-3 text-center">
+                  <div className="text-2xl mb-1">📉</div>
+                  <div className="text-white text-sm">Scale In</div>
+                  <div className="text-xs text-gray-400">Remove instances</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Capacity Provider Strategy</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Mix Multiple Providers</div>
+              <div className="text-sm text-gray-300 mb-3">Combine providers with base + weight</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white text-sm">FARGATE</span>
+                    <span className="text-purple-400 text-xs">base: 2, weight: 1</span>
+                  </div>
+                  <div className="text-xs text-gray-400">Always run 2 tasks, then 1:1 ratio</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white text-sm">FARGATE_SPOT</span>
+                    <span className="text-green-400 text-xs">base: 0, weight: 4</span>
+                  </div>
+                  <div className="text-xs text-gray-400">No base, then 4:1 ratio for cost savings</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Cost Optimization</h3>
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Use Fargate Spot for Savings</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">70% Savings</div>
+                  <div className="text-xs text-gray-400">Fargate Spot offers up to 70% cost reduction</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Best For</div>
+                  <div className="text-xs text-gray-400">Batch jobs, CI/CD, fault-tolerant workloads</div>
+                </div>
+                <div className="bg-yellow-900/30 border border-yellow-500/50 rounded p-2">
+                  <div className="text-xs text-yellow-300">⚠️ Tasks may be interrupted with 2-min notice</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1114,20 +1788,132 @@ export function EcsLoggingExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="mb-4">
-          <div className="text-sm text-gray-400 mb-2">Log Drivers</div>
-          <div className="grid grid-cols-2 gap-2">
-            {logDrivers.map((driver, i) => (
-              <div key={i} className={`p-3 rounded-lg ${driver.popular ? "bg-cyan-900/30 border border-cyan-500" : "bg-gray-700"}`}>
-                <div className="text-white font-mono text-sm">{driver.name}</div>
-                <div className="text-xs text-gray-400">→ {driver.dest}</div>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">Container Logging</h3>
+            <FileText className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Centralize container logs for monitoring</div>
+            <div className="flex items-center justify-between">
+              <div className="text-center flex-1">
+                <div className="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <Container className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-white text-sm">ECS Task</div>
               </div>
-            ))}
+              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-center flex-1">
+                <div className="w-16 h-16 bg-cyan-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <FileText className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-white text-sm">Log Driver</div>
+              </div>
+              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-center flex-1">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">☁️</span>
+                </div>
+                <div className="text-white text-sm">CloudWatch</div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="bg-gray-700 rounded-lg p-3 font-mono text-xs text-green-400">
-          {`"logConfiguration": { "logDriver": "awslogs", "options": { "awslogs-group": "/ecs/my-app" }}`}
-        </div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">awslogs Driver</h3>
+            <div className="bg-cyan-900/30 border border-cyan-500 rounded-lg p-4">
+              <div className="text-cyan-400 font-semibold mb-3">Most Common Approach</div>
+              <div className="text-sm text-gray-300 mb-3">Send logs directly to CloudWatch Logs</div>
+              <div className="bg-gray-900 rounded-lg p-3 font-mono text-xs text-green-400 mb-3">
+                "logConfiguration": {"{"}<br />
+                &nbsp;&nbsp;"logDriver": "awslogs",<br />
+                &nbsp;&nbsp;"options": {"{"}<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"awslogs-group": "/ecs/my-app",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"awslogs-region": "us-east-1",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"awslogs-stream-prefix": "ecs"<br />
+                &nbsp;&nbsp;{"}"}<br />
+                {"}"}
+              </div>
+              <div className="text-xs text-gray-400">
+                • Execution role needs logs:CreateLogStream and logs:PutLogEvents
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">FireLens</h3>
+            <div className="bg-orange-900/30 border border-orange-500 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-3">Flexible Log Routing</div>
+              <div className="text-sm text-gray-300 mb-3">Use Fluent Bit/Fluentd for routing to multiple destinations</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-white text-sm">S3</div>
+                  <div className="text-xs text-gray-400">Long-term storage</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-white text-sm">Kinesis</div>
+                  <div className="text-xs text-gray-400">Real-time streaming</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-white text-sm">Elasticsearch</div>
+                  <div className="text-xs text-gray-400">Search & analytics</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className="text-white text-sm">Datadog</div>
+                  <div className="text-xs text-gray-400">Third-party tools</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Log Configuration</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Configure in Task Definition</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">awslogs-group</div>
+                  <div className="text-xs text-gray-400">CloudWatch log group name</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">awslogs-region</div>
+                  <div className="text-xs text-gray-400">AWS region for logs</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">awslogs-stream-prefix</div>
+                  <div className="text-xs text-gray-400">Prefix for log stream names</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">awslogs-create-group</div>
+                  <div className="text-xs text-gray-400">Auto-create log group (true/false)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">IAM Permissions</h3>
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-3">Execution Role Permissions</div>
+              <div className="text-sm text-gray-300 mb-3">Required for awslogs driver</div>
+              <div className="bg-gray-900 rounded-lg p-3 font-mono text-xs mb-3">
+                <div className="text-gray-400 mb-2">IAM Policy:</div>
+                <div className="text-green-400">• logs:CreateLogStream</div>
+                <div className="text-green-400">• logs:PutLogEvents</div>
+                <div className="text-green-400">• logs:CreateLogGroup (optional)</div>
+              </div>
+              <div className="bg-yellow-900/30 border border-yellow-500/50 rounded p-2">
+                <div className="text-xs text-yellow-300">⚠️ Attach to Execution Role, not Task Role</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1186,26 +1972,111 @@ export function EcrLifecyclePoliciesExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="mb-4 text-center">
-          <div className="inline-flex items-center gap-2 bg-orange-600 px-4 py-2 rounded-lg">
-            <span className="text-2xl">🗑️</span>
-            <span className="text-white font-medium">Auto-cleanup old images</span>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">ECR Lifecycle Policies</h3>
+            <RefreshCw className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Automatically clean up old or unused images</div>
+            <div className="inline-flex items-center gap-2 bg-orange-600 px-4 py-2 rounded-lg">
+              <span className="text-2xl">🗑️</span>
+              <span className="text-white font-medium">Auto-cleanup old images</span>
+            </div>
           </div>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
-            <span className="text-white">Keep only 10 production images</span>
-            <span className="text-green-400 text-sm">Priority: 1</span>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Rule Types</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Match Criteria</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">imageCountMoreThan</div>
+                  <div className="text-xs text-gray-400">Keep only N most recent images</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">sinceImagePushed</div>
+                  <div className="text-xs text-gray-400">Delete images older than X days</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">tagPrefixList</div>
+                  <div className="text-xs text-gray-400">Match images by tag prefix (e.g., "dev-")</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
-            <span className="text-white">Delete dev images older than 14 days</span>
-            <span className="text-yellow-400 text-sm">Priority: 2</span>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Priority Order</h3>
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-3">Rules Evaluated by Priority</div>
+              <div className="text-sm text-gray-300 mb-3">Lower numbers evaluated first</div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                  <span className="text-white">Keep only 10 production images</span>
+                  <span className="text-green-400 text-sm">Priority: 1</span>
+                </div>
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                  <span className="text-white">Delete dev images older than 14 days</span>
+                  <span className="text-yellow-400 text-sm">Priority: 2</span>
+                </div>
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                  <span className="text-white">Delete untagged images older than 1 day</span>
+                  <span className="text-red-400 text-sm">Priority: 3</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
-            <span className="text-white">Delete untagged images older than 1 day</span>
-            <span className="text-red-400 text-sm">Priority: 3</span>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Expiration Rules</h3>
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Common Expiration Patterns</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Keep 5 production images</div>
+                  <div className="font-mono text-xs text-gray-400">tagPrefixList: ["prod"], imageCountMoreThan: 5</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Delete old dev images</div>
+                  <div className="font-mono text-xs text-gray-400">tagPrefixList: ["dev"], sinceImagePushed: 14</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Clean untagged immediately</div>
+                  <div className="font-mono text-xs text-gray-400">tagStatus: untagged, sinceImagePushed: 1</div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Cost Savings</h3>
+            <div className="bg-orange-900/30 border border-orange-500 rounded-lg p-4">
+              <div className="text-orange-400 font-semibold mb-3">Reduce Storage Costs</div>
+              <div className="text-sm text-gray-300 mb-4">Lifecycle policies automatically reduce storage costs</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-700 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-2">📦</div>
+                  <div className="text-white text-sm">Before</div>
+                  <div className="text-xs text-red-400">1000 images</div>
+                  <div className="text-xs text-gray-400">High storage cost</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-2">✨</div>
+                  <div className="text-white text-sm">After</div>
+                  <div className="text-xs text-green-400">50 images</div>
+                  <div className="text-xs text-gray-400">95% cost reduction</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1270,20 +2141,139 @@ export function EcrImageScanningExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="mb-4">
-          <div className={`p-4 rounded-lg ${scanType === "basic" ? "bg-blue-900/30 border border-blue-500" : "bg-purple-900/30 border border-purple-500"}`}>
-            <div className="text-lg font-bold text-white mb-2">{scanType === "basic" ? "Basic Scanning" : "Enhanced Scanning"}</div>
-            <div className="text-sm text-gray-300">{scanType === "basic" ? "On-push scanning, CVE database" : "Continuous scanning with Inspector"}</div>
-            <div className="text-xs text-gray-400 mt-2">{scanType === "basic" ? "Cost: Free" : "Cost: Per image scanned"}</div>
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">ECR Image Scanning</h3>
+            <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Detect vulnerabilities before deployment</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🔍</div>
+                <div className="text-sm text-white">Basic Scanning</div>
+                <div className="text-xs text-gray-400">Free, on-push</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🛡️</div>
+                <div className="text-sm text-white">Enhanced Scanning</div>
+                <div className="text-xs text-gray-400">Inspector, continuous</div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="text-sm text-gray-400 mb-2">Sample Scan Results:</div>
-        <div className="grid grid-cols-4 gap-2">
-          <div className="text-center p-2 bg-red-900/50 rounded"><div className="text-red-400 font-bold">3</div><div className="text-xs text-gray-400">Critical</div></div>
-          <div className="text-center p-2 bg-orange-900/50 rounded"><div className="text-orange-400 font-bold">7</div><div className="text-xs text-gray-400">High</div></div>
-          <div className="text-center p-2 bg-yellow-900/50 rounded"><div className="text-yellow-400 font-bold">12</div><div className="text-xs text-gray-400">Medium</div></div>
-          <div className="text-center p-2 bg-gray-700 rounded"><div className="text-gray-300 font-bold">25</div><div className="text-xs text-gray-400">Low</div></div>
-        </div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Basic Scanning</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="text-blue-400 font-semibold mb-3">Free CVE Scanning</div>
+              <div className="text-sm text-gray-300 mb-3">Scan on push using Clair database</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">When It Runs</div>
+                  <div className="text-xs text-gray-400">Only when image is pushed to repository</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Vulnerability Database</div>
+                  <div className="text-xs text-gray-400">Common Vulnerabilities and Exposures (CVE)</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Cost</div>
+                  <div className="text-xs text-green-400">FREE</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Enhanced Scanning</h3>
+            <div className="bg-purple-900/30 border border-purple-500 rounded-lg p-4">
+              <div className="text-purple-400 font-semibold mb-3">Amazon Inspector Integration</div>
+              <div className="text-sm text-gray-300 mb-3">Continuous scanning with advanced detection</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Continuous Scanning</div>
+                  <div className="text-xs text-gray-400">Automatic rescan when new vulnerabilities discovered</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Inspector Database</div>
+                  <div className="text-xs text-gray-400">More comprehensive vulnerability detection</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Cost</div>
+                  <div className="text-xs text-yellow-400">Per image scanned (additional cost)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Scan on Push</h3>
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Automatic Scanning</div>
+              <div className="text-sm text-gray-300 mb-3">Enable in repository settings</div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-center flex-1">
+                  <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                    <span className="text-2xl">💻</span>
+                  </div>
+                  <div className="text-white text-sm">Push Image</div>
+                </div>
+                <div className="text-2xl text-gray-400">→</div>
+                <div className="text-center flex-1">
+                  <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                    <Package className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-white text-sm">ECR</div>
+                </div>
+                <div className="text-2xl text-gray-400">→</div>
+                <div className="text-center flex-1">
+                  <div className="w-16 h-16 bg-red-600 rounded-lg flex items-center justify-center mb-2 mx-auto">
+                    <Shield className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-white text-sm">Auto Scan</div>
+                </div>
+              </div>
+              <div className="bg-gray-900 rounded-lg p-2 text-xs text-green-400 text-center">
+                Scan on push: Enabled ✓
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Scan Results</h3>
+            <div className="bg-red-900/30 border border-red-500 rounded-lg p-4">
+              <div className="text-red-400 font-semibold mb-3">Vulnerability Findings</div>
+              <div className="text-sm text-gray-300 mb-3">Results categorized by severity</div>
+              <div className="grid grid-cols-4 gap-2">
+                <div className="text-center p-2 bg-red-900/50 rounded">
+                  <div className="text-red-400 font-bold">3</div>
+                  <div className="text-xs text-gray-400">Critical</div>
+                </div>
+                <div className="text-center p-2 bg-orange-900/50 rounded">
+                  <div className="text-orange-400 font-bold">7</div>
+                  <div className="text-xs text-gray-400">High</div>
+                </div>
+                <div className="text-center p-2 bg-yellow-900/50 rounded">
+                  <div className="text-yellow-400 font-bold">12</div>
+                  <div className="text-xs text-gray-400">Medium</div>
+                </div>
+                <div className="text-center p-2 bg-gray-700 rounded">
+                  <div className="text-gray-300 font-bold">25</div>
+                  <div className="text-xs text-gray-400">Low</div>
+                </div>
+              </div>
+              <div className="mt-3 bg-yellow-900/30 border border-yellow-500/50 rounded p-2">
+                <div className="text-xs text-yellow-300">⚠️ Address Critical and High severity issues before deploying</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
@@ -1355,20 +2345,147 @@ export function EcsNetworkingModesExplainer() {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
-        <div className="mb-4">
-          <div className="p-4 rounded-lg bg-teal-900/30 border border-teal-500">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-lg font-bold text-white">{networkMode}</div>
-              {modes[networkMode].fargate && <span className="bg-purple-600 text-xs px-2 py-1 rounded">Fargate Compatible</span>}
-            </div>
-            <div className="text-sm text-gray-300 mb-3">{modes[networkMode].description}</div>
-            <div className="space-y-1">
-              {modes[networkMode].features.map((f, i) => (
-                <div key={i} className="text-xs text-gray-400">• {f}</div>
-              ))}
+        {step === 0 && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-white mb-4">ECS Network Modes</h3>
+            <Network className="w-16 h-16 text-teal-400 mx-auto mb-4" />
+            <div className="text-gray-300 mb-4">Different networking modes for containers</div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-teal-900/30 border border-teal-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🌐</div>
+                <div className="text-sm text-white">awsvpc</div>
+                <div className="text-xs text-gray-400">Task ENI</div>
+              </div>
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🔗</div>
+                <div className="text-sm text-white">bridge</div>
+                <div className="text-xs text-gray-400">Docker network</div>
+              </div>
+              <div className="bg-orange-900/30 border border-orange-500/50 rounded-lg p-3">
+                <div className="text-2xl mb-2">🖥️</div>
+                <div className="text-sm text-white">host</div>
+                <div className="text-xs text-gray-400">Host network</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">awsvpc Mode</h3>
+            <div className="bg-teal-900/30 border border-teal-500 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-teal-400 font-semibold">Recommended Mode</div>
+                <span className="bg-purple-600 text-xs px-2 py-1 rounded">Fargate Required</span>
+              </div>
+              <div className="text-sm text-gray-300 mb-3">Each task gets its own ENI with private IP</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Task ENI</div>
+                  <div className="text-xs text-gray-400">Each task has its own elastic network interface</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Security Groups</div>
+                  <div className="text-xs text-gray-400">Apply security groups per task</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Private IP</div>
+                  <div className="text-xs text-gray-400">Each task gets unique private IP from VPC</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">VPC Flow Logs</div>
+                  <div className="text-xs text-gray-400">Monitor traffic per task</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">bridge Mode</h3>
+            <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-blue-400 font-semibold">Docker Virtual Network</div>
+                <span className="bg-gray-600 text-xs px-2 py-1 rounded">EC2 Only</span>
+              </div>
+              <div className="text-sm text-gray-300 mb-3">Docker's built-in virtual network</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Port Mapping Required</div>
+                  <div className="text-xs text-gray-400">Map container ports to host ports</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Dynamic Host Ports</div>
+                  <div className="text-xs text-gray-400">ALB can use dynamic port mapping</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Multiple Tasks</div>
+                  <div className="text-xs text-gray-400">Run multiple tasks on same EC2 instance</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">host Mode</h3>
+            <div className="bg-orange-900/30 border border-orange-500 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-orange-400 font-semibold">Share Host Network</div>
+                <span className="bg-gray-600 text-xs px-2 py-1 rounded">EC2 Only</span>
+              </div>
+              <div className="text-sm text-gray-300 mb-3">Container uses host's network stack</div>
+              <div className="space-y-2">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">No Port Mapping</div>
+                  <div className="text-xs text-gray-400">Container uses host ports directly</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Higher Performance</div>
+                  <div className="text-xs text-gray-400">No network translation overhead</div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Port Conflicts</div>
+                  <div className="text-xs text-gray-400">Cannot run multiple tasks using same port</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white text-center mb-4">Choosing the Right Mode</h3>
+            <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+              <div className="text-green-400 font-semibold mb-3">Best Practices</div>
+              <div className="space-y-3">
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">✓ Use awsvpc</div>
+                  <div className="text-xs text-gray-400">
+                    Required for Fargate, best security with per-task security groups, enables VPC features
+                  </div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Use bridge</div>
+                  <div className="text-xs text-gray-400">
+                    When using EC2 launch type and need multiple tasks per instance with different ports
+                  </div>
+                </div>
+                <div className="bg-gray-700 rounded-lg p-3">
+                  <div className="text-white text-sm mb-1">Use host</div>
+                  <div className="text-xs text-gray-400">
+                    Only for special cases requiring maximum network performance (rare)
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 bg-teal-900/30 border border-teal-500/50 rounded p-2">
+                <div className="text-xs text-teal-300">💡 awsvpc is recommended for most use cases</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
