@@ -100,51 +100,178 @@ export function LambdaConcurrencyExplainer() {
 
         {/* Visualization */}
         <div className="relative h-64 bg-slate-900/50 rounded-xl p-4 mb-4">
-          {/* Account Pool */}
-          <div className="absolute top-2 left-2 text-xs text-slate-500">Account Limit: 1,000</div>
-
-          {/* Lambda Function Box */}
-          <div className="absolute inset-4 border-2 border-dashed border-orange-500/30 rounded-lg">
-            <div className="absolute -top-3 left-4 bg-slate-900 px-2 text-orange-400 text-sm">
-              Lambda Function
+          {/* Step 0: Understanding Concurrency */}
+          {step === 0 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Each request = 1 concurrent execution</div>
+              <div className="flex items-center justify-center gap-4 h-full">
+                <div className="flex flex-col gap-2">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="bg-blue-500 rounded px-2 py-1 text-white text-xs animate-pulse" style={{ animationDelay: `${i * 200}ms` }}>
+                        Request {i}
+                      </div>
+                      <div className="text-yellow-400">→</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-orange-500 rounded-lg p-4 text-white text-center">
+                  <div className="text-2xl mb-1">λ</div>
+                  <div className="text-xs">Lambda</div>
+                  <div className="text-xs mt-2 bg-orange-600 rounded px-2 py-1">5 concurrent</div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="text-green-400">→</div>
+                      <div className="bg-green-500/20 border border-green-500 rounded px-2 py-1 text-green-400 text-xs">
+                        Response {i}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
+          )}
 
-            {/* Instances Grid */}
-            <div className="p-4 flex flex-wrap gap-1 max-h-40 overflow-hidden">
-              {/* Warm instances (provisioned) */}
-              {Array.from({ length: warmInstances }).map((_, i) => (
-                <div
-                  key={`warm-${i}`}
-                  className="w-6 h-6 bg-green-500 rounded animate-pulse"
-                  title="Warm (Provisioned)"
-                />
-              ))}
-              {/* Cold instances */}
-              {Array.from({ length: coldInstances }).map((_, i) => (
-                <div
-                  key={`cold-${i}`}
-                  className="w-6 h-6 bg-blue-500 rounded"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                  title="Cold Start"
-                />
-              ))}
+          {/* Step 1: Account-Level Limits */}
+          {step === 1 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Account Concurrency Pool (Region)</div>
+              <div className="border-2 border-blue-500/30 rounded-lg p-3 h-full">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-blue-400 text-sm">Account Limit: 1,000</span>
+                  <span className="text-slate-500 text-xs">Shared across ALL functions</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="bg-orange-500/20 border border-orange-500 rounded p-2 text-center">
+                    <div className="text-orange-400 text-xs">Function A</div>
+                    <div className="text-white text-lg font-bold">300</div>
+                  </div>
+                  <div className="bg-purple-500/20 border border-purple-500 rounded p-2 text-center">
+                    <div className="text-purple-400 text-xs">Function B</div>
+                    <div className="text-white text-lg font-bold">200</div>
+                  </div>
+                  <div className="bg-green-500/20 border border-green-500 rounded p-2 text-center">
+                    <div className="text-green-400 text-xs">Function C</div>
+                    <div className="text-white text-lg font-bold">150</div>
+                  </div>
+                  <div className="bg-slate-700 rounded p-2 text-center">
+                    <div className="text-slate-400 text-xs">Available</div>
+                    <div className="text-slate-300 text-lg font-bold">350</div>
+                  </div>
+                </div>
+                <div className="mt-3 w-full bg-slate-700 rounded-full h-4">
+                  <div className="bg-gradient-to-r from-orange-500 via-purple-500 to-green-500 h-4 rounded-full" style={{ width: "65%" }}></div>
+                </div>
+                <div className="text-xs text-slate-500 mt-1 text-center">650 / 1,000 used</div>
+              </div>
             </div>
+          )}
 
-            {/* Stats */}
-            <div className="absolute bottom-2 left-4 right-4 flex justify-between text-xs">
-              <span className="text-green-400">Warm: {warmInstances}</span>
-              <span className="text-blue-400">Cold: {coldInstances}</span>
-              <span className="text-red-400">Throttled: {throttled}</span>
+          {/* Step 2: Reserved Concurrency */}
+          {step === 2 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Reserved Concurrency: Guaranteed but Limited</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/10">
+                  <div className="text-orange-400 text-sm mb-2">Critical Function</div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-white">{reservedConcurrency}</div>
+                    <div className="text-xs text-slate-400">Reserved</div>
+                  </div>
+                  <div className="mt-2 space-y-1 text-xs">
+                    <div className="flex items-center gap-1 text-green-400">
+                      <span>✓</span> Guaranteed capacity
+                    </div>
+                    <div className="flex items-center gap-1 text-yellow-400">
+                      <span>!</span> Also max limit
+                    </div>
+                  </div>
+                </div>
+                <div className="border-2 border-slate-600 rounded-lg p-3">
+                  <div className="text-slate-400 text-sm mb-2">Unreserved Pool</div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-slate-300">{1000 - reservedConcurrency}</div>
+                    <div className="text-xs text-slate-500">Available for others</div>
+                  </div>
+                  <div className="mt-2 text-xs text-slate-500">
+                    Other functions share this pool
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Incoming Requests Arrow */}
-          <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-2">
-            <div className="flex items-center">
-              <div className="text-xs text-slate-400 mr-2">{concurrentRequests} req</div>
-              <div className="w-4 h-4 border-t-2 border-r-2 border-blue-400 transform rotate-45" />
+          {/* Step 3: Provisioned Concurrency */}
+          {step === 3 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Provisioned Concurrency: Pre-warmed Environments</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="border-2 border-green-500 rounded-lg p-3 bg-green-500/10">
+                  <div className="text-green-400 text-sm mb-2">Provisioned (Warm)</div>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {Array.from({ length: Math.min(provisionedConcurrency, 12) }).map((_, i) => (
+                      <div key={i} className="w-6 h-6 bg-green-500 rounded animate-pulse" />
+                    ))}
+                  </div>
+                  <div className="text-xs text-green-400">
+                    {provisionedConcurrency} pre-initialized
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">No cold start latency</div>
+                </div>
+                <div className="border-2 border-blue-500 rounded-lg p-3 bg-blue-500/10">
+                  <div className="text-blue-400 text-sm mb-2">On-Demand (Cold)</div>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {Array.from({ length: Math.min(coldInstances, 12) }).map((_, i) => (
+                      <div key={i} className="w-6 h-6 bg-blue-500 rounded" />
+                    ))}
+                  </div>
+                  <div className="text-xs text-blue-400">
+                    {coldInstances} started on demand
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Cold start on first request</div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Step 4: Throttling Behavior */}
+          {step === 4 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">When Limit Reached: Throttling</div>
+              <div className="flex items-center justify-around h-full">
+                <div className="text-center">
+                  <div className="flex flex-col gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="bg-blue-500 rounded px-2 py-1 text-white text-xs">
+                        Request
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-2">{concurrentRequests} incoming</div>
+                </div>
+                <div className="text-yellow-400 text-2xl">→</div>
+                <div className="bg-orange-500 rounded-lg p-3 text-white text-center">
+                  <div className="text-xl mb-1">λ</div>
+                  <div className="text-xs">Limit: {reservedConcurrency || 1000}</div>
+                </div>
+                <div className="text-yellow-400 text-2xl">→</div>
+                <div className="space-y-2">
+                  <div className="bg-green-500/20 border border-green-500 rounded p-2 text-center">
+                    <div className="text-green-400 text-sm font-bold">{activeInstances}</div>
+                    <div className="text-xs text-green-400">Processed</div>
+                  </div>
+                  {throttled > 0 && (
+                    <div className="bg-red-500/20 border border-red-500 rounded p-2 text-center animate-pulse">
+                      <div className="text-red-400 text-sm font-bold">{throttled}</div>
+                      <div className="text-xs text-red-400">429 Throttled</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Step Info */}
@@ -631,95 +758,149 @@ export function LambdaVPCAccessExplainer() {
 
         {/* Architecture Diagram */}
         <div className="relative bg-slate-900/50 rounded-xl p-4 h-72 mb-4">
-          {/* VPC Box */}
-          <div className="absolute inset-4 border-2 border-blue-500/30 rounded-lg">
-            <div className="absolute -top-3 left-4 bg-slate-900 px-2 text-blue-400 text-sm">VPC</div>
-
-            {/* Private Subnet */}
-            <div className="absolute left-4 top-8 bottom-4 w-40 border border-orange-500/30 rounded bg-orange-500/5">
-              <div className="text-xs text-orange-400 p-1">Private Subnet</div>
-
-              {/* Lambda */}
-              <div className="absolute top-8 left-4 right-4">
-                <div className="bg-orange-500 rounded p-2 text-white text-xs text-center">
-                  Lambda
-                </div>
-                <div className="text-xs text-slate-500 text-center mt-1">ENI</div>
-              </div>
-
-              {/* RDS */}
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="bg-blue-600 rounded p-2 text-white text-xs text-center">
-                  RDS
-                </div>
-              </div>
-            </div>
-
-            {/* Public Subnet */}
-            <div className="absolute right-4 top-8 bottom-4 w-40 border border-green-500/30 rounded bg-green-500/5">
-              <div className="text-xs text-green-400 p-1">Public Subnet</div>
-
-              {hasNatGateway && (
-                <div className="absolute top-8 left-4 right-4">
-                  <div className="bg-green-500 rounded p-2 text-white text-xs text-center">
-                    NAT Gateway
+          {/* Step 0: Lambda in VPC - Default vs VPC-enabled */}
+          {step === 0 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Default Lambda vs VPC-enabled Lambda</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="border-2 border-slate-600 rounded-lg p-3">
+                  <div className="text-slate-400 text-sm mb-3">Default (AWS-managed VPC)</div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="bg-orange-500 rounded p-3 text-white text-center">
+                      <div className="text-xl">λ</div>
+                      <div className="text-xs">Lambda</div>
+                    </div>
+                    <div className="text-green-400 text-xs">✓ Internet Access</div>
+                    <div className="text-green-400 text-xs">✓ AWS Services</div>
+                    <div className="text-red-400 text-xs">✗ Private Resources</div>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* VPC Endpoint */}
-            {hasVpcEndpoint && (
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-                <div className="bg-purple-500 rounded p-2 text-white text-xs text-center">
-                  VPC Endpoint
+                <div className="border-2 border-blue-500 rounded-lg p-3 bg-blue-500/10">
+                  <div className="text-blue-400 text-sm mb-3">Your VPC</div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="bg-orange-500 rounded p-3 text-white text-center animate-pulse">
+                      <div className="text-xl">λ</div>
+                      <div className="text-xs">Lambda</div>
+                    </div>
+                    <div className="text-yellow-400 text-xs">? Internet (needs NAT)</div>
+                    <div className="text-green-400 text-xs">✓ Private Resources</div>
+                    <div className="flex gap-2 mt-2">
+                      <div className="bg-blue-600 rounded p-1 text-white text-xs">RDS</div>
+                      <div className="bg-red-600 rounded p-1 text-white text-xs">ElastiCache</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Internet */}
-          <div className="absolute right-0 top-1/4 transform translate-x-4">
-            <div className="bg-slate-700 rounded-full p-3 text-white text-xs">
-              Internet
             </div>
-          </div>
+          )}
 
-          {/* AWS Services */}
-          <div className="absolute right-0 bottom-1/4 transform translate-x-4">
-            <div className="bg-orange-600 rounded p-2 text-white text-xs">
-              S3/DynamoDB
+          {/* Step 1: ENI Creation */}
+          {step === 1 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Elastic Network Interface (ENI) in Your Subnet</div>
+              <div className="border-2 border-blue-500/30 rounded-lg p-4 h-full">
+                <div className="text-blue-400 text-sm mb-4">VPC - Private Subnet</div>
+                <div className="flex items-center justify-around">
+                  <div className="bg-orange-500 rounded-lg p-4 text-white text-center">
+                    <div className="text-2xl">λ</div>
+                    <div className="text-xs">Lambda</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="text-yellow-400 text-xl animate-pulse">↔</div>
+                    <div className="bg-purple-500 rounded p-2 text-white text-xs text-center mt-1">
+                      ENI
+                      <div className="text-purple-200 text-xs">10.0.1.25</div>
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1">Hyperplane</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="bg-blue-600 rounded p-2 text-white text-xs text-center">
+                      RDS
+                      <div className="text-blue-200 text-xs">10.0.1.50</div>
+                    </div>
+                    <div className="bg-red-600 rounded p-2 text-white text-xs text-center">
+                      ElastiCache
+                      <div className="text-red-200 text-xs">10.0.1.60</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 text-xs text-slate-500 text-center">
+                  Lambda gets private IP in your subnet via ENI
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Connection Lines */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            {/* Lambda to RDS */}
-            <line x1="100" y1="100" x2="100" y2="180" stroke="#22c55e" strokeWidth="2" strokeDasharray="4" />
+          {/* Step 2: Internet Access Problem */}
+          {step === 2 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Private Subnet = No Internet!</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="border-2 border-red-500/50 rounded-lg p-3 bg-red-500/10">
+                  <div className="text-red-400 text-sm mb-2">Without NAT Gateway</div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="bg-orange-500 rounded p-2 text-white text-xs">Lambda</div>
+                    <div className="text-red-400 text-xl">✗</div>
+                    <div className="bg-slate-700 rounded-full p-2 text-slate-500 text-xs">Internet</div>
+                  </div>
+                  <div className="mt-2 text-xs text-red-400 text-center">
+                    Cannot call external APIs!
+                  </div>
+                </div>
+                <div className="border-2 border-green-500/50 rounded-lg p-3 bg-green-500/10">
+                  <div className="text-green-400 text-sm mb-2">With NAT Gateway</div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="bg-orange-500 rounded p-2 text-white text-xs">Lambda</div>
+                    <div className="text-yellow-400">↓</div>
+                    <div className="bg-green-500 rounded p-2 text-white text-xs animate-pulse">NAT GW</div>
+                    <div className="text-yellow-400">↓</div>
+                    <div className="bg-slate-600 rounded-full p-2 text-white text-xs">Internet</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-            {/* NAT Gateway path */}
-            {hasNatGateway && (
-              <>
-                <line x1="140" y1="80" x2="220" y2="80" stroke="#f97316" strokeWidth="2" />
-                <line x1="260" y1="80" x2="320" y2="60" stroke="#f97316" strokeWidth="2" />
-              </>
-            )}
-
-            {/* VPC Endpoint path */}
-            {hasVpcEndpoint && (
-              <line x1="180" y1="200" x2="320" y2="200" stroke="#a855f7" strokeWidth="2" />
-            )}
-          </svg>
-
-          {/* Status Indicators */}
-          <div className="absolute bottom-2 left-4 right-4 flex gap-4 text-xs">
-            <span className={hasNatGateway ? "text-green-400" : "text-red-400"}>
-              Internet: {hasNatGateway ? "✓" : "✗"}
-            </span>
-            <span className={hasVpcEndpoint ? "text-green-400" : "text-yellow-400"}>
-              AWS Services: {hasVpcEndpoint ? "Via Endpoint" : hasNatGateway ? "Via NAT" : "✗"}
-            </span>
-          </div>
+          {/* Step 3: VPC Endpoints */}
+          {step === 3 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">VPC Endpoints: Private AWS Access</div>
+              <div className="border-2 border-blue-500/30 rounded-lg p-3 h-full">
+                <div className="flex items-center justify-around h-full">
+                  <div className="bg-orange-500 rounded-lg p-3 text-white text-center">
+                    <div className="text-xl">λ</div>
+                    <div className="text-xs">Lambda</div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-purple-500 rounded p-2 text-white text-xs animate-pulse">
+                        S3 Endpoint
+                      </div>
+                      <div className="text-yellow-400">→</div>
+                      <div className="bg-green-600 rounded p-2 text-white text-xs">S3</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-purple-500 rounded p-2 text-white text-xs animate-pulse">
+                        DynamoDB Endpoint
+                      </div>
+                      <div className="text-yellow-400">→</div>
+                      <div className="bg-blue-600 rounded p-2 text-white text-xs">DynamoDB</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-purple-500 rounded p-2 text-white text-xs animate-pulse">
+                        SQS Endpoint
+                      </div>
+                      <div className="text-yellow-400">→</div>
+                      <div className="bg-pink-600 rounded p-2 text-white text-xs">SQS</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-xs text-green-400 text-center mt-2">
+                  ✓ Private connection - no internet needed
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Step Info */}
@@ -853,62 +1034,150 @@ export function LambdaVersionsAliasesExplainer() {
 
         {/* Visualization */}
         <div className="relative bg-slate-900/50 rounded-xl p-4 h-64 mb-4">
-          {/* $LATEST */}
-          <div className="absolute top-4 left-4">
-            <div className="bg-yellow-500 rounded p-2 text-black text-xs font-medium">
-              $LATEST
-            </div>
-            <div className="text-xs text-slate-500 mt-1">Mutable</div>
-          </div>
-
-          {/* Versions */}
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-            <div className="text-sm text-slate-400 mb-2">Published Versions</div>
-            <div className="flex gap-2">
-              <div className="bg-slate-600 rounded p-2 text-white text-xs">v1</div>
-              <div className="bg-blue-500 rounded p-2 text-white text-xs">v2</div>
-              <div className="bg-slate-600 rounded p-2 text-white text-xs">v3</div>
-            </div>
-          </div>
-
-          {/* Aliases */}
-          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2">
-            <div className="text-sm text-slate-400 mb-2 text-center">Aliases</div>
-            <div className="flex gap-4">
-              <div className="text-center">
-                <div className="bg-green-500 rounded px-3 py-2 text-white text-xs font-medium">
-                  prod
+          {/* Step 0: Versions */}
+          {step === 0 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Lambda Versions: Immutable Snapshots</div>
+              <div className="flex items-start gap-6 h-full">
+                <div className="border-2 border-yellow-500 rounded-lg p-3 bg-yellow-500/10">
+                  <div className="bg-yellow-500 rounded p-2 text-black text-xs font-medium text-center">
+                    $LATEST
+                  </div>
+                  <div className="text-xs text-yellow-400 mt-2 text-center">Mutable</div>
+                  <div className="text-xs text-slate-500 mt-1">Can be updated</div>
+                  <div className="mt-2 text-xs text-slate-400 animate-pulse">
+                    ↓ Publish
+                  </div>
                 </div>
-                <div className="text-xs text-slate-500 mt-1">→ v1 ({prodWeight}%) + v2 ({100-prodWeight}%)</div>
-              </div>
-              <div className="text-center">
-                <div className="bg-orange-500 rounded px-3 py-2 text-white text-xs font-medium">
-                  staging
+                <div className="flex-1 border-2 border-blue-500/30 rounded-lg p-3">
+                  <div className="text-blue-400 text-sm mb-3">Published Versions (Immutable)</div>
+                  <div className="flex gap-2 flex-wrap">
+                    <div className="bg-slate-600 rounded p-2 text-white text-xs">v1</div>
+                    <div className="bg-slate-600 rounded p-2 text-white text-xs">v2</div>
+                    <div className="bg-blue-500 rounded p-2 text-white text-xs animate-pulse">v3</div>
+                  </div>
+                  <div className="mt-3 text-xs text-slate-500">
+                    Once published, code & config are frozen
+                  </div>
                 </div>
-                <div className="text-xs text-slate-500 mt-1">→ v2</div>
-              </div>
-              <div className="text-center">
-                <div className="bg-purple-500 rounded px-3 py-2 text-white text-xs font-medium">
-                  dev
-                </div>
-                <div className="text-xs text-slate-500 mt-1">→ $LATEST</div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Traffic Flow Visualization */}
-          <div className="absolute bottom-4 left-0 right-0">
-            <div className="flex h-4 rounded overflow-hidden mx-4">
-              <div
-                className="bg-green-500 transition-all duration-300"
-                style={{ width: `${prodWeight}%` }}
-              />
-              <div
-                className="bg-blue-500 transition-all duration-300"
-                style={{ width: `${100 - prodWeight}%` }}
-              />
+          {/* Step 1: Aliases */}
+          {step === 1 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Aliases: Pointers to Versions</div>
+              <div className="flex flex-col gap-4 h-full">
+                <div className="flex gap-2 justify-center">
+                  <div className="bg-yellow-500 rounded p-2 text-black text-xs">$LATEST</div>
+                  <div className="bg-slate-600 rounded p-2 text-white text-xs">v1</div>
+                  <div className="bg-slate-600 rounded p-2 text-white text-xs">v2</div>
+                  <div className="bg-blue-500 rounded p-2 text-white text-xs">v3</div>
+                </div>
+                <div className="flex items-center justify-center gap-8">
+                  <div className="text-center">
+                    <div className="text-slate-500 text-xl mb-2">↑</div>
+                    <div className="bg-purple-500 rounded px-3 py-2 text-white text-xs font-medium">
+                      dev
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-slate-500 text-xl mb-2">↑</div>
+                    <div className="bg-orange-500 rounded px-3 py-2 text-white text-xs font-medium">
+                      staging
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-slate-500 text-xl mb-2">↑</div>
+                    <div className="bg-green-500 rounded px-3 py-2 text-white text-xs font-medium animate-pulse">
+                      prod
+                    </div>
+                  </div>
+                </div>
+                <div className="text-xs text-center text-slate-500">
+                  Update alias to point to new version - no client changes needed
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Step 2: Traffic Shifting */}
+          {step === 2 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Traffic Shifting: Canary Deployments</div>
+              <div className="flex flex-col gap-3 h-full">
+                <div className="flex items-center justify-center gap-4">
+                  <div className="bg-green-500 rounded p-2 text-white text-xs">v1 (Stable)</div>
+                  <div className="bg-blue-500 rounded p-2 text-white text-xs">v2 (New)</div>
+                </div>
+                <div className="text-center">
+                  <div className="bg-green-600 rounded px-4 py-2 text-white text-sm font-medium inline-block">
+                    prod alias
+                  </div>
+                </div>
+                <div className="flex h-6 rounded overflow-hidden mx-8">
+                  <div className="bg-green-500 flex items-center justify-center text-xs text-white transition-all" style={{ width: `${prodWeight}%` }}>
+                    {prodWeight}%
+                  </div>
+                  <div className="bg-blue-500 flex items-center justify-center text-xs text-white transition-all" style={{ width: `${100 - prodWeight}%` }}>
+                    {100 - prodWeight}%
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs text-center">
+                  <div className="bg-slate-700 rounded p-2">
+                    <div className="text-yellow-400">Canary</div>
+                    <div className="text-slate-400">Start at 10%</div>
+                  </div>
+                  <div className="bg-slate-700 rounded p-2">
+                    <div className="text-blue-400">Linear</div>
+                    <div className="text-slate-400">+10% every 10min</div>
+                  </div>
+                  <div className="bg-slate-700 rounded p-2">
+                    <div className="text-green-400">All-at-once</div>
+                    <div className="text-slate-400">Immediate 100%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: API Gateway Integration */}
+          {step === 3 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">API Gateway + Lambda Aliases</div>
+              <div className="flex items-center justify-around h-full">
+                <div className="space-y-3">
+                  <div className="bg-purple-600 rounded p-2 text-white text-xs text-center">
+                    API Gateway
+                  </div>
+                  <div className="space-y-1">
+                    <div className="bg-purple-500/50 rounded px-2 py-1 text-purple-200 text-xs">/prod stage</div>
+                    <div className="bg-purple-500/50 rounded px-2 py-1 text-purple-200 text-xs">/staging stage</div>
+                    <div className="bg-purple-500/50 rounded px-2 py-1 text-purple-200 text-xs">/dev stage</div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="text-yellow-400">→</div>
+                  <div className="text-yellow-400">→</div>
+                  <div className="text-yellow-400">→</div>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-orange-500 rounded p-2 text-white text-xs text-center">
+                    Lambda Function
+                  </div>
+                  <div className="space-y-1">
+                    <div className="bg-green-500 rounded px-2 py-1 text-white text-xs animate-pulse">:prod → v3</div>
+                    <div className="bg-orange-500 rounded px-2 py-1 text-white text-xs">:staging → v3</div>
+                    <div className="bg-purple-500 rounded px-2 py-1 text-white text-xs">:dev → $LATEST</div>
+                  </div>
+                </div>
+              </div>
+              <div className="text-xs text-slate-500 text-center">
+                Update alias = deploy without changing API Gateway config
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Step Info */}
@@ -1037,47 +1306,141 @@ export function LambdaLayersExplainer() {
 
         {/* Visualization */}
         <div className="relative bg-slate-900/50 rounded-xl p-4 h-64 mb-4">
-          {/* Function Stack */}
-          <div className="absolute inset-8 flex flex-col justify-end">
-            {/* Function Code */}
-            <div className="bg-orange-500 rounded-t p-4 text-white text-center">
-              <div className="text-sm font-medium">Function Code</div>
-              <div className="text-xs opacity-75">{showLayers ? "2 MB" : "50 MB"}</div>
+          {/* Step 0: What are Layers? */}
+          {step === 0 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Layers: Reusable ZIP Packages</div>
+              <div className="flex items-center justify-center gap-6 h-full">
+                <div className="space-y-2">
+                  <div className="bg-purple-500 rounded p-3 text-white text-center animate-pulse">
+                    <div className="text-sm font-medium">Layer.zip</div>
+                    <div className="text-xs opacity-75">Libraries</div>
+                  </div>
+                  <div className="bg-purple-600 rounded p-3 text-white text-center">
+                    <div className="text-sm font-medium">Layer.zip</div>
+                    <div className="text-xs opacity-75">Custom Runtime</div>
+                  </div>
+                  <div className="bg-purple-700 rounded p-3 text-white text-center">
+                    <div className="text-sm font-medium">Layer.zip</div>
+                    <div className="text-xs opacity-75">Shared Utils</div>
+                  </div>
+                </div>
+                <div className="text-yellow-400 text-2xl">→</div>
+                <div className="space-y-2">
+                  <div className="bg-orange-500 rounded p-2 text-white text-xs text-center">Function A</div>
+                  <div className="bg-orange-500 rounded p-2 text-white text-xs text-center">Function B</div>
+                  <div className="bg-orange-500 rounded p-2 text-white text-xs text-center">Function C</div>
+                </div>
+              </div>
+              <div className="text-xs text-slate-500 text-center mt-2">
+                Share layers across multiple functions
+              </div>
             </div>
+          )}
 
-            {/* Layers */}
-            {showLayers && (
-              <>
-                <div className="bg-purple-500 p-2 text-white text-center text-sm">
-                  Layer: AWS SDK
+          {/* Step 1: Layer Structure */}
+          {step === 1 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Layer File Structure (extracts to /opt)</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="bg-slate-800 rounded-lg p-3 font-mono text-xs">
+                  <div className="text-purple-400 mb-2">Python Layer:</div>
+                  <div className="text-slate-300 space-y-1">
+                    <div>/opt/</div>
+                    <div className="pl-4">python/</div>
+                    <div className="pl-8 text-green-400">requests/</div>
+                    <div className="pl-8 text-green-400">pandas/</div>
+                    <div className="pl-8 text-green-400">numpy/</div>
+                  </div>
                 </div>
-                <div className="bg-purple-600 p-2 text-white text-center text-sm">
-                  Layer: Pandas/NumPy
+                <div className="bg-slate-800 rounded-lg p-3 font-mono text-xs">
+                  <div className="text-blue-400 mb-2">Node.js Layer:</div>
+                  <div className="text-slate-300 space-y-1">
+                    <div>/opt/</div>
+                    <div className="pl-4">nodejs/</div>
+                    <div className="pl-8">node_modules/</div>
+                    <div className="pl-12 text-green-400">lodash/</div>
+                    <div className="pl-12 text-green-400">axios/</div>
+                  </div>
                 </div>
-                <div className="bg-purple-700 rounded-b p-2 text-white text-center text-sm">
-                  Layer: Custom Utils
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Path Info */}
-          <div className="absolute top-4 right-4 text-xs text-slate-500">
-            <div>/var/task (function code)</div>
-            {showLayers && (
-              <>
-                <div className="text-purple-400">/opt/python (layers)</div>
-                <div className="text-purple-400">/opt/nodejs</div>
-              </>
-            )}
-          </div>
-
-          {/* Size Comparison */}
-          <div className="absolute bottom-4 left-4">
-            <div className="text-xs text-slate-400">
-              Deployment Size: {showLayers ? "2 MB" : "50 MB"}
+              </div>
+              <div className="text-xs text-green-400 text-center mt-2">
+                Automatically added to runtime path
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Step 2: Benefits */}
+          {step === 2 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Benefits of Using Layers</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="border-2 border-red-500/50 rounded-lg p-3 bg-red-500/10">
+                  <div className="text-red-400 text-sm mb-2">Without Layers</div>
+                  <div className="bg-orange-500 rounded p-2 text-white text-xs text-center mb-2">
+                    Function Code
+                  </div>
+                  <div className="bg-slate-600 rounded p-2 text-slate-300 text-xs text-center">
+                    + All Dependencies
+                  </div>
+                  <div className="text-center mt-2">
+                    <span className="text-red-400 text-lg font-bold">50 MB</span>
+                    <div className="text-xs text-slate-500">per function</div>
+                  </div>
+                </div>
+                <div className="border-2 border-green-500/50 rounded-lg p-3 bg-green-500/10">
+                  <div className="text-green-400 text-sm mb-2">With Layers</div>
+                  <div className="bg-orange-500 rounded p-2 text-white text-xs text-center mb-1">
+                    Function Code Only
+                  </div>
+                  <div className="bg-purple-500 rounded p-1 text-white text-xs text-center mb-1 animate-pulse">
+                    Layer (shared)
+                  </div>
+                  <div className="text-center mt-2">
+                    <span className="text-green-400 text-lg font-bold">2 MB</span>
+                    <div className="text-xs text-slate-500">+ shared layer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Limits & Considerations */}
+          {step === 3 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Limits & Considerations</div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-slate-800 rounded p-3">
+                    <div className="text-yellow-400 text-sm mb-1">Max Layers</div>
+                    <div className="text-2xl font-bold text-white">5</div>
+                    <div className="text-xs text-slate-500">per function</div>
+                  </div>
+                  <div className="bg-slate-800 rounded p-3">
+                    <div className="text-yellow-400 text-sm mb-1">Total Size</div>
+                    <div className="text-2xl font-bold text-white">250 MB</div>
+                    <div className="text-xs text-slate-500">unzipped (layers + code)</div>
+                  </div>
+                </div>
+                <div className="bg-slate-800 rounded p-3">
+                  <div className="flex items-center justify-around">
+                    <div className="text-center">
+                      <div className="text-blue-400 text-sm">Versioned</div>
+                      <div className="text-xs text-slate-500">Layer:1, Layer:2</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-green-400 text-sm">Immutable</div>
+                      <div className="text-xs text-slate-500">Publish new version</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-purple-400 text-sm">Shareable</div>
+                      <div className="text-xs text-slate-500">Cross-account</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Step Info */}
@@ -1214,71 +1577,133 @@ export function LambdaDestinationsExplainer() {
 
         {/* Visualization */}
         <div className="relative bg-slate-900/50 rounded-xl p-4 h-56 mb-4">
-          {/* Event Source */}
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-            <div className="bg-blue-600 rounded p-3 text-white text-xs">
-              S3 Event
+          {/* Step 0: What are Destinations? */}
+          {step === 0 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Async Invocation Results → Destinations</div>
+              <div className="flex items-center justify-around h-full">
+                <div className="text-center">
+                  <div className="bg-blue-600 rounded p-2 text-white text-xs mb-1">S3 Event</div>
+                  <div className="text-xs text-slate-500">async trigger</div>
+                </div>
+                <div className="text-yellow-400">→</div>
+                <div className="text-center">
+                  <div className="bg-orange-500 rounded p-3 text-white text-center animate-pulse">
+                    <div className="text-xl">λ</div>
+                    <div className="text-xs">Lambda</div>
+                  </div>
+                </div>
+                <div className="text-yellow-400">→</div>
+                <div className="space-y-2">
+                  <div className="bg-green-600 rounded p-2 text-white text-xs">SQS</div>
+                  <div className="bg-pink-600 rounded p-2 text-white text-xs">SNS</div>
+                </div>
+              </div>
+              <div className="text-xs text-slate-500 text-center mt-2">
+                Route results automatically - no code changes needed
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Lambda */}
-          <div className="absolute left-1/3 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className={`rounded p-3 text-white text-xs ${
-              invocationResult === "success" ? "bg-orange-500" : "bg-orange-500 ring-2 ring-red-500"
-            }`}>
-              Lambda
+          {/* Step 1: Success vs Failure */}
+          {step === 1 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Separate Destinations for Each Outcome</div>
+              <div className="flex items-center justify-center gap-6 h-full">
+                <div className="bg-orange-500 rounded-lg p-4 text-white text-center">
+                  <div className="text-2xl">λ</div>
+                  <div className="text-xs">Lambda</div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-green-400 text-xl animate-pulse">→</div>
+                    <div className="bg-green-600 rounded p-2 text-white text-xs">
+                      On Success
+                    </div>
+                    <div className="text-xs text-slate-500">→ Process result</div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-red-400 text-xl">→</div>
+                    <div className="bg-red-600 rounded p-2 text-white text-xs">
+                      On Failure
+                    </div>
+                    <div className="text-xs text-slate-500">→ Alert / Retry</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-center mt-1 text-slate-500">async</div>
-          </div>
+          )}
 
-          {/* Success Destination */}
-          <div className={`absolute right-4 top-8 transition-opacity ${
-            invocationResult === "success" ? "opacity-100" : "opacity-30"
-          }`}>
-            <div className="bg-green-600 rounded p-3 text-white text-xs">
-              SQS Queue
+          {/* Step 2: Supported Destinations */}
+          {step === 2 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Supported Destination Types</div>
+              <div className="grid grid-cols-4 gap-3 h-full">
+                <div className="bg-slate-800 rounded-lg p-3 text-center flex flex-col justify-center">
+                  <div className="bg-green-600 rounded p-2 text-white text-xs mb-2 mx-auto">SQS</div>
+                  <div className="text-xs text-slate-400">Queue for processing</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-3 text-center flex flex-col justify-center">
+                  <div className="bg-pink-600 rounded p-2 text-white text-xs mb-2 mx-auto">SNS</div>
+                  <div className="text-xs text-slate-400">Fan-out notifications</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-3 text-center flex flex-col justify-center animate-pulse">
+                  <div className="bg-orange-500 rounded p-2 text-white text-xs mb-2 mx-auto">Lambda</div>
+                  <div className="text-xs text-slate-400">Chain functions</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-3 text-center flex flex-col justify-center">
+                  <div className="bg-purple-600 rounded p-2 text-white text-xs mb-2 mx-auto">EventBridge</div>
+                  <div className="text-xs text-slate-400">Event routing</div>
+                </div>
+              </div>
+              <div className="text-xs text-green-400 text-center mt-2">
+                Each receives full execution context + result
+              </div>
             </div>
-            <div className="text-xs text-slate-500 mt-1">On Success</div>
-          </div>
+          )}
 
-          {/* Failure Destination */}
-          <div className={`absolute right-4 bottom-8 transition-opacity ${
-            invocationResult === "failure" ? "opacity-100" : "opacity-30"
-          }`}>
-            <div className="bg-red-600 rounded p-3 text-white text-xs">
-              SNS Topic
+          {/* Step 3: vs DLQ */}
+          {step === 3 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Destinations vs Dead Letter Queue (DLQ)</div>
+              <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="border-2 border-slate-600 rounded-lg p-3">
+                  <div className="text-slate-400 text-sm mb-2">DLQ (Legacy)</div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-400">✗</span>
+                      <span className="text-slate-400">Failures only</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-400">✗</span>
+                      <span className="text-slate-400">SQS or SNS only</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-400">✗</span>
+                      <span className="text-slate-400">Limited event data</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="border-2 border-green-500 rounded-lg p-3 bg-green-500/10">
+                  <div className="text-green-400 text-sm mb-2">Destinations (Recommended)</div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-slate-300">Success + Failure</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-slate-300">4 service types</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-slate-300">Rich context data</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-slate-500 mt-1">On Failure</div>
-          </div>
-
-          {/* Arrows */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            <defs>
-              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
-              </marker>
-            </defs>
-            {/* To Lambda */}
-            <line x1="80" y1="112" x2="130" y2="112" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowhead)" />
-
-            {/* To Success */}
-            <line
-              x1="200" y1="100" x2="280" y2="60"
-              stroke={invocationResult === "success" ? "#22c55e" : "#64748b"}
-              strokeWidth="2"
-              strokeDasharray={invocationResult === "success" ? "0" : "4"}
-              markerEnd="url(#arrowhead)"
-            />
-
-            {/* To Failure */}
-            <line
-              x1="200" y1="124" x2="280" y2="164"
-              stroke={invocationResult === "failure" ? "#ef4444" : "#64748b"}
-              strokeWidth="2"
-              strokeDasharray={invocationResult === "failure" ? "0" : "4"}
-              markerEnd="url(#arrowhead)"
-            />
-          </svg>
+          )}
         </div>
 
         {/* Step Info */}
@@ -1433,41 +1858,124 @@ export function LambdaEventSourceMappingsExplainer() {
 
         {/* Visualization */}
         <div className="relative bg-slate-900/50 rounded-xl p-4 h-48 mb-4">
-          {/* Source */}
-          <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
-            <div className="bg-purple-600 rounded p-3 text-white text-center">
-              <div className="text-2xl mb-1">{sourceConfig[sourceType].icon}</div>
-              <div className="text-xs">{sourceConfig[sourceType].label}</div>
+          {/* Step 0: What is Event Source Mapping? */}
+          {step === 0 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Lambda Polls the Source (not push!)</div>
+              <div className="flex items-center justify-around h-full">
+                <div className="space-y-2">
+                  <div className="bg-purple-600 rounded p-2 text-white text-xs text-center">SQS Queue</div>
+                  <div className="bg-blue-600 rounded p-2 text-white text-xs text-center">Kinesis Stream</div>
+                  <div className="bg-green-600 rounded p-2 text-white text-xs text-center">DynamoDB Stream</div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-blue-400 text-xl animate-pulse">←</div>
+                  <div className="text-xs text-slate-500">Lambda polls</div>
+                </div>
+                <div className="bg-orange-500 rounded-lg p-4 text-white text-center">
+                  <div className="text-2xl">λ</div>
+                  <div className="text-xs">Lambda</div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Event Source Mapping (Poller) */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="bg-slate-600 rounded p-3 text-white text-center border-2 border-dashed border-blue-400">
-              <div className="text-xs font-medium">Event Source Mapping</div>
-              <div className="text-xs text-slate-400">(Lambda polls)</div>
-              <div className="text-xs mt-1">Batch: {batchSize}</div>
+          {/* Step 1: Polling Behavior */}
+          {step === 1 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Managed Polling Infrastructure</div>
+              <div className="flex items-center justify-center gap-6 h-full">
+                <div className="bg-purple-600 rounded p-3 text-white text-center">
+                  <div className="text-xl">{sourceConfig[sourceType].icon}</div>
+                  <div className="text-xs">{sourceConfig[sourceType].label}</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-blue-500 rounded p-1 text-white text-xs animate-pulse">Poller 1</div>
+                    <div className="text-yellow-400">→</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="bg-blue-500 rounded p-1 text-white text-xs">Poller 2</div>
+                    <div className="text-yellow-400">→</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="bg-blue-500 rounded p-1 text-white text-xs">Poller N</div>
+                    <div className="text-yellow-400">→</div>
+                  </div>
+                </div>
+                <div className="bg-orange-500 rounded p-3 text-white text-center">
+                  <div className="text-xl">λ</div>
+                  <div className="text-xs">Lambda</div>
+                </div>
+              </div>
+              <div className="text-xs text-green-400 text-center">
+                Auto-scales pollers based on traffic
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Lambda */}
-          <div className="absolute right-8 top-1/2 transform -translate-y-1/2">
-            <div className="bg-orange-500 rounded p-3 text-white text-center">
-              <div className="text-2xl mb-1">λ</div>
-              <div className="text-xs">Lambda</div>
+          {/* Step 2: Batch Processing */}
+          {step === 2 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Batch Processing</div>
+              <div className="flex items-center justify-around h-full">
+                <div className="bg-purple-600 rounded p-2 text-white text-center">
+                  <div className="text-sm">{sourceConfig[sourceType].icon}</div>
+                  <div className="text-xs">{sourceConfig[sourceType].label}</div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-yellow-400">→</div>
+                  <div className="bg-slate-700 rounded p-2 border border-blue-400 border-dashed">
+                    <div className="text-xs text-blue-400">Batch: {batchSize}</div>
+                    <div className="flex gap-1 mt-1">
+                      {Array.from({ length: Math.min(batchSize, 5) }).map((_, i) => (
+                        <div key={i} className="w-2 h-2 bg-blue-400 rounded animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+                      ))}
+                      {batchSize > 5 && <span className="text-xs text-slate-500">...</span>}
+                    </div>
+                  </div>
+                  <div className="text-yellow-400">→</div>
+                </div>
+                <div className="bg-orange-500 rounded p-3 text-white text-center">
+                  <div className="text-xl">λ</div>
+                  <div className="text-xs">Receives array</div>
+                </div>
+              </div>
+              <div className="text-xs text-yellow-400 text-center">
+                All records in batch succeed or fail together
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Arrows */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            <defs>
-              <marker id="arrow-esm" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
-              </marker>
-            </defs>
-            <line x1="120" y1="96" x2="160" y2="96" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrow-esm)" />
-            <line x1="260" y1="96" x2="300" y2="96" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrow-esm)" />
-          </svg>
+          {/* Step 3: Error Handling */}
+          {step === 3 && (
+            <div className="absolute inset-4">
+              <div className="text-xs text-slate-400 mb-3">Error Handling Options</div>
+              <div className="grid grid-cols-3 gap-3 h-full">
+                <div className="bg-slate-800 rounded p-2 text-center">
+                  <div className="text-yellow-400 text-sm mb-1">Retry</div>
+                  <div className="text-xs text-slate-400">
+                    <div>Max attempts</div>
+                    <div>Max age</div>
+                  </div>
+                </div>
+                <div className="bg-slate-800 rounded p-2 text-center animate-pulse">
+                  <div className="text-blue-400 text-sm mb-1">Bisect on Error</div>
+                  <div className="text-xs text-slate-400">
+                    <div>Split batch in half</div>
+                    <div>Isolate bad record</div>
+                  </div>
+                </div>
+                <div className="bg-slate-800 rounded p-2 text-center">
+                  <div className="text-red-400 text-sm mb-1">On Failure</div>
+                  <div className="text-xs text-slate-400">
+                    <div>Send to SQS/SNS</div>
+                    <div>for investigation</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Step Info */}
