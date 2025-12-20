@@ -3529,7 +3529,7 @@ export function GlobalArchitectureExplainer() {
                 </div>
                 <div className="bg-blue-900/30 p-3 rounded">
                   <span className="text-blue-400 font-semibold">Aurora Global Database</span>
-                  <div className="text-gray-400">Cross-region read replicas, <1s replication</div>
+                  <div className="text-gray-400">Cross-region read replicas, {'<'}1s replication</div>
                 </div>
               </div>
             </div>
