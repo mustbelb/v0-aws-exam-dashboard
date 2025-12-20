@@ -3342,11 +3342,13 @@ export function CloudFrontSignedUrlsExplainer() {
                   <ul className="text-xs text-gray-300 mt-1 space-y-1">
                     <li>• Multiple restricted files</li>
                     <li>• HLS/DASH streaming</li>
-                <li>• Don't want to change URLs</li>
-              </ul>
+                    <li>• Don't want to change URLs</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="bg-gray-700 rounded-lg p-4 mb-4">
