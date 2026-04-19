@@ -783,7 +783,7 @@ export function IAMConditionsExplainer() {
           <div className="text-sm text-slate-400 mb-3">Example Conditions</div>
 
           <div className="space-y-3">
-            <div className="bg-slate-800 rounded p-3">
+            <div className={`bg-slate-800 rounded p-3 transition-all ${example === "mfa" ? "ring-2 ring-orange-400" : example === "ip" || example === "tag" ? "opacity-40" : ""}`}>
               <div className="text-xs text-orange-400 mb-1">Require MFA</div>
               <pre className="text-xs text-green-400 font-mono">
 {`"Condition": {
@@ -794,7 +794,7 @@ export function IAMConditionsExplainer() {
               </pre>
             </div>
 
-            <div className="bg-slate-800 rounded p-3">
+            <div className={`bg-slate-800 rounded p-3 transition-all ${example === "ip" ? "ring-2 ring-blue-400" : example === "mfa" || example === "tag" ? "opacity-40" : ""}`}>
               <div className="text-xs text-blue-400 mb-1">Restrict by IP</div>
               <pre className="text-xs text-green-400 font-mono">
 {`"Condition": {
@@ -805,7 +805,7 @@ export function IAMConditionsExplainer() {
               </pre>
             </div>
 
-            <div className="bg-slate-800 rounded p-3">
+            <div className={`bg-slate-800 rounded p-3 transition-all ${example === "tag" ? "ring-2 ring-purple-400" : example === "mfa" || example === "ip" ? "opacity-40" : ""}`}>
               <div className="text-xs text-purple-400 mb-1">Tag-Based Access</div>
               <pre className="text-xs text-green-400 font-mono">
 {`"Condition": {
