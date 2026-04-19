@@ -36,6 +36,11 @@ export function EC2InstanceTypesExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const familyByStep = ["m", "m", "c", "m"]
+    if (familyByStep[step]) setSelectedFamily(familyByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -147,6 +152,11 @@ export function EC2PricingModelsExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const modelByStep = ["ondemand", "ondemand", "reserved", "spot"]
+    if (modelByStep[step]) setPricingModel(modelByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -431,6 +441,11 @@ export function EC2InstanceStoreVsEBSExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"ebs" | "instance"> = ["ebs", "ebs", "instance", "ebs"]
+    if (typeByStep[step]) setStorageType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -548,6 +563,11 @@ export function EC2AutoScalingExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const loadByStep = [50, 40, 85, 60]
+    if (loadByStep[step] !== undefined) setLoad(loadByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -771,6 +791,11 @@ export function EC2EBSVolumeTypesExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const volumeByStep = ["gp3", "gp3", "io2", "st1"]
+    if (volumeByStep[step]) setVolumeType(volumeByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1211,6 +1236,11 @@ export function EC2InstanceMetadataExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const versionByStep: Array<"v1" | "v2"> = ["v2", "v2", "v1", "v2"]
+    if (versionByStep[step]) setImdsVersion(versionByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1335,6 +1365,11 @@ export function EC2HibernateExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const stateByStep: Array<"running" | "hibernating" | "stopped"> = ["running", "running", "hibernating", "stopped"]
+    if (stateByStep[step]) setInstanceState(stateByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1454,6 +1489,11 @@ export function EC2ENIExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const eniByStep = [1, 1, 2, 3]
+    if (eniByStep[step]) setEniCount(eniByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
