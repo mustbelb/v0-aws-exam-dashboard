@@ -853,6 +853,7 @@ export function IAMConditionsExplainer() {
 export function IAMSCPsExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "formula" | "hierarchy" | "warning">("overview")
 
   const steps = [
     { title: "What are SCPs?", description: "Service Control Policies - permission guardrails for AWS Organizations. Limit what member accounts can do." },
@@ -868,6 +869,11 @@ export function IAMSCPsExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"overview" | "formula" | "hierarchy" | "warning"> = ["overview", "formula", "hierarchy", "warning"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -878,7 +884,7 @@ export function IAMSCPsExplainer() {
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
           {/* Org hierarchy */}
-          <div className="flex flex-col items-center">
+          <div className={`flex flex-col items-center transition-all ${focus === "hierarchy" || focus === "overview" ? "" : "opacity-50"} ${focus === "hierarchy" ? "ring-2 ring-yellow-400 rounded p-2" : ""}`}>
             <div className="bg-yellow-500 rounded p-2 text-black text-xs font-medium">Root</div>
             <div className="w-px h-4 bg-slate-600"></div>
             <div className="flex gap-8">
@@ -898,7 +904,7 @@ export function IAMSCPsExplainer() {
           </div>
 
           {/* Effective permissions */}
-          <div className="mt-4 p-3 bg-slate-800 rounded">
+          <div className={`mt-4 p-3 bg-slate-800 rounded transition-all ${focus === "formula" ? "ring-2 ring-orange-400" : focus === "hierarchy" || focus === "warning" ? "opacity-50" : ""}`}>
             <div className="text-xs text-slate-400 mb-2">Effective Permissions Formula:</div>
             <div className="text-xs text-center">
               <span className="text-blue-400">IAM Policy</span>
@@ -909,7 +915,7 @@ export function IAMSCPsExplainer() {
             </div>
           </div>
 
-          <div className="mt-4 p-2 bg-red-500/10 border border-red-500/30 rounded text-center text-xs text-red-400">
+          <div className={`mt-4 p-2 bg-red-500/10 border border-red-500/30 rounded text-center text-xs text-red-400 transition-all ${focus === "warning" ? "ring-2 ring-red-400 scale-105" : focus === "hierarchy" || focus === "formula" ? "opacity-50" : ""}`}>
             ⚠️ SCPs do NOT apply to the management account
           </div>
         </div>
@@ -949,6 +955,7 @@ export function IAMSCPsExplainer() {
 export function IAMGroupsExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"groups" | "benefits" | "rules" | "practices">("groups")
 
   const steps = [
     { title: "What are IAM Groups?", description: "Collection of IAM users. Attach policies to group - all members get those permissions." },
@@ -964,6 +971,11 @@ export function IAMGroupsExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"groups" | "benefits" | "rules" | "practices"> = ["groups", "benefits", "rules", "practices"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -973,7 +985,7 @@ export function IAMGroupsExplainer() {
 
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
-          <div className="flex justify-center gap-8">
+          <div className={`flex justify-center gap-8 transition-all ${focus === "rules" ? "opacity-50" : focus === "groups" || focus === "practices" ? "ring-2 ring-blue-400/50 rounded p-2" : ""}`}>
             {/* Groups with users */}
             <div className="text-center">
               <div className="bg-blue-500 rounded-lg p-3 text-white mb-2">
@@ -1007,7 +1019,7 @@ export function IAMGroupsExplainer() {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className={`mt-4 grid grid-cols-2 gap-3 transition-all ${focus === "rules" ? "ring-2 ring-yellow-400 rounded p-2" : focus === "groups" || focus === "practices" ? "opacity-50" : ""}`}>
             <div className="bg-green-500/20 rounded p-2 text-xs text-center">
               <div className="text-green-400">✓ Can</div>
               <div className="text-slate-300">Users in multiple groups</div>
@@ -1054,6 +1066,7 @@ export function IAMGroupsExplainer() {
 export function IAMMFAExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"flow" | "types" | "enforce" | "practices">("flow")
 
   const steps = [
     { title: "What is MFA?", description: "Multi-Factor Authentication - requires second factor beyond password. Something you know + something you have." },
@@ -1069,6 +1082,11 @@ export function IAMMFAExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"flow" | "types" | "enforce" | "practices"> = ["flow", "types", "enforce", "practices"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1079,7 +1097,7 @@ export function IAMMFAExplainer() {
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
           {/* MFA Types */}
-          <div className="grid grid-cols-4 gap-3 mb-4">
+          <div className={`grid grid-cols-4 gap-3 mb-4 transition-all ${focus === "types" ? "ring-2 ring-purple-400 rounded p-2" : focus === "flow" || focus === "enforce" ? "opacity-50" : ""}`}>
             <div className="bg-blue-500/20 rounded p-3 text-center">
               <div className="text-2xl mb-1">📱</div>
               <div className="text-xs text-blue-400">Virtual MFA</div>
@@ -1103,7 +1121,7 @@ export function IAMMFAExplainer() {
           </div>
 
           {/* Auth flow */}
-          <div className="flex items-center justify-center gap-4">
+          <div className={`flex items-center justify-center gap-4 transition-all ${focus === "flow" ? "ring-2 ring-blue-400 rounded p-2" : focus === "types" || focus === "enforce" ? "opacity-50" : ""}`}>
             <div className="bg-slate-800 rounded p-2 text-xs text-center">
               <div>Password</div>
               <div className="text-slate-500">Something you know</div>
@@ -1119,7 +1137,7 @@ export function IAMMFAExplainer() {
             </div>
           </div>
 
-          <div className="mt-4 p-2 bg-red-500/10 border border-red-500/30 rounded text-center text-xs text-red-400">
+          <div className={`mt-4 p-2 bg-red-500/10 border border-red-500/30 rounded text-center text-xs text-red-400 transition-all ${focus === "enforce" || focus === "practices" ? "ring-2 ring-red-400 scale-105" : focus === "types" || focus === "flow" ? "opacity-50" : ""}`}>
             ⚠️ ALWAYS enable MFA for root account!
           </div>
         </div>
@@ -1159,6 +1177,7 @@ export function IAMMFAExplainer() {
 export function IAMAccessKeysExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"structure" | "states" | "rotation" | "alternatives">("structure")
 
   const steps = [
     { title: "What are Access Keys?", description: "Long-term credentials for programmatic access. Access Key ID + Secret Access Key pair." },
@@ -1174,6 +1193,11 @@ export function IAMAccessKeysExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"structure" | "states" | "rotation" | "alternatives"> = ["structure", "states", "rotation", "alternatives"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1184,7 +1208,7 @@ export function IAMAccessKeysExplainer() {
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
           {/* Access key structure */}
-          <div className="bg-slate-800 rounded p-4 font-mono text-xs mb-4">
+          <div className={`bg-slate-800 rounded p-4 font-mono text-xs mb-4 transition-all ${focus === "structure" ? "ring-2 ring-blue-400" : focus === "states" || focus === "rotation" ? "opacity-50" : ""}`}>
             <div className="mb-2">
               <span className="text-slate-400">Access Key ID: </span>
               <span className="text-blue-400">AKIAIOSFODNN7EXAMPLE</span>
@@ -1196,7 +1220,7 @@ export function IAMAccessKeysExplainer() {
           </div>
 
           {/* Key states */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className={`grid grid-cols-3 gap-3 mb-4 transition-all ${focus === "states" ? "ring-2 ring-orange-400 rounded p-2" : focus === "structure" || focus === "rotation" ? "opacity-50" : ""}`}>
             <div className="bg-green-500/20 rounded p-2 text-xs text-center">
               <div className="text-green-400 font-medium">Active</div>
               <div className="text-slate-400">In use</div>
@@ -1212,7 +1236,7 @@ export function IAMAccessKeysExplainer() {
           </div>
 
           {/* Rotation flow */}
-          <div className="p-3 bg-slate-800 rounded">
+          <div className={`p-3 bg-slate-800 rounded transition-all ${focus === "rotation" || focus === "alternatives" ? "ring-2 ring-green-400" : focus === "structure" || focus === "states" ? "opacity-50" : ""}`}>
             <div className="text-xs text-slate-400 mb-2">Key Rotation Steps:</div>
             <div className="flex items-center justify-center gap-2 text-xs">
               <div className="bg-blue-500 rounded px-2 py-1 text-white">1. Create new</div>
@@ -1261,6 +1285,7 @@ export function IAMAccessKeysExplainer() {
 export function IAMResourceBasedPoliciesExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"both" | "resource" | "identity" | "services">("both")
 
   const steps = [
     { title: "Resource-Based Policies", description: "Policies attached to resources (S3, Lambda, etc) instead of identities. Specify who can access." },
@@ -1276,6 +1301,11 @@ export function IAMResourceBasedPoliciesExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"both" | "resource" | "identity" | "services"> = ["both", "resource", "resource", "services"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1287,7 +1317,7 @@ export function IAMResourceBasedPoliciesExplainer() {
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
           {/* Comparison */}
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="bg-blue-500/20 rounded p-3">
+            <div className={`bg-blue-500/20 rounded p-3 transition-all ${focus === "identity" ? "ring-2 ring-blue-400" : focus === "resource" || focus === "services" ? "opacity-40" : ""}`}>
               <div className="text-sm font-medium text-blue-400 mb-2">Identity-Based</div>
               <div className="text-xs text-slate-300 mb-2">Attached to user/role/group</div>
               <pre className="bg-slate-800 p-2 rounded text-[10px] text-green-400">{`{
@@ -1295,7 +1325,7 @@ export function IAMResourceBasedPoliciesExplainer() {
   "Resource": "arn:aws:s3:::bucket/*"
 }`}</pre>
             </div>
-            <div className="bg-orange-500/20 rounded p-3">
+            <div className={`bg-orange-500/20 rounded p-3 transition-all ${focus === "resource" ? "ring-2 ring-orange-400 scale-105" : focus === "identity" || focus === "services" ? "opacity-40" : ""}`}>
               <div className="text-sm font-medium text-orange-400 mb-2">Resource-Based</div>
               <div className="text-xs text-slate-300 mb-2">Attached to resource</div>
               <pre className="bg-slate-800 p-2 rounded text-[10px] text-green-400">{`{
@@ -1307,7 +1337,7 @@ export function IAMResourceBasedPoliciesExplainer() {
           </div>
 
           {/* Services that support resource policies */}
-          <div className="p-3 bg-slate-800 rounded">
+          <div className={`p-3 bg-slate-800 rounded transition-all ${focus === "services" ? "ring-2 ring-green-400" : focus === "resource" || focus === "identity" ? "opacity-50" : ""}`}>
             <div className="text-xs text-slate-400 mb-2">Services with Resource-Based Policies:</div>
             <div className="flex flex-wrap justify-center gap-2">
               <div className="bg-green-500 rounded px-2 py-1 text-white text-xs">S3</div>
@@ -1355,6 +1385,7 @@ export function IAMResourceBasedPoliciesExplainer() {
 export function IAMPolicySimulatorExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "flow" | "result" | "access">("overview")
 
   const steps = [
     { title: "What is Policy Simulator?", description: "AWS tool to test and troubleshoot IAM policies before applying them in production." },
@@ -1370,6 +1401,11 @@ export function IAMPolicySimulatorExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"overview" | "flow" | "result" | "access"> = ["overview", "flow", "result", "access"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1380,7 +1416,7 @@ export function IAMPolicySimulatorExplainer() {
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
           {/* Simulator flow */}
-          <div className="flex items-center justify-center gap-4 mb-4">
+          <div className={`flex items-center justify-center gap-4 mb-4 transition-all ${focus === "flow" ? "ring-2 ring-blue-400 rounded p-2" : focus === "result" ? "opacity-50" : ""}`}>
             <div className="bg-blue-500 rounded p-3 text-white text-xs text-center">
               <div className="text-lg mb-1">👤</div>
               Select Identity
@@ -1403,7 +1439,7 @@ export function IAMPolicySimulatorExplainer() {
           </div>
 
           {/* Example output */}
-          <div className="bg-slate-800 rounded p-3">
+          <div className={`bg-slate-800 rounded p-3 transition-all ${focus === "result" ? "ring-2 ring-green-400" : focus === "flow" ? "opacity-50" : ""}`}>
             <div className="text-xs text-slate-400 mb-2">Example Simulation Result:</div>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs">
@@ -1457,6 +1493,7 @@ export function IAMPolicySimulatorExplainer() {
 export function IAMIdentityCenterExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "source" | "center" | "flow">("overview")
 
   const steps = [
     { title: "What is IAM Identity Center?", description: "Successor to AWS SSO. Centrally manage workforce access to multiple AWS accounts and apps." },
@@ -1472,6 +1509,11 @@ export function IAMIdentityCenterExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"overview" | "source" | "center" | "flow"> = ["overview", "source", "center", "flow"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1484,7 +1526,7 @@ export function IAMIdentityCenterExplainer() {
           {/* Architecture */}
           <div className="flex items-start justify-center gap-4 mb-4">
             {/* Identity Source */}
-            <div className="bg-blue-500/20 rounded p-3 text-center">
+            <div className={`bg-blue-500/20 rounded p-3 text-center transition-all ${focus === "source" ? "ring-2 ring-blue-400 scale-110" : focus === "center" || focus === "flow" ? "opacity-40" : ""}`}>
               <div className="text-xs text-blue-400 mb-2">Identity Source</div>
               <div className="space-y-1">
                 <div className="bg-slate-700 rounded px-2 py-1 text-xs text-slate-300">Built-in</div>
@@ -1496,7 +1538,7 @@ export function IAMIdentityCenterExplainer() {
             <div className="text-slate-400 self-center">→</div>
 
             {/* Identity Center */}
-            <div className="bg-purple-500 rounded-lg p-4 text-white text-center">
+            <div className={`bg-purple-500 rounded-lg p-4 text-white text-center transition-all ${focus === "center" ? "ring-4 ring-purple-300 scale-110" : focus === "source" || focus === "flow" ? "opacity-40" : ""}`}>
               <div className="text-lg mb-1">🔐</div>
               <div className="text-xs">IAM Identity Center</div>
               <div className="text-[10px]">Permission Sets</div>
@@ -1505,7 +1547,7 @@ export function IAMIdentityCenterExplainer() {
             <div className="text-slate-400 self-center">→</div>
 
             {/* Accounts */}
-            <div className="bg-green-500/20 rounded p-3 text-center">
+            <div className={`bg-green-500/20 rounded p-3 text-center transition-all ${focus === "source" || focus === "center" ? "opacity-40" : ""}`}>
               <div className="text-xs text-green-400 mb-2">AWS Accounts</div>
               <div className="space-y-1">
                 <div className="bg-green-500 rounded px-2 py-1 text-xs text-white">Production</div>
@@ -1516,7 +1558,7 @@ export function IAMIdentityCenterExplainer() {
           </div>
 
           {/* User flow */}
-          <div className="p-3 bg-slate-800 rounded">
+          <div className={`p-3 bg-slate-800 rounded transition-all ${focus === "flow" ? "ring-2 ring-orange-400" : focus === "source" || focus === "center" ? "opacity-50" : ""}`}>
             <div className="text-xs text-slate-400 mb-2">User Access Flow:</div>
             <div className="flex items-center justify-center gap-2 text-xs">
               <div className="bg-blue-500 rounded px-2 py-1 text-white">Login</div>
