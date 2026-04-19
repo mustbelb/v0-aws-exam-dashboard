@@ -1780,7 +1780,7 @@ export function EnhancedFanOutExplainer() {
               <div className="bg-green-900/30 border-l-4 border-green-500 rounded-lg p-4">
                 <div className="text-green-400 font-bold mb-2">✓ Use Enhanced Fan-Out when:</div>
                 <ul className="text-sm text-gray-300 space-y-2">
-                  <li>• Multiple consumers (>2) reading from same stream</li>
+                  <li>• Multiple consumers ({'>'}2) reading from same stream</li>
                   <li>• Low latency required (&lt;100ms)</li>
                   <li>• Each consumer needs high throughput</li>
                   <li>• Can justify higher cost</li>

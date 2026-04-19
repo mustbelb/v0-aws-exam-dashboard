@@ -240,7 +240,6 @@ export function EC2PricingModelsExplainer() {
 export function EC2PlacementGroupsExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [groupType, setGroupType] = useState<"cluster" | "spread" | "partition">("cluster")
 
   const steps = [
     { title: "What are Placement Groups?", description: "Control how instances are placed on underlying hardware. Optimize for performance or availability." },
@@ -264,66 +263,121 @@ export function EC2PlacementGroupsExplainer() {
       </div>
 
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
-        <div className="flex justify-center gap-4 mb-6">
-          <button onClick={() => setGroupType("cluster")} className={`px-4 py-2 rounded-lg ${groupType === "cluster" ? "bg-red-500 text-white" : "bg-slate-700 text-slate-300"}`}>Cluster</button>
-          <button onClick={() => setGroupType("spread")} className={`px-4 py-2 rounded-lg ${groupType === "spread" ? "bg-green-500 text-white" : "bg-slate-700 text-slate-300"}`}>Spread</button>
-          <button onClick={() => setGroupType("partition")} className={`px-4 py-2 rounded-lg ${groupType === "partition" ? "bg-purple-500 text-white" : "bg-slate-700 text-slate-300"}`}>Partition</button>
-        </div>
-
-        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
-          {groupType === "cluster" && (
+        <div className="bg-slate-900/50 rounded-xl p-4 mb-4 min-h-[200px]">
+          {step === 0 && (
             <div className="text-center">
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 inline-block">
-                <div className="text-xs text-red-400 mb-2">Single Rack</div>
-                <div className="flex gap-1">
-                  {[1,2,3,4,5].map(i => (
-                    <div key={i} className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs">{i}</div>
-                  ))}
+              <div className="text-lg font-semibold text-white mb-4">Three Placement Strategies</div>
+              <div className="flex justify-center gap-6">
+                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">📦</div>
+                  <div className="text-red-400 font-medium">Cluster</div>
+                  <div className="text-xs text-slate-400">Low latency</div>
+                </div>
+                <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">🔀</div>
+                  <div className="text-green-400 font-medium">Spread</div>
+                  <div className="text-xs text-slate-400">High availability</div>
+                </div>
+                <div className="bg-purple-500/20 border border-purple-500/50 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">🗂️</div>
+                  <div className="text-purple-400 font-medium">Partition</div>
+                  <div className="text-xs text-slate-400">Fault isolation</div>
                 </div>
               </div>
-              <div className="text-xs text-slate-400 mt-2">All instances packed together - low latency</div>
-            </div>
-          )}
-          {groupType === "spread" && (
-            <div className="flex justify-center gap-8">
-              {[1,2,3].map(i => (
-                <div key={i} className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-center">
-                  <div className="text-xs text-green-400 mb-1">Rack {i}</div>
-                  <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs mx-auto">{i}</div>
-                </div>
-              ))}
-              <div className="text-xs text-slate-400 self-center">Max 7 per AZ</div>
-            </div>
-          )}
-          {groupType === "partition" && (
-            <div className="flex justify-center gap-4">
-              {[1,2,3].map(p => (
-                <div key={p} className="bg-purple-500/20 border border-purple-500/50 rounded-lg p-3 text-center">
-                  <div className="text-xs text-purple-400 mb-1">Partition {p}</div>
-                  <div className="flex flex-col gap-1">
-                    {[1,2].map(i => (
-                      <div key={i} className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs">{p}.{i}</div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <div className="text-xs text-slate-400 mt-4">Choose based on your workload requirements</div>
             </div>
           )}
 
-          <div className="mt-4 grid grid-cols-3 gap-3 text-center text-xs">
-            <div className={`p-2 rounded ${groupType === "cluster" ? "bg-red-500/20" : "bg-slate-800"}`}>
-              <div className="text-slate-400">Latency</div>
-              <div className="text-red-400">Lowest</div>
+          {step === 1 && (
+            <div className="text-center">
+              <div className="text-lg font-semibold text-red-400 mb-4">Cluster Placement Group</div>
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 inline-block">
+                <div className="text-xs text-red-400 mb-2">Single Rack in Single AZ</div>
+                <div className="flex gap-1 justify-center">
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} className="w-10 h-10 bg-blue-500 rounded flex items-center justify-center text-white text-sm font-medium">{i}</div>
+                  ))}
+                </div>
+                <div className="mt-2 flex items-center justify-center gap-1 text-xs text-red-300">
+                  <span>⚡</span> 10 Gbps network between instances
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 max-w-md mx-auto text-xs">
+                <div className="bg-green-500/20 rounded p-2">
+                  <span className="text-green-400">✓</span> Lowest latency
+                </div>
+                <div className="bg-green-500/20 rounded p-2">
+                  <span className="text-green-400">✓</span> Highest throughput
+                </div>
+                <div className="bg-red-500/20 rounded p-2">
+                  <span className="text-red-400">✗</span> Single point of failure
+                </div>
+                <div className="bg-slate-700 rounded p-2">
+                  <span className="text-slate-400">Use:</span> HPC, Big Data
+                </div>
+              </div>
             </div>
-            <div className={`p-2 rounded ${groupType === "spread" ? "bg-green-500/20" : "bg-slate-800"}`}>
-              <div className="text-slate-400">Availability</div>
-              <div className="text-green-400">Highest</div>
+          )}
+
+          {step === 2 && (
+            <div className="text-center">
+              <div className="text-lg font-semibold text-green-400 mb-4">Spread Placement Group</div>
+              <div className="flex justify-center gap-6">
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-center">
+                    <div className="text-xs text-green-400 mb-2">Rack {i}</div>
+                    <div className="w-10 h-10 bg-blue-500 rounded flex items-center justify-center text-white text-sm font-medium mx-auto">{i}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 text-xs text-amber-400">⚠️ Max 7 instances per AZ</div>
+              <div className="mt-4 grid grid-cols-2 gap-3 max-w-md mx-auto text-xs">
+                <div className="bg-green-500/20 rounded p-2">
+                  <span className="text-green-400">✓</span> Each on separate hardware
+                </div>
+                <div className="bg-green-500/20 rounded p-2">
+                  <span className="text-green-400">✓</span> Highest availability
+                </div>
+                <div className="bg-red-500/20 rounded p-2">
+                  <span className="text-red-400">✗</span> Limited to 7 per AZ
+                </div>
+                <div className="bg-slate-700 rounded p-2">
+                  <span className="text-slate-400">Use:</span> Critical apps
+                </div>
+              </div>
             </div>
-            <div className={`p-2 rounded ${groupType === "partition" ? "bg-purple-500/20" : "bg-slate-800"}`}>
-              <div className="text-slate-400">Scale + Isolation</div>
-              <div className="text-purple-400">Balanced</div>
+          )}
+
+          {step === 3 && (
+            <div className="text-center">
+              <div className="text-lg font-semibold text-purple-400 mb-4">Partition Placement Group</div>
+              <div className="flex justify-center gap-4">
+                {[1,2,3].map(p => (
+                  <div key={p} className="bg-purple-500/20 border border-purple-500/50 rounded-lg p-3 text-center">
+                    <div className="text-xs text-purple-400 mb-2">Partition {p}</div>
+                    <div className="flex flex-col gap-1">
+                      {[1,2,3].map(i => (
+                        <div key={i} className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs">{p}.{i}</div>
+                      ))}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1">Separate rack</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 text-xs text-purple-300">Up to 7 partitions per AZ</div>
+              <div className="mt-4 grid grid-cols-2 gap-3 max-w-md mx-auto text-xs">
+                <div className="bg-green-500/20 rounded p-2">
+                  <span className="text-green-400">✓</span> Fault isolation per partition
+                </div>
+                <div className="bg-green-500/20 rounded p-2">
+                  <span className="text-green-400">✓</span> Scales to 100s of instances
+                </div>
+                <div className="bg-slate-700 rounded p-2 col-span-2">
+                  <span className="text-slate-400">Use:</span> Hadoop, Kafka, Cassandra, HDFS
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">

@@ -1447,9 +1447,9 @@ export function XRayIntegrationExplainer() {
                 <div className="text-lg font-bold text-blue-300 mb-2">Metadata</div>
                 <div className="text-sm text-gray-300 mb-3">Not indexed, for context</div>
                 <div className="bg-gray-900 rounded p-3 space-y-2 font-mono text-xs">
-                  <div className="text-blue-400">cart_items: {...}</div>
-                  <div className="text-blue-400">user_agent: "..."</div>
-                  <div className="text-blue-400">request_body: {...}</div>
+                  <div className="text-blue-400">cart_items: {'{...}'}</div>
+                  <div className="text-blue-400">user_agent: &quot;...&quot;</div>
+                  <div className="text-blue-400">request_body: {'{...}'}</div>
                 </div>
                 <div className="text-xs text-gray-400 mt-2">✗ Cannot filter, view only</div>
               </div>
@@ -2475,7 +2475,7 @@ export function CloudWatchMetricMathExplainer() {
               <div className="bg-blue-900/30 border border-blue-600 rounded p-3"><div className="font-mono text-sm text-blue-300 mb-1">MIN(m1)</div><div className="text-xs text-gray-400">Find minimum</div></div>
               <div className="bg-blue-900/30 border border-blue-600 rounded p-3"><div className="font-mono text-sm text-blue-300 mb-1">MAX(m1)</div><div className="text-xs text-gray-400">Find maximum</div></div>
               <div className="bg-blue-900/30 border border-blue-600 rounded p-3"><div className="font-mono text-sm text-blue-300 mb-1">RATE(m1)</div><div className="text-xs text-gray-400">Rate of change</div></div>
-              <div className="bg-blue-900/30 border border-blue-600 rounded p-3"><div className="font-mono text-sm text-blue-300 mb-1">IF(m1>10,1,0)</div><div className="text-xs text-gray-400">Conditional</div></div>
+              <div className="bg-blue-900/30 border border-blue-600 rounded p-3"><div className="font-mono text-sm text-blue-300 mb-1">IF(m1{'>'}10,1,0)</div><div className="text-xs text-gray-400">Conditional</div></div>
             </div>
           </div>
         )}
@@ -2529,7 +2529,7 @@ export function CloudWatchMetricMathExplainer() {
                 </div>
                 <div className="bg-gray-700 rounded p-2">
                   <div className="text-xs text-gray-400">Alarm Threshold</div>
-                  <div className="text-lg font-bold text-red-400">Error Rate > 5%</div>
+                  <div className="text-lg font-bold text-red-400">Error Rate {'>'} 5%</div>
                 </div>
               </div>
             </div>

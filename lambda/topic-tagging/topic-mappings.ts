@@ -137,6 +137,43 @@ export const serviceMappings: Record<string, TopicMapping[]> = {
         "iam auth", "none auth", "public url"
       ],
       priority: 10
+    },
+    // Cross-service: Lambda@Edge (primary explainer in CloudFront)
+    {
+      topic: "cloudfront-lambda-edge",
+      keywords: [
+        "lambda@edge", "edge function", "viewer request", "origin request",
+        "viewer response", "origin response", "cloudfront edge", "edge location",
+        "edge locations", "cloudfront trigger", "edge compute"
+      ],
+      priority: 11
+    },
+    // Cross-service: X-Ray tracing for Lambda
+    {
+      topic: "xray-integration",
+      keywords: [
+        "x-ray", "xray", "trace", "tracing", "segment", "subsegment",
+        "service map", "active tracing", "tracing enabled"
+      ],
+      priority: 9
+    },
+    // Cross-service: EventBridge triggering Lambda
+    {
+      topic: "eventbridge",
+      keywords: [
+        "eventbridge", "event bus", "event pattern", "scheduled",
+        "cron", "rate", "schedule expression", "eventbridge rule"
+      ],
+      priority: 9
+    },
+    // Cross-service: S3 event notifications triggering Lambda
+    {
+      topic: "s3-event-notifications",
+      keywords: [
+        "s3 event", "s3 notification", "s3:objectcreated", "s3:objectremoved",
+        "bucket notification", "s3 trigger"
+      ],
+      priority: 9
     }
   ],
 
@@ -262,6 +299,15 @@ export const serviceMappings: Record<string, TopicMapping[]> = {
       keywords: [
         "auto scaling", "autoscaling", "target utilization", "scaling policy",
         "minimum capacity", "maximum capacity"
+      ],
+      priority: 9
+    },
+    // Cross-service: Lambda processing DynamoDB Streams
+    {
+      topic: "lambda-event-source-mappings",
+      keywords: [
+        "lambda", "lambda trigger", "lambda function", "event source mapping",
+        "stream processing", "batch size", "starting position", "bisect"
       ],
       priority: 9
     }
@@ -1602,6 +1648,15 @@ export const serviceMappings: Record<string, TopicMapping[]> = {
         "lease table"
       ],
       priority: 10
+    },
+    // Cross-service: Lambda consuming Kinesis streams
+    {
+      topic: "lambda-event-source-mappings",
+      keywords: [
+        "lambda", "lambda consumer", "lambda trigger", "event source mapping",
+        "batch size", "parallelization factor", "bisect on error", "lambda function"
+      ],
+      priority: 9
     }
   ],
 

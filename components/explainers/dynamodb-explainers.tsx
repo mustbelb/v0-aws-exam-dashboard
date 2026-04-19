@@ -1420,6 +1420,11 @@ export function DynamoDBConditionalWritesExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"unconditional" | "conditional"> = ["unconditional", "conditional", "conditional", "conditional"]
+    if (typeByStep[step]) setWriteType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1434,41 +1439,95 @@ export function DynamoDBConditionalWritesExplainer() {
         </div>
 
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="bg-purple-500 rounded p-2 text-white text-xs">User A</div>
-              <div className="flex-1 mx-2 h-0.5 bg-purple-500"></div>
-              <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
-              <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
-              <div className={`rounded p-2 text-white text-xs ${writeType === "conditional" ? "bg-green-500" : "bg-green-500"}`}>✓</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="bg-orange-500 rounded p-2 text-white text-xs">User B</div>
-              <div className="flex-1 mx-2 h-0.5 bg-orange-500"></div>
-              <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
-              <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
-              <div className={`rounded p-2 text-white text-xs ${writeType === "conditional" ? "bg-red-500" : "bg-green-500"}`}>
-                {writeType === "conditional" ? "✗" : "✓ (overwrites!)"}
+          {step === 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="bg-purple-500 rounded p-2 text-white text-xs">User A</div>
+                <div className="flex-1 mx-2 h-0.5 bg-purple-500"></div>
+                <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
+                <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
+                <div className="bg-green-500 rounded p-2 text-white text-xs">✓</div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="bg-orange-500 rounded p-2 text-white text-xs">User B</div>
+                <div className="flex-1 mx-2 h-0.5 bg-orange-500"></div>
+                <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
+                <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
+                <div className="bg-green-500 rounded p-2 text-white text-xs">✓ (overwrites!)</div>
+              </div>
+              <div className="mt-4 bg-slate-800 rounded p-3">
+                <div className="text-xs text-slate-400 mb-2">Without Condition - Race Condition Risk</div>
+                <pre className="text-xs text-red-400 font-mono overflow-x-auto">{`UpdateItem:
+  Key: {id: "123"}
+  UpdateExpression: "SET price = :p"
+// No condition - last write wins!`}</pre>
               </div>
             </div>
-          </div>
-
-          <div className="mt-4 bg-slate-800 rounded p-3">
-            <div className="text-xs text-slate-400 mb-2">{writeType === "conditional" ? "With Condition" : "Without Condition"}</div>
-            <pre className="text-xs text-green-400 font-mono overflow-x-auto">
-{writeType === "conditional" ? `UpdateItem:
+          )}
+          {step === 1 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="bg-purple-500 rounded p-2 text-white text-xs">User A</div>
+                <div className="flex-1 mx-2 h-0.5 bg-purple-500"></div>
+                <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
+                <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
+                <div className="bg-green-500 rounded p-2 text-white text-xs">✓</div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="bg-orange-500 rounded p-2 text-white text-xs">User B</div>
+                <div className="flex-1 mx-2 h-0.5 bg-orange-500"></div>
+                <div className="bg-blue-600 rounded p-2 text-white text-xs">UpdateItem</div>
+                <div className="flex-1 mx-2 h-0.5 bg-blue-500"></div>
+                <div className="bg-red-500 rounded p-2 text-white text-xs">✗ Rejected</div>
+              </div>
+              <div className="mt-4 bg-slate-800 rounded p-3">
+                <div className="text-xs text-slate-400 mb-2">With Condition - Safe</div>
+                <pre className="text-xs text-green-400 font-mono overflow-x-auto">{`UpdateItem:
   Key: {id: "123"}
-  UpdateExpression: "SET price = :p"
   ConditionExpression: "version = :v"
-  ExpressionAttributeValues:
-    ":p": 99.99, ":v": 5` : `UpdateItem:
-  Key: {id: "123"}
-  UpdateExpression: "SET price = :p"
-  ExpressionAttributeValues:
-    ":p": 99.99
-// No condition - last write wins!`}
-            </pre>
-          </div>
+  ExpressionAttributeValues: {":v": 5}`}</pre>
+              </div>
+            </div>
+          )}
+          {step === 2 && (
+            <div className="space-y-4">
+              <div className="bg-slate-800 rounded p-3">
+                <div className="text-xs text-slate-400 mb-2">Atomic Counter Pattern</div>
+                <pre className="text-xs text-blue-400 font-mono overflow-x-auto">{`UpdateItem:
+  Key: {id: "post-1"}
+  UpdateExpression: "SET likes = likes + :inc"
+  ExpressionAttributeValues: {":inc": 1}
+// Atomic - no condition needed`}</pre>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="bg-purple-500/20 border border-purple-500 rounded p-2">
+                  <div className="text-xs text-slate-400">Before</div>
+                  <div className="text-lg text-white">likes: 42</div>
+                </div>
+                <div className="flex items-center justify-center text-2xl text-blue-400">→</div>
+                <div className="bg-green-500/20 border border-green-500 rounded p-2">
+                  <div className="text-xs text-slate-400">After +1</div>
+                  <div className="text-lg text-white">likes: 43</div>
+                </div>
+              </div>
+            </div>
+          )}
+          {step === 3 && (
+            <div className="space-y-3">
+              <div className="bg-slate-800 rounded p-3">
+                <div className="text-xs text-green-400 mb-1">Safe Create</div>
+                <pre className="text-xs text-slate-300 font-mono">ConditionExpression: &quot;attribute_not_exists(pk)&quot;</pre>
+              </div>
+              <div className="bg-slate-800 rounded p-3">
+                <div className="text-xs text-blue-400 mb-1">Safe Update</div>
+                <pre className="text-xs text-slate-300 font-mono">ConditionExpression: &quot;attribute_exists(pk)&quot;</pre>
+              </div>
+              <div className="bg-slate-800 rounded p-3">
+                <div className="text-xs text-purple-400 mb-1">Optimistic Lock</div>
+                <pre className="text-xs text-slate-300 font-mono">ConditionExpression: &quot;version = :v&quot;</pre>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
