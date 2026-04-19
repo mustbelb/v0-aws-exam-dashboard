@@ -25,6 +25,11 @@ export function VPCSubnetsExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"public" | "private"> = ["public", "public", "private", "public"]
+    if (typeByStep[step]) setSubnetType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -118,6 +123,11 @@ export function VPCSecurityGroupsVsNACLsExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const layerByStep: Array<"sg" | "nacl"> = ["sg", "sg", "nacl", "sg"]
+    if (layerByStep[step]) setLayer(layerByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -228,6 +238,11 @@ export function VPCNATGatewayExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const natByStep: Array<boolean> = [false, true, true, true]
+    setHasNat(natByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -334,6 +349,11 @@ export function VPCEndpointsExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"gateway" | "interface"> = ["gateway", "gateway", "interface", "interface"]
+    if (typeByStep[step]) setEndpointType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -436,6 +456,7 @@ export function VPCEndpointsExplainer() {
 export function VPCPeeringExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "requirements" | "crossaccount" | "routes">("overview")
 
   const steps = [
     { title: "What is VPC Peering?", description: "Connect two VPCs privately using AWS network. Traffic never touches public internet." },
@@ -451,8 +472,13 @@ export function VPCPeeringExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const focusByStep: Array<"overview" | "requirements" | "crossaccount" | "routes"> = ["overview", "requirements", "crossaccount", "routes"]
+    if (focusByStep[step]) setFocus(focusByStep[step])
+  }, [step])
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" data-focus={focus}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">VPC Peering</h1>
         <p className="text-slate-400">Private networking between VPCs</p>
@@ -541,6 +567,7 @@ export function VPCPeeringExplainer() {
 export function VPCRouteTablesExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "routes" | "specificity" | "main">("overview")
 
   const steps = [
     { title: "What are Route Tables?", description: "Rules determining where network traffic is directed. Each subnet must be associated with one route table." },
@@ -556,8 +583,13 @@ export function VPCRouteTablesExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const focusByStep: Array<"overview" | "routes" | "specificity" | "main"> = ["overview", "routes", "specificity", "main"]
+    if (focusByStep[step]) setFocus(focusByStep[step])
+  }, [step])
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" data-focus={focus}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">VPC Route Tables</h1>
         <p className="text-slate-400">Directing network traffic flow</p>
@@ -652,6 +684,7 @@ export function VPCRouteTablesExplainer() {
 export function VPCFlowLogsExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "destinations" | "content" | "aggregation">("overview")
 
   const steps = [
     { title: "What are Flow Logs?", description: "Capture IP traffic information for VPC, subnet, or ENI. Great for troubleshooting and security." },
@@ -667,8 +700,13 @@ export function VPCFlowLogsExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const focusByStep: Array<"overview" | "destinations" | "content" | "aggregation"> = ["overview", "destinations", "content", "aggregation"]
+    if (focusByStep[step]) setFocus(focusByStep[step])
+  }, [step])
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" data-focus={focus}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">VPC Flow Logs</h1>
         <p className="text-slate-400">Monitoring network traffic</p>

@@ -3858,6 +3858,7 @@ export function HybridArchitectureExplainer() {
 export function CostOptimizationExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [currentView, setCurrentView] = useState<0 | 1 | 2 | 3 | 4>(0)
 
   const steps = [
     { title: "Cost Optimization", description: "Reduce AWS spending while maintaining performance" },
@@ -3874,6 +3875,12 @@ export function CostOptimizationExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  // Sync current view with step: 0 overview, 1 right-size (On-Demand), 2 Reserved, 3 Spot, 4 S3 tiering
+  useEffect(() => {
+    const viewByStep: Array<0 | 1 | 2 | 3 | 4> = [0, 1, 2, 3, 4]
+    if (viewByStep[step] !== undefined) setCurrentView(viewByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
@@ -3883,15 +3890,15 @@ export function CostOptimizationExplainer() {
 
       <div className="bg-gray-800 rounded-xl p-6 mb-6">
         <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-4">
+          <div className={`space-y-4 transition-all ${currentView === 4 ? "opacity-40" : ""} ${currentView === 1 ? "ring-2 ring-yellow-400 rounded-lg p-2" : ""}`}>
             <div className="text-lg font-semibold text-green-400 mb-2">EC2 Pricing Options</div>
             {[
-              { type: "On-Demand", savings: "0%", color: "gray", desc: "Pay as you go" },
-              { type: "Reserved", savings: "Up to 75%", color: "blue", desc: "1-3 year commit" },
-              { type: "Spot", savings: "Up to 90%", color: "green", desc: "Spare capacity" },
-              { type: "Savings Plans", savings: "Up to 72%", color: "purple", desc: "Flexible commitment" }
+              { type: "On-Demand", savings: "0%", color: "gray", desc: "Pay as you go", viewIdx: 1 },
+              { type: "Reserved", savings: "Up to 75%", color: "blue", desc: "1-3 year commit", viewIdx: 2 },
+              { type: "Spot", savings: "Up to 90%", color: "green", desc: "Spare capacity", viewIdx: 3 },
+              { type: "Savings Plans", savings: "Up to 72%", color: "purple", desc: "Flexible commitment", viewIdx: 2 }
             ].map((option, i) => (
-              <div key={i} className={`bg-${option.color}-900/30 border border-${option.color}-500/50 rounded-lg p-3 flex justify-between items-center`}
+              <div key={i} className={`bg-${option.color}-900/30 border border-${option.color}-500/50 rounded-lg p-3 flex justify-between items-center transition-all ${currentView === option.viewIdx ? "ring-2 ring-white scale-105" : ""}`}
                    style={{ backgroundColor: option.color === "gray" ? "rgba(75,85,99,0.3)" : undefined }}>
                 <div>
                   <div className="font-semibold text-white">{option.type}</div>
@@ -3904,7 +3911,7 @@ export function CostOptimizationExplainer() {
             ))}
           </div>
 
-          <div className="space-y-4">
+          <div className={`space-y-4 transition-all ${currentView >= 1 && currentView <= 3 ? "opacity-40" : ""} ${currentView === 4 ? "ring-2 ring-yellow-400 rounded-lg p-2" : ""}`}>
             <div className="text-lg font-semibold text-blue-400 mb-2">S3 Storage Classes</div>
             {[
               { tier: "Standard", cost: "$$$", access: "Frequent" },
@@ -3912,7 +3919,7 @@ export function CostOptimizationExplainer() {
               { tier: "Glacier IR", cost: "$", access: "Rare (ms)" },
               { tier: "Glacier Deep", cost: "¢", access: "Archive (hrs)" }
             ].map((tier, i) => (
-              <div key={i} className="bg-gray-700 rounded-lg p-3 flex justify-between items-center">
+              <div key={i} className={`bg-gray-700 rounded-lg p-3 flex justify-between items-center transition-all ${currentView === 4 && i === 3 ? "ring-2 ring-white scale-105" : ""}`}>
                 <div>
                   <div className="font-semibold text-white">{tier.tier}</div>
                   <div className="text-xs text-gray-400">{tier.access} access</div>

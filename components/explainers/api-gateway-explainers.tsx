@@ -25,6 +25,12 @@ export function RestVsHttpApisExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  // Sync selected API with step
+  useEffect(() => {
+    const apiByStep: Array<"rest" | "http"> = ["rest", "rest", "http", "rest", "http", "http"]
+    if (apiByStep[step]) setSelectedApi(apiByStep[step])
+  }, [step])
+
   const restFeatures = [
     { name: "API Keys", supported: true },
     { name: "Caching", supported: true },
@@ -199,6 +205,12 @@ export function StagesDeploymentsExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  // Sync active stage with step
+  useEffect(() => {
+    const stageByStep: string[] = ["dev", "staging", "prod", "prod", "dev"]
+    if (stageByStep[step]) setActiveStage(stageByStep[step])
+  }, [step])
+
   const stages = [
     { name: "dev", color: "blue", lambda: "my-func:$LATEST", caching: false },
     { name: "staging", color: "yellow", lambda: "my-func:staging", caching: true },
@@ -354,6 +366,12 @@ export function AuthenticationMethodsExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  // Sync auth type with step
+  useEffect(() => {
+    const authByStep: Array<"apikey" | "lambda" | "cognito" | "iam"> = ["cognito", "apikey", "lambda", "cognito", "iam", "cognito"]
+    if (authByStep[step]) setAuthType(authByStep[step])
+  }, [step])
 
   const authMethods = {
     apikey: { name: "API Key", icon: "🔑", color: "blue", use: "Usage tracking, throttling", notFor: "Primary authentication" },
@@ -512,6 +530,12 @@ export function ThrottlingRateLimitingExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  // Sync request rate with step
+  useEffect(() => {
+    const rateByStep: number[] = [3000, 9000, 5000, 7000, 12000]
+    if (rateByStep[step] !== undefined) setRequestRate(rateByStep[step])
+  }, [step])
+
   const accountLimit = 10000
   const usagePlanLimit = 5000
   const isThrottled = requestRate > usagePlanLimit
@@ -657,6 +681,14 @@ export function ApiCachingExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  // Sync cache enabled + TTL with step
+  useEffect(() => {
+    const cacheByStep: boolean[] = [false, true, true, true, false]
+    const ttlByStep: number[] = [0, 300, 600, 1800, 0]
+    if (cacheByStep[step] !== undefined) setCacheEnabled(cacheByStep[step])
+    if (ttlByStep[step] !== undefined) setTtl(ttlByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

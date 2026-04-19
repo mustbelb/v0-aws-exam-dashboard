@@ -529,6 +529,11 @@ export function S3EncryptionExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"sse-s3" | "sse-kms" | "sse-c" | "client"> = ["sse-s3", "sse-s3", "sse-kms", "sse-c"]
+    if (typeByStep[step]) setEncryptionType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -757,6 +762,11 @@ export function S3BucketPoliciesExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"public" | "cross-account" | "vpc" | "encryption"> = ["public", "cross-account", "vpc", "encryption"]
+    if (typeByStep[step]) setPolicyType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -858,6 +868,15 @@ export function S3PresignedURLsExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const elapsedByStep = [0, 600, 1800, 7200]
+    const expiryByStep = [3600, 3600, 3600, 3600]
+    if (elapsedByStep[step] !== undefined) {
+      setTimeElapsed(elapsedByStep[step])
+      setUrlExpiry(expiryByStep[step])
+    }
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1010,6 +1029,11 @@ export function S3ReplicationExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const typeByStep: Array<"crr" | "srr"> = ["crr", "crr", "srr", "crr"]
+    if (typeByStep[step]) setReplicationType(typeByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1165,6 +1189,11 @@ export function S3EventNotificationsExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"put" | "delete" | "restore"> = ["put", "delete", "put", "restore"]
+    if (typeByStep[step]) setEventType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1293,6 +1322,11 @@ export function S3TransferAccelerationExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const enabledByStep = [false, true, true, false]
+    setAccelerationEnabled(enabledByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1446,6 +1480,11 @@ export function S3SelectExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const selectByStep = [true, true, true, false]
+    setUseSelect(selectByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1584,6 +1623,11 @@ export function S3AccessPointsExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const apByStep: Array<"finance" | "analytics" | "public"> = ["finance", "analytics", "finance", "public"]
+    if (apByStep[step]) setAccessPoint(apByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1690,6 +1734,11 @@ export function S3ObjectLockExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const modeByStep: Array<"governance" | "compliance"> = ["governance", "compliance", "compliance", "governance"]
+    if (modeByStep[step]) setLockMode(modeByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1815,6 +1864,11 @@ export function S3MultipartUploadExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const progressByStep = [0, 40, 75, 100]
+    if (progressByStep[step] !== undefined) setUploadProgress(progressByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1930,6 +1984,11 @@ export function S3CORSExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const enabledByStep = [false, true, true, true]
+    setCorsEnabled(enabledByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2057,6 +2116,11 @@ export function S3BatchOperationsExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const opByStep: Array<"copy" | "tag" | "acl" | "restore"> = ["copy", "tag", "acl", "restore"]
+    if (opByStep[step]) setOperation(opByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

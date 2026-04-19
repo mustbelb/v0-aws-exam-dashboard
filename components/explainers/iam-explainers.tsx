@@ -140,6 +140,11 @@ export function IAMPolicyTypesExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"managed" | "customer" | "inline" | "resource"> = ["managed", "managed", "customer", "inline"]
+    if (valueByStep[step]) setPolicyType(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -246,6 +251,11 @@ export function IAMRolesVsUsersExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"user" | "role"> = ["user", "user", "role", "role"]
+    if (valueByStep[step]) setIdentityType(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -337,6 +347,7 @@ export function IAMRolesVsUsersExplainer() {
 export function IAMCrossAccountExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [method, setMethod] = useState<"both" | "resource" | "role">("both")
 
   const steps = [
     { title: "Cross-Account Access", description: "Grant access between AWS accounts. Two methods: resource-based policies or role assumption." },
@@ -351,6 +362,11 @@ export function IAMCrossAccountExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const valueByStep: Array<"both" | "resource" | "role"> = ["both", "resource", "role", "both"]
+    if (valueByStep[step]) setMethod(valueByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -382,7 +398,7 @@ export function IAMCrossAccountExplainer() {
 
           {/* Methods comparison */}
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="bg-slate-800 rounded p-3">
+            <div className={`rounded p-3 transition-all ${method === "resource" ? "bg-orange-500/20 border border-orange-500" : method === "role" ? "bg-slate-800 opacity-50" : "bg-slate-800"}`}>
               <div className="text-sm font-medium text-orange-400 mb-2">Resource-Based Policy</div>
               <pre className="text-xs text-green-400 bg-slate-900 p-2 rounded overflow-x-auto">
 {`"Principal": {
@@ -390,7 +406,7 @@ export function IAMCrossAccountExplainer() {
 }`}
               </pre>
             </div>
-            <div className="bg-slate-800 rounded p-3">
+            <div className={`rounded p-3 transition-all ${method === "role" ? "bg-purple-500/20 border border-purple-500" : method === "resource" ? "bg-slate-800 opacity-50" : "bg-slate-800"}`}>
               <div className="text-sm font-medium text-purple-400 mb-2">Trust Policy (Role)</div>
               <pre className="text-xs text-green-400 bg-slate-900 p-2 rounded overflow-x-auto">
 {`"Principal": {
