@@ -51,6 +51,11 @@ export function S3StorageClassesExplainer() {
     }
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const classByStep = ["standard", "intelligent", "standard-ia", "glacier-instant"]
+    if (classByStep[step]) setSelectedClass(classByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -198,6 +203,11 @@ export function S3LifecycleExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const daysByStep = [0, 60, 120, 365]
+    if (daysByStep[step] !== undefined) setDaysSinceCreation(daysByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -350,6 +360,30 @@ export function S3VersioningExplainer() {
       setIsPlaying(false)
     }
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const baseVersions = [
+      { id: "v3", content: "Latest content", isLatest: true, isDeleted: false },
+      { id: "v2", content: "Previous content", isLatest: false, isDeleted: false },
+      { id: "v1", content: "Original content", isLatest: false, isDeleted: false },
+    ]
+    if (step === 0) {
+      setVersioningEnabled(false)
+      setVersions([baseVersions[0]])
+    } else if (step === 1) {
+      setVersioningEnabled(true)
+      setVersions(baseVersions)
+    } else if (step === 2) {
+      setVersioningEnabled(true)
+      setVersions([
+        { id: "delete-marker", content: "DELETE MARKER", isLatest: true, isDeleted: true },
+        ...baseVersions.map(v => ({ ...v, isLatest: false })),
+      ])
+    } else if (step === 3) {
+      setVersioningEnabled(true)
+      setVersions(baseVersions)
+    }
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
