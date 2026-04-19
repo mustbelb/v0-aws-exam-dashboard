@@ -650,6 +650,7 @@ export function IAMInstanceProfilesExplainer() {
 export function IAMSTSExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "operations" | "credentials" | "usecases">("overview")
 
   const steps = [
     { title: "What is STS?", description: "Security Token Service - provides temporary security credentials for IAM/federated users." },
@@ -665,6 +666,11 @@ export function IAMSTSExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"overview" | "operations" | "credentials" | "usecases"> = ["overview", "operations", "credentials", "usecases"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -674,7 +680,7 @@ export function IAMSTSExplainer() {
 
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
-          <div className="flex items-center justify-center gap-4">
+          <div className={`flex items-center justify-center gap-4 transition-all ${focus === "overview" || focus === "usecases" ? "ring-2 ring-purple-400/50 rounded-lg p-2" : ""}`}>
             <div className="bg-blue-500 rounded p-3 text-white text-xs text-center">
               User/Role/App
             </div>
@@ -690,7 +696,7 @@ export function IAMSTSExplainer() {
           </div>
 
           {/* Credentials breakdown */}
-          <div className="mt-4 p-3 bg-slate-800 rounded">
+          <div className={`mt-4 p-3 bg-slate-800 rounded transition-all ${focus === "credentials" ? "ring-2 ring-green-400" : focus === "overview" || focus === "operations" ? "opacity-50" : ""}`}>
             <div className="text-xs text-slate-400 mb-2">Temporary Credentials Include:</div>
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="bg-blue-500/20 p-2 rounded text-center text-blue-400">AccessKeyId</div>
@@ -701,7 +707,7 @@ export function IAMSTSExplainer() {
           </div>
 
           {/* Operations */}
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <div className={`mt-4 flex flex-wrap justify-center gap-2 transition-all ${focus === "operations" ? "ring-2 ring-blue-400 rounded p-2" : focus === "credentials" || focus === "overview" ? "opacity-50" : ""}`}>
             <div className="bg-slate-700 rounded px-2 py-1 text-xs text-slate-300">AssumeRole</div>
             <div className="bg-slate-700 rounded px-2 py-1 text-xs text-slate-300">AssumeRoleWithSAML</div>
             <div className="bg-slate-700 rounded px-2 py-1 text-xs text-slate-300">AssumeRoleWithWebIdentity</div>
@@ -744,6 +750,7 @@ export function IAMSTSExplainer() {
 export function IAMConditionsExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [example, setExample] = useState<"all" | "mfa" | "ip" | "tag">("all")
 
   const steps = [
     { title: "Policy Conditions", description: "Add constraints to when a policy applies. Condition keys check request context." },
@@ -758,6 +765,11 @@ export function IAMConditionsExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const valueByStep: Array<"all" | "mfa" | "ip" | "tag"> = ["all", "mfa", "ip", "tag"]
+    if (valueByStep[step]) setExample(valueByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
