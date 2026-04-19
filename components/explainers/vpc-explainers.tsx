@@ -1608,6 +1608,11 @@ export function VPCDirectConnectExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const typeByStep: Array<"dedicated" | "hosted"> = ["dedicated", "hosted", "dedicated", "dedicated"]
+    if (typeByStep[step]) setConnectionType(typeByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">

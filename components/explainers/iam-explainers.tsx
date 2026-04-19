@@ -583,13 +583,13 @@ export function IAMInstanceProfilesExplainer() {
 
       <div className="bg-slate-800/50 rounded-2xl p-6 mb-4">
         <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
-          <div className="flex items-center justify-center gap-4">
+          <div className={`flex items-center justify-center gap-4 transition-all ${focus === "profile" || focus === "creation" ? "ring-2 ring-blue-400/50 rounded-lg p-2" : ""}`}>
             <div className="bg-blue-500 rounded-lg p-4 text-white text-center">
               <div className="text-2xl">🖥️</div>
               <div className="text-xs">EC2 Instance</div>
             </div>
             <div className="text-slate-400">←→</div>
-            <div className="bg-purple-500 rounded-lg p-4 text-white text-center">
+            <div className={`bg-purple-500 rounded-lg p-4 text-white text-center transition-all ${focus === "profile" || focus === "creation" ? "scale-110" : ""}`}>
               <div className="text-2xl">📋</div>
               <div className="text-xs">Instance Profile</div>
             </div>
@@ -600,7 +600,7 @@ export function IAMInstanceProfilesExplainer() {
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-slate-800 rounded">
+          <div className={`mt-4 p-3 bg-slate-800 rounded transition-all ${focus === "flow" ? "ring-2 ring-blue-400" : focus === "profile" || focus === "secure" ? "opacity-50" : ""}`}>
             <div className="text-xs text-slate-400 mb-2">Credential Flow:</div>
             <div className="text-xs text-slate-300">
               1. App on EC2 calls AWS API<br/>
@@ -610,7 +610,7 @@ export function IAMInstanceProfilesExplainer() {
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded text-center">
+          <div className={`mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded text-center transition-all ${focus === "secure" ? "ring-2 ring-green-400" : focus === "profile" || focus === "flow" ? "opacity-50" : ""}`}>
             <div className="text-xs text-green-400">✓ No access keys stored on instance - secure!</div>
           </div>
         </div>
