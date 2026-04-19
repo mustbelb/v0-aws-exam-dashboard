@@ -780,6 +780,7 @@ export function VPCFlowLogsExplainer() {
 export function VPCTransitGatewayExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "hubspoke" | "routes" | "crossregion">("overview")
 
   const steps = [
     { title: "What is Transit Gateway?", description: "Hub to connect VPCs, VPNs, and Direct Connect. Simplifies complex network topologies." },
@@ -795,8 +796,13 @@ export function VPCTransitGatewayExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const focusByStep: Array<"overview" | "hubspoke" | "routes" | "crossregion"> = ["overview", "hubspoke", "routes", "crossregion"]
+    if (focusByStep[step]) setFocus(focusByStep[step])
+  }, [step])
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" data-focus={focus}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">Transit Gateway</h1>
         <p className="text-slate-400">Central hub for VPC connectivity</p>
@@ -878,6 +884,7 @@ export function VPCTransitGatewayExplainer() {
 export function VPCPrivateLinkExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"overview" | "provider" | "consumer" | "security">("overview")
 
   const steps = [
     { title: "What is PrivateLink?", description: "Expose services privately to other VPCs/accounts. Consumer sees it as local endpoint." },
@@ -893,8 +900,13 @@ export function VPCPrivateLinkExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const focusByStep: Array<"overview" | "provider" | "consumer" | "security"> = ["overview", "provider", "consumer", "security"]
+    if (focusByStep[step]) setFocus(focusByStep[step])
+  }, [step])
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" data-focus={focus}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">AWS PrivateLink</h1>
         <p className="text-slate-400">Private service connectivity</p>
@@ -987,6 +999,11 @@ export function VPCBastionVsSessionManagerExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const methodByStep: Array<"bastion" | "ssm"> = ["ssm", "bastion", "ssm", "ssm"]
+    if (methodByStep[step]) setMethod(methodByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1106,6 +1123,11 @@ export function VPCInternetGatewayExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const igwByStep: Array<boolean> = [false, true, true, true]
+    setHasIgw(igwByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1208,6 +1230,11 @@ export function VPCElasticIPExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const eipByStep: Array<boolean> = [true, true, false, true]
+    setEipAllocated(eipByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -1309,6 +1336,7 @@ export function VPCElasticIPExplainer() {
 export function VPCDNSExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"basics" | "hostnames" | "resolution" | "privatezone">("basics")
 
   const steps = [
     { title: "VPC DNS Basics", description: "AWS provides DNS server at VPC base + 2 (e.g., 10.0.0.2). Called Route 53 Resolver." },
@@ -1324,8 +1352,13 @@ export function VPCDNSExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const focusByStep: Array<"basics" | "hostnames" | "resolution" | "privatezone"> = ["basics", "hostnames", "resolution", "privatezone"]
+    if (focusByStep[step]) setFocus(focusByStep[step])
+  }, [step])
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" data-focus={focus}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">VPC DNS Settings</h1>
         <p className="text-slate-400">DNS resolution and hostnames in VPC</p>
@@ -1419,6 +1452,7 @@ export function VPCDNSExplainer() {
 export function VPCCIDRPlanningExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"basics" | "secondary" | "subnets" | "conflicts">("basics")
 
   const steps = [
     { title: "VPC CIDR Basics", description: "VPC requires IPv4 CIDR block. Range: /16 (65,536 IPs) to /28 (16 IPs). Can't change primary CIDR." },
@@ -1434,8 +1468,13 @@ export function VPCCIDRPlanningExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const focusByStep: Array<"basics" | "secondary" | "subnets" | "conflicts"> = ["basics", "secondary", "subnets", "conflicts"]
+    if (focusByStep[step]) setFocus(focusByStep[step])
+  }, [step])
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" data-focus={focus}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">VPC CIDR Planning</h1>
         <p className="text-slate-400">Designing IP address allocation</p>

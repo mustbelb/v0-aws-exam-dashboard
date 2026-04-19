@@ -452,6 +452,7 @@ export function IAMCrossAccountExplainer() {
 export function IAMPermissionsBoundariesExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"all" | "policy" | "boundary" | "effective">("all")
 
   const steps = [
     { title: "What are Permissions Boundaries?", description: "Maximum permissions an identity CAN have. Limits what policies can grant." },
@@ -467,6 +468,11 @@ export function IAMPermissionsBoundariesExplainer() {
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
 
+  useEffect(() => {
+    const valueByStep: Array<"all" | "policy" | "boundary" | "effective"> = ["all", "effective", "policy", "boundary"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
@@ -479,15 +485,15 @@ export function IAMPermissionsBoundariesExplainer() {
           {/* Venn diagram visualization */}
           <div className="flex justify-center items-center h-48 relative">
             {/* Identity Policy circle */}
-            <div className="absolute w-32 h-32 rounded-full bg-blue-500/30 border-2 border-blue-500 left-1/3 flex items-center justify-center">
+            <div className={`absolute w-32 h-32 rounded-full bg-blue-500/30 border-2 border-blue-500 left-1/3 flex items-center justify-center transition-all ${focus === "policy" ? "ring-4 ring-blue-400 scale-110" : focus === "boundary" || focus === "effective" ? "opacity-40" : ""}`}>
               <div className="text-xs text-blue-400">Identity<br/>Policy</div>
             </div>
             {/* Boundary circle */}
-            <div className="absolute w-32 h-32 rounded-full bg-orange-500/30 border-2 border-orange-500 right-1/3 flex items-center justify-center">
+            <div className={`absolute w-32 h-32 rounded-full bg-orange-500/30 border-2 border-orange-500 right-1/3 flex items-center justify-center transition-all ${focus === "boundary" ? "ring-4 ring-orange-400 scale-110" : focus === "policy" || focus === "effective" ? "opacity-40" : ""}`}>
               <div className="text-xs text-orange-400">Permissions<br/>Boundary</div>
             </div>
             {/* Intersection */}
-            <div className="absolute w-16 h-16 rounded-full bg-green-500/50 flex items-center justify-center z-10">
+            <div className={`absolute w-16 h-16 rounded-full bg-green-500/50 flex items-center justify-center z-10 transition-all ${focus === "effective" ? "ring-4 ring-green-400 scale-125" : focus === "policy" || focus === "boundary" ? "opacity-40" : ""}`}>
               <div className="text-[10px] text-green-400 text-center">Effective<br/>Access</div>
             </div>
           </div>
@@ -496,15 +502,15 @@ export function IAMPermissionsBoundariesExplainer() {
           <div className="mt-4 p-3 bg-slate-800 rounded">
             <div className="text-xs text-slate-400 mb-2">Example:</div>
             <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="bg-blue-500/20 p-2 rounded text-center">
+              <div className={`bg-blue-500/20 p-2 rounded text-center transition-all ${focus === "policy" ? "ring-2 ring-blue-400" : focus === "boundary" || focus === "effective" ? "opacity-40" : ""}`}>
                 <div className="text-blue-400">Policy</div>
                 <div className="text-slate-300">s3:*, ec2:*</div>
               </div>
-              <div className="bg-orange-500/20 p-2 rounded text-center">
+              <div className={`bg-orange-500/20 p-2 rounded text-center transition-all ${focus === "boundary" ? "ring-2 ring-orange-400" : focus === "policy" || focus === "effective" ? "opacity-40" : ""}`}>
                 <div className="text-orange-400">Boundary</div>
                 <div className="text-slate-300">s3:*</div>
               </div>
-              <div className="bg-green-500/20 p-2 rounded text-center">
+              <div className={`bg-green-500/20 p-2 rounded text-center transition-all ${focus === "effective" ? "ring-2 ring-green-400" : focus === "policy" || focus === "boundary" ? "opacity-40" : ""}`}>
                 <div className="text-green-400">Effective</div>
                 <div className="text-slate-300">s3:* only</div>
               </div>
@@ -547,6 +553,7 @@ export function IAMPermissionsBoundariesExplainer() {
 export function IAMInstanceProfilesExplainer() {
   const [step, setStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [focus, setFocus] = useState<"profile" | "flow" | "creation" | "secure">("profile")
 
   const steps = [
     { title: "What is an Instance Profile?", description: "Container for IAM role that you attach to EC2 instance. Provides temporary credentials." },
@@ -561,6 +568,11 @@ export function IAMInstanceProfilesExplainer() {
       return () => clearTimeout(timer)
     } else if (step >= steps.length - 1) setIsPlaying(false)
   }, [isPlaying, step, steps.length])
+
+  useEffect(() => {
+    const valueByStep: Array<"profile" | "flow" | "creation" | "secure"> = ["profile", "flow", "creation", "secure"]
+    if (valueByStep[step]) setFocus(valueByStep[step])
+  }, [step])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
