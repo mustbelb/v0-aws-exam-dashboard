@@ -45,6 +45,9 @@ for(const bad of [goodWire.replace(frame({type:'message_stop'}),''),frame({type:
 }
 wire=goodWire;providerStatus=429;await assert.rejects(()=>generator.generate(context,()=>{},signal));providerStatus=200
 const acceptedReview=reviewBody
+reviewBody={stop_reason:'end_turn',content:[{type:'text',text:'```json\n{"approved":true,"reason":"Consistent candidate"}\n```'}]}
+const fencedEvents=[];await generator.generate(context,e=>fencedEvents.push(e),signal)
+assert.equal(fencedEvents.at(-1).type,'complete','Accept valid JSON inside a code fence')
 for(const badReview of [
  {stop_reason:'end_turn',content:[{type:'text',text:'{"approved":false,"reason":"Unsupported diagnosis"}'}]},
  {stop_reason:'end_turn',content:[{type:'text',text:'{"approved":"true","reason":"Not a boolean"}'}]},

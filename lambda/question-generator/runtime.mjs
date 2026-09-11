@@ -101,7 +101,7 @@ export function createGenerator({env = process.env, fetchImpl = fetch} = {}) {
       let verdict
       try {
         if (reviewed.stop_reason!=='end_turn' || !Array.isArray(reviewed.content) || reviewed.content.length!==1 || reviewed.content[0].type!=='text' || typeof reviewed.content[0].text!=='string' || reviewed.content[0].text.length>8000) throw new Error('Invalid review')
-        verdict=JSON.parse(reviewed.content[0].text)
+        verdict=JSON.parse(reviewed.content[0].text.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,''))
         if (!verdict || typeof verdict.approved!=='boolean' || typeof verdict.reason!=='string' || !verdict.reason.trim()) throw new Error('Invalid review')
       } catch { throw new HttpError(502,'Question review was incomplete. Please try again.','review_invalid') }
       if (!verdict.approved) throw new HttpError(422,'This generated question did not pass the consistency check. Please try another question.','review_rejected')
