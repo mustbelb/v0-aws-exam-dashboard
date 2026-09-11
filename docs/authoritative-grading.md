@@ -11,6 +11,14 @@ The updated app issues a private database record for each question. The browser 
 - `supabase/cutover/lock-authoritative-writes.sql` is tested but NOT applied live. It removes direct history/progress writes and execution of both increment functions and the client-key saver. The SECURITY DEFINER issued-answer function still calls the saver internally.
 - The old Vercel application remains functional. Consequently, legacy client-trusted write paths remain a live security limitation until coordinated cutover. Do not claim authoritative grading is enforced across the live database yet.
 
+## Generated question consistency review
+
+The test generator makes one additional, non-streaming provider request after parsing a candidate and before creating private issuance. The reviewer receives only candidate content and service/certification, and must return an explicit boolean approval plus a reason. Rejection, malformed/truncated output, timeout, or provider failure prevents issuance and completion. Draft previews cannot be submitted; review reasons and answer keys are not streamed. There are no automatic regeneration retries. This adds provider usage and up to 30 seconds for review within the existing overall deadline and per-user generation quota.
+
+This is an AI consistency screen using the same model in a separate call, not an independent factual authority. It can still approve incorrect content or reject useful material. Human review and authoritative AWS sources remain necessary for question-bank quality. Exact repeated trailing answer lists are removed only when all four choices match the separate options; nonmatching scenario text is preserved. Existing bank questions and saved history are not rewritten.
+
+The review uses the provider's [Messages API](https://platform.claude.com/docs/en/api/messages/create). Generation regression tests cover approved review, rejection, invalid verdicts, truncation, and unavailable review without issuance.
+
 ## Cutover order
 
 1. Configure a server-only Supabase key and the read-only DynamoDB workload role/profile. The Amplify SSR environment allowlist now supports `SUPABASE_SECRET_KEY`; never log the generated environment file or include it in a public artifact.
