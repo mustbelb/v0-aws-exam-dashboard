@@ -1,0 +1,5 @@
+# These dependency postinstall hooks are not needed for the application build.
+# Keep new, unreviewed dependency scripts blocked by pnpm's default policy.
+allowBuilds:
+  aws-sdk: false
+  unrs-resolver: false

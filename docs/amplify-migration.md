@@ -70,18 +70,17 @@ Set SUPABASE_SECRET_KEY as a server-only hosting configuration value for private
 
 The test branch is codex/aws-integration; the production branch stays unchanged. The build runs typechecking and playback, route, generation and issuance regressions before Next build. The local production build passed (lint is skipped by the existing configuration).
 
-## Publication checkpoint
+## Test deployment in progress
 
-The local production build and all regression suites pass. Automatic approval review
-blocked publishing the full workspace to GitHub, citing potentially private source and
-metadata and an unverified destination. No push occurred. The proposed upload is now
-limited to application source, tests, build/deployment helpers, and technical docs on
-`https://github.com/mustbelb/v0-aws-exam-dashboard`, branch `codex/aws-integration`.
-The local `outputs/` handoff reports, environment files and build artifacts are excluded.
-User approval of this specific branch publication is required before retrying the push.
-The production main branch will not be updated as part of the test deployment.
+Commit089e474 is published on codex/aws-integration after explicit user approval.
+The existing AWS Amplify GitHub app was granted access only to this repository after
+separate confirmation. The aws-exam-test app is d33uz7aibh12e5 in us-east-2.
+The branch has a dedicated compute role permitting only dynamodb:Query on exam-questions;
+a separate service role writes this app's CloudWatch logs with14-day retention.
+Node22 and the server-only environment allowlist are configured through
+scripts/deployment/configure-amplify-test.cjs. No production cutover occurred.
 
-The Amplify console reached repository selection, but its GitHub repository list remained
-loading. No exam app or hosting branch was created. After publication approval, complete
-the existing Amplify GitHub connection or investigate that loading state; do not grant
-broader repository permissions without checking the exact requested scope.
+The first hosted install failed because pnpm11 requires explicit decisions for
+unreviewed dependency postinstall hooks. pnpm-workspace.yaml now explicitly skips
+aws-sdk's maintenance warning and the unused lint resolver's native postinstall hook.
+New dependency scripts remain blocked by default. Hosted verification is in progress.

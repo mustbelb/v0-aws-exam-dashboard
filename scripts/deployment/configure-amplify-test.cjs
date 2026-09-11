@@ -1,0 +1,20 @@
+// Configures only the existing aws-exam-test app after its GitHub connection is created.
+const fs=require('node:fs'),{execFileSync}=require('node:child_process'),dotenv=require('dotenv');
+function aws(args,input){const directory=input?fs.mkdtempSync('/private/tmp/aws-exam-hosting-'):null;try{const file=directory+'/input.json';if(input)fs.writeFileSync(file,JSON.stringify(input),{mode:0o600});return JSON.parse(execFileSync('aws',[...args,'--profile','aws-exam-local','--region','us-east-2','--output','json',...(input?['--cli-input-json','file://'+file]:[])],{encoding:'utf8',stdio:['ignore','pipe','pipe']})||'{}')}catch(e){throw Error('AWS '+args.slice(0,2).join(' ')+' failed: '+(String(e.stderr).match(/\(([A-Za-z]+Exception|[A-Za-z]*Error|NoSuchEntity|EntityAlreadyExists|ResourceAlreadyExistsException)\)/)?.[1]||'check account permissions/configuration'))}finally{if(directory)fs.rmSync(directory,{recursive:true,force:true})}}
+const identity=aws(['sts','get-caller-identity']);if(identity.Account!=='996068820512')throw Error('Unexpected account');
+const matches=aws(['amplify','list-apps']).apps.filter(a=>a.name==='aws-exam-test');if(matches.length!==1)throw Error('Expected exactly one aws-exam-test app');const app=matches[0];
+if(app.repository!=='https://github.com/mustbelb/v0-aws-exam-dashboard')throw Error('Unexpected repository');
+const branch='codex/aws-integration';aws(['amplify','get-branch','--app-id',app.appId,'--branch-name',branch]);
+const trust={Version:'2012-10-17',Statement:[{Effect:'Allow',Principal:{Service:'amplify.amazonaws.com'},Action:'sts:AssumeRole',Condition:{StringEquals:{'aws:SourceAccount':identity.Account},ArnLike:{'aws:SourceArn':[app.appArn,app.appArn+'/*']}}}]};
+const logRole='aws-exam-amplify-test-logs',computeRole='aws-exam-amplify-test-compute';
+for(const name of [logRole,computeRole]){try{aws(['iam','get-role','--role-name',name])}catch(e){if(!e.message.includes('NoSuchEntity'))throw e;aws(['iam','create-role'],{RoleName:name,AssumeRolePolicyDocument:JSON.stringify(trust)})}aws(['iam','update-assume-role-policy'],{RoleName:name,PolicyDocument:JSON.stringify(trust)})}
+const group='/aws/amplify/'+app.appId,logArn=`arn:aws:logs:us-east-2:${identity.Account}:log-group:${group}`;
+try{aws(['logs','create-log-group','--log-group-name',group])}catch(e){if(!e.message.includes('ResourceAlreadyExistsException'))throw e}
+aws(['logs','put-retention-policy','--log-group-name',group,'--retention-in-days','14']);
+aws(['iam','put-role-policy'],{RoleName:logRole,PolicyName:'TestAppLogs',PolicyDocument:JSON.stringify({Version:'2012-10-17',Statement:[{Effect:'Allow',Action:['logs:CreateLogGroup','logs:CreateLogStream','logs:PutLogEvents'],Resource:[logArn,logArn+':*']},{Effect:'Allow',Action:'logs:DescribeLogGroups',Resource:'*'}]})});
+aws(['iam','put-role-policy'],{RoleName:computeRole,PolicyName:'QuestionBankRead',PolicyDocument:JSON.stringify({Version:'2012-10-17',Statement:[{Effect:'Allow',Action:'dynamodb:Query',Resource:`arn:aws:dynamodb:us-east-2:${identity.Account}:table/exam-questions`}]})});
+const local=dotenv.parse(fs.readFileSync('.env.local'));const keys=['NEXT_PUBLIC_SUPABASE_URL','NEXT_PUBLIC_SUPABASE_ANON_KEY','SUPABASE_SECRET_KEY','AUTHENTICATED_GENERATOR_URL','DYNAMODB_REGION','DYNAMODB_TABLE_NAME'];const env=Object.fromEntries(keys.map(k=>[k,local[k]]));if(Object.values(env).some(v=>!v))throw Error('Missing hosting configuration');
+env.DESIGN_PREVIEW='false';env._LIVE_UPDATES=JSON.stringify([{pkg:'node',type:'nvm',version:'22'}]);
+aws(['amplify','update-app'],{appId:app.appId,platform:'WEB_COMPUTE',environmentVariables:env,iamServiceRoleArn:`arn:aws:iam::${identity.Account}:role/${logRole}`,enableAutoBranchCreation:false,enableBranchAutoBuild:true});
+aws(['amplify','update-branch'],{appId:app.appId,branchName:branch,computeRoleArn:`arn:aws:iam::${identity.Account}:role/${computeRole}`,enablePullRequestPreview:false,enableAutoBuild:true,framework:'Next.js - SSR',stage:'BETA'});
+console.log(JSON.stringify({appId:app.appId,branch,defaultDomain:app.defaultDomain,configuredKeys:Object.keys(env),computePermission:'dynamodb:Query exam-questions only'}));
