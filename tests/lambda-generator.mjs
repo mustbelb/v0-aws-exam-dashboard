@@ -31,6 +31,11 @@ for(const certification of ['DVA-C02','SAA-C03']){
  const stored=JSON.parse(calls.at(-1).options.body);assert.equal(stored.correct_answer,'B');assert.equal(stored.user_id,'verified-user');assert.equal(stored.certification,certification)
 }
 const context=await generator.authorize(event,signal)
+const repeated={...fixture,question:fixture.question+'\nA. a\nB. b\nC. c\nD. d'}
+wire=frame({type:'content_block_delta',delta:{type:'text_delta',text:JSON.stringify(repeated)}})+frame({type:'message_stop'})
+calls=[];const cleanedEvents=[];await generator.generate(context,e=>cleanedEvents.push(e),signal)
+assert.equal(cleanedEvents.at(-1).question.question,fixture.question)
+assert.equal(JSON.parse(calls.at(-1).options.body).question_text,fixture.question,'Persist the same cleaned stem sent to the learner')
 for(const bad of [goodWire.replace(frame({type:'message_stop'}),''),frame({type:'error'}),frame({type:'content_block_delta',delta:{type:'text_delta',text:'{}'}})+frame({type:'message_stop'}),frame({type:'message_delta',delta:{stop_reason:'max_tokens'}}),frame({type:'content_block_delta',delta:{type:'text_delta',text:'x'.repeat(64001)}})]){
  wire=bad;calls=[];await assert.rejects(()=>generator.generate(context,()=>{},signal));assert.ok(!calls.some(c=>c.url.includes('issued_questions')))
 }

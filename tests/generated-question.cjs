@@ -18,6 +18,15 @@ for (const text of [json, plain, '```json\n'+json+'\n```', plain.replaceAll('\n'
 }
 for (const bad of ['{}', json.slice(0,-1), JSON.stringify({...fixture,correct:'B or C'}), JSON.stringify({...fixture,options:{A:'One'}}), JSON.stringify({...fixture,explanation:{}}), JSON.stringify({...fixture,correct:2})]) assert.equal(parser.parseGeneratedQuestion(bad),null);
 assert.equal(parser.parsePartialGeneratedQuestion('```json\n'+json).question,fixture.question);
+for (const label of [key => key+'.', key => key+')', key => '**'+key+':**']) {
+  const repeated = {...fixture, question: fixture.question+'\n\n'+Object.entries(fixture.options).map(([key,value])=>label(key)+' '+value).join('\n')};
+  assert.equal(parser.parseGeneratedQuestion(JSON.stringify(repeated)).question,fixture.question);
+  assert.equal(parser.parsePartialGeneratedQuestion(JSON.stringify(repeated)).question,fixture.question);
+  const distinct = {...repeated,question:repeated.question.replace('Three','A different scenario detail')};
+  assert.equal(parser.parseGeneratedQuestion(JSON.stringify(distinct)).question,distinct.question,'Do not remove a list with different content');
+}
+const embedded = {...fixture,question:'Compare these systems:\nA. One\nB. Two\nC. Three\nD. Four\nWhich is suitable?'};
+assert.equal(parser.parseGeneratedQuestion(JSON.stringify(embedded)).question,embedded.question,'Preserve scenario lists with following text');
 
 (async () => {
 for (const [path, exported] of [['app/practice/[service]/practice-client.tsx','PracticeClient'],['app/practice/random/[category]/random-practice-client.tsx','RandomPracticeClient']]) {

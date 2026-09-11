@@ -9,6 +9,16 @@ interface PartialQuestion { question?: string; options?: Partial<GeneratedQuesti
 const clean = (text: string) => text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
 const string = (value: unknown): string => typeof value === 'string' ? value.trim() : ''
 
+// Remove only a trailing list that exactly repeats the separately supplied choices.
+// Preserve scenario text and any list whose wording differs from those choices.
+function separateQuestionOptions(question: string, options: Partial<GeneratedQuestion['options']>): string {
+  const match = question.match(/\n\s*(?:\*\*)?A[.):](?:\*\*)?\s+([\s\S]*?)\n\s*(?:\*\*)?B[.):](?:\*\*)?\s+([\s\S]*?)\n\s*(?:\*\*)?C[.):](?:\*\*)?\s+([\s\S]*?)\n\s*(?:\*\*)?D[.):](?:\*\*)?\s+([\s\S]*)$/)
+  if (!match || match.index === undefined) return question
+  const normalize = (value: string) => value.trim().replace(/\s+/g, ' ')
+  if (!(['A','B','C','D'] as const).every((key, index) => options[key] && normalize(match[index + 1]) === normalize(options[key]!))) return question
+  return question.slice(0, match.index).trim() || question
+}
+
 export function parseGeneratedQuestion(text: string): GeneratedQuestion | null {
   try {
     const content = clean(text)
@@ -28,7 +38,7 @@ export function parseGeneratedQuestion(text: string): GeneratedQuestion | null {
       options[key] = string(data.options?.[key] ?? data.options?.[key.toLowerCase()])
       explanation[key] = string(data.explanation?.[key] ?? data.explanation?.[key.toLowerCase()])
     }
-    const question = string(data.question)
+    const question = separateQuestionOptions(string(data.question), options)
     const correct = string(data.correct).toUpperCase()
     if (!question || !/^[A-D]$/.test(correct) || Object.values(options).some(value => !value) || !explanation.correct) return null
     return {question, options, correct, explanation, examTip: string(data.examTip ?? data.exam_tip)}
@@ -37,7 +47,9 @@ export function parseGeneratedQuestion(text: string): GeneratedQuestion | null {
 
 export function parsePartialGeneratedQuestion(text: string): PartialQuestion {
   const content = clean(text)
-  return content.startsWith('{') ? parsePartialJSON(content) : parsePartialPlainText(content)
+  const partial = content.startsWith('{') ? parsePartialJSON(content) : parsePartialPlainText(content)
+  if (partial.question) partial.question = separateQuestionOptions(partial.question, partial.options || {})
+  return partial
 }
 
 const parsePartialJSON = (text: string): PartialQuestion => {

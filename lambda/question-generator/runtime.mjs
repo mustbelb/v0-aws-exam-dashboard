@@ -8,7 +8,14 @@ export class HttpError extends Error {
 export function buildPrompt(service, certification, topic) {
   return `Write one realistic AWS ${certification === 'SAA-C03' ? 'Solutions Architect Associate' : 'Developer Associate'} (${certification}) practice question about ${service.name}.
 ${topic ? 'Topic focus: ' + topic : 'Relevant topics: ' + service.topics.join(', ')}
-Use one clear best answer, technically accurate current AWS behavior, and plausible distractors. Avoid ambiguous premises and unsupported service limits. Return ONLY JSON with this structure:
+Use one clear best answer, technically accurate current AWS behavior, and plausible distractors. Avoid ambiguous premises and unsupported service limits.
+The question field must contain only the scenario and the question being asked. Put each answer choice only in options, never repeat choices or their labels in the question field.
+Before returning the JSON, check that every requirement and observation in the scenario is consistent with the correct answer and its explanation. Revise any inconsistent scenario rather than inventing missing evidence in the explanation. In particular:
+- A successful invocation below a configured timeout is not evidence that this timeout is too low. Identify the actual failing operation, its duration, and the relevant timeout when diagnosing timeouts.
+- Do not call a workload stateless or safe to interrupt while relying on irreplaceable instance-local session state. Explicitly describe shared session storage or acceptable session loss if the answer relies on instance replacement.
+- Verify any numeric comparison against the scenario. Do not assert precise AWS limits or defaults unless confident; avoid a question that depends on an uncertain value.
+- Ensure only one option satisfies all stated requirements, and explain each distractor using those requirements.
+Return ONLY JSON with this structure:
 {"question":"Scenario and question", "options":{"A":"Option A","B":"Option B","C":"Option C","D":"Option D"},"correct":"A","explanation":{"correct":"Why A is correct","B":"Why B is wrong","C":"Why C is wrong","D":"Why D is wrong"},"examTip":"A useful study tip"}`
 }
 
