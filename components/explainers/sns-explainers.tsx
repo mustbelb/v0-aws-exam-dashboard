@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useExplainerPlayback } from "@/hooks/use-explainer-playback"
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react"
 
 // ============================================================================
 // SNS TOPICS EXPLAINER (Medium)
 // ============================================================================
 export function SNSTopicsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [topicType, setTopicType] = useState<"standard" | "fifo">("standard")
 
   const steps = [
@@ -30,14 +31,9 @@ export function SNSTopicsExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -53,64 +49,12 @@ export function SNSTopicsExplainer() {
           <button onClick={() => setTopicType("fifo")} className={`px-4 py-2 rounded-lg ${topicType === "fifo" ? "bg-purple-500 text-white" : "bg-slate-700 text-slate-300"}`}>FIFO</button>
         </div>
 
-        {/* Visualization */}
-        <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
-          <div className="flex items-center justify-center gap-8">
-            {/* Publishers */}
-            <div className="space-y-2">
-              <div className="bg-green-500 rounded p-2 text-white text-xs text-center">Publisher 1</div>
-              <div className="bg-green-500 rounded p-2 text-white text-xs text-center">Publisher 2</div>
-            </div>
-
-            {/* Arrows */}
-            <div className="text-slate-400">→</div>
-
-            {/* Topic */}
-            <div className={`rounded-xl p-4 ${topicType === "standard" ? "bg-orange-500" : "bg-purple-500"}`}>
-              <div className="text-white text-center">
-                <div className="text-2xl">📢</div>
-                <div className="text-sm font-medium">
-                  {topicType === "standard" ? "my-topic" : "my-topic.fifo"}
-                </div>
-                <div className="text-xs opacity-75">
-                  {topicType === "standard" ? "Standard" : "FIFO"}
-                </div>
-              </div>
-            </div>
-
-            {/* Arrows */}
-            <div className="text-slate-400">→</div>
-
-            {/* Subscribers */}
-            <div className="space-y-2">
-              <div className="bg-blue-500 rounded p-2 text-white text-xs text-center">SQS Queue</div>
-              <div className="bg-orange-500 rounded p-2 text-white text-xs text-center">Lambda</div>
-              <div className="bg-purple-500 rounded p-2 text-white text-xs text-center">Email</div>
-              <div className="bg-green-500 rounded p-2 text-white text-xs text-center">HTTP</div>
-            </div>
-          </div>
-
-          {/* Topic Type Comparison */}
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className={`p-3 rounded ${topicType === "standard" ? "bg-orange-500/20 border border-orange-500" : "bg-slate-800"}`}>
-              <div className="text-sm font-medium text-orange-400">Standard Topic</div>
-              <ul className="text-xs text-slate-300 mt-2 space-y-1">
-                <li>• Best-effort ordering</li>
-                <li>• At-least-once delivery</li>
-                <li>• ~10M publishes/sec</li>
-                <li>• All subscriber types</li>
-              </ul>
-            </div>
-            <div className={`p-3 rounded ${topicType === "fifo" ? "bg-purple-500/20 border border-purple-500" : "bg-slate-800"}`}>
-              <div className="text-sm font-medium text-purple-400">FIFO Topic</div>
-              <ul className="text-xs text-slate-300 mt-2 space-y-1">
-                <li>• Strict ordering</li>
-                <li>• Exactly-once delivery</li>
-                <li>• 300 publishes/sec</li>
-                <li>• Only SQS FIFO subscriber</li>
-              </ul>
-            </div>
-          </div>
+        {/* Every narrated step has its own visual state. */}
+        <div className="bg-slate-900/50 rounded-xl p-5 mb-4 min-h-[240px]">
+          {step === 0 && <div className="flex flex-wrap items-center justify-center gap-6 py-8"><div className="bg-green-700 rounded-lg p-4">Publisher</div><span className={isPlaying ? "animate-pulse text-yellow-300" : "text-yellow-300"}>Message →</span><div className="bg-orange-600 rounded-xl p-5 font-semibold">SNS topic</div><span className="text-yellow-300">→ copies →</span><div className="space-y-2">{['SQS queue', 'Lambda', 'HTTPS endpoint'].map(name => <div key={name} className="border border-blue-400 rounded-lg p-2 text-blue-200">{name}</div>)}</div></div>}
+          {step === 1 && <div className="grid sm:grid-cols-2 gap-4 py-4">{['standard','fifo'].map(type => <div key={type} className={`border-2 rounded-xl p-5 ${topicType === type ? 'border-teal-300 bg-teal-900/40' : 'border-slate-600'}`}><h3 className="text-lg font-semibold mb-4">{type === 'fifo' ? 'FIFO topic' : 'Standard topic'}</h3><div className="flex gap-2 mb-4">{(type === 'fifo' ? [1,2,3] : [2,1,3]).map(n => <span key={n} className="rounded bg-slate-700 px-3 py-2">{n}</span>)}</div><p className="text-sm text-slate-300">{type === 'fifo' ? 'Ordering within each message group; deduplication support.' : 'Best-effort ordering; messages may arrive more than once.'}</p></div>)}</div>}
+          {step === 2 && <div className="py-4"><h3 className="text-lg text-white mb-5">The topic policy controls access</h3><div className="grid sm:grid-cols-3 gap-4"><div className="border border-green-500 rounded-xl p-4"><p className="text-green-300 font-semibold">Allowed publisher</p><p className="text-sm mt-2">sns:Publish → topic</p></div><div className="bg-orange-600 rounded-xl p-4 text-center">SNS topic<br/><span className="text-sm">Resource policy</span></div><div className="border border-red-500 rounded-xl p-4"><p className="text-red-300 font-semibold">Unapproved principal</p><p className="text-sm mt-2">Publish request denied</p></div></div></div>}
+          {step === 3 && <div className="py-4"><h3 className="text-lg mb-5">Filter on message attributes</h3><div className="bg-slate-800 rounded-lg p-4 font-mono text-sm mb-4">orderType: "retail"</div><div className="grid sm:grid-cols-2 gap-4"><div className="border border-green-500 bg-green-900/30 rounded-xl p-4"><p className="text-green-300 font-semibold">Retail subscription → delivered</p><p className="text-sm mt-2">Filter matches orderType = retail</p></div><div className="border border-slate-600 rounded-xl p-4 opacity-60"><p>Wholesale subscription → filtered</p><p className="text-sm mt-2">Filter does not match this message</p></div></div></div>}
         </div>
 
         {/* Step Info */}
@@ -125,10 +69,10 @@ export function SNSTopicsExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -151,8 +95,8 @@ export function SNSTopicsExplainer() {
 // SNS SUBSCRIPTIONS EXPLAINER (Medium)
 // ============================================================================
 export function SNSSubscriptionsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [selectedProtocol, setSelectedProtocol] = useState("sqs")
 
   const steps = [
@@ -174,6 +118,8 @@ export function SNSSubscriptionsExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const protocols = [
     { id: "sqs", name: "SQS", icon: "📬", desc: "Queue for async processing" },
     { id: "lambda", name: "Lambda", icon: "λ", desc: "Serverless function trigger" },
@@ -183,14 +129,7 @@ export function SNSSubscriptionsExplainer() {
     { id: "firehose", name: "Firehose", icon: "🔥", desc: "Stream to S3/Redshift" },
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -298,10 +237,10 @@ export function SNSSubscriptionsExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -324,8 +263,8 @@ export function SNSSubscriptionsExplainer() {
 // SNS FILTERING EXPLAINER (Medium)
 // ============================================================================
 export function SNSFilteringExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [orderType, setOrderType] = useState<"electronics" | "clothing" | "books">("electronics")
 
   const steps = [
@@ -347,6 +286,8 @@ export function SNSFilteringExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const subscriptions = [
     { name: "Electronics Queue", filter: "electronics", color: "bg-blue-500" },
     { name: "Clothing Queue", filter: "clothing", color: "bg-pink-500" },
@@ -354,14 +295,7 @@ export function SNSFilteringExplainer() {
     { name: "All Orders Lambda", filter: null, color: "bg-orange-500" },
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -440,10 +374,10 @@ export function SNSFilteringExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -466,8 +400,8 @@ export function SNSFilteringExplainer() {
 // SNS FANOUT PATTERN EXPLAINER (Medium)
 // ============================================================================
 export function SNSFanoutPatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [messageCount, setMessageCount] = useState(1)
 
   const steps = [
@@ -489,6 +423,8 @@ export function SNSFanoutPatternExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const queues = [
     { name: "Inventory Queue", icon: "📦", process: "Update stock" },
     { name: "Payment Queue", icon: "💳", process: "Charge card" },
@@ -496,14 +432,7 @@ export function SNSFanoutPatternExplainer() {
     { name: "Email Queue", icon: "📧", process: "Send confirmation" },
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -605,10 +534,10 @@ export function SNSFanoutPatternExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -631,8 +560,8 @@ export function SNSFanoutPatternExplainer() {
 // SNS MESSAGE ATTRIBUTES EXPLAINER (Light)
 // ============================================================================
 export function SNSMessageAttributesExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     {
@@ -653,14 +582,9 @@ export function SNSMessageAttributesExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -713,10 +637,10 @@ export function SNSMessageAttributesExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -736,8 +660,8 @@ export function SNSMessageAttributesExplainer() {
 // SNS DELIVERY POLICIES EXPLAINER (Medium)
 // ============================================================================
 export function SNSDeliveryPoliciesExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [retryCount, setRetryCount] = useState(0)
 
   const steps = [
@@ -759,23 +683,18 @@ export function SNSDeliveryPoliciesExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   useEffect(() => {
     if (isPlaying && retryCount < 5) {
       const timer = setTimeout(() => setRetryCount(r => r + 1), 1500)
       return () => clearTimeout(timer)
-    } else if (retryCount >= 5) {
-      setIsPlaying(false)
     }
   }, [isPlaying, retryCount])
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  useEffect(() => setRetryCount(0), [resetKey])
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -834,10 +753,10 @@ export function SNSDeliveryPoliciesExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setRetryCount(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -857,8 +776,8 @@ export function SNSDeliveryPoliciesExplainer() {
 // SNS FIFO TOPICS EXPLAINER (Medium)
 // ============================================================================
 export function SNSFIFOTopicsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [topicType, setTopicType] = useState<"standard" | "fifo">("fifo")
 
   const steps = [
@@ -880,14 +799,9 @@ export function SNSFIFOTopicsExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -956,10 +870,10 @@ export function SNSFIFOTopicsExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -979,8 +893,8 @@ export function SNSFIFOTopicsExplainer() {
 // SNS MOBILE PUSH EXPLAINER (Light)
 // ============================================================================
 export function SNSMobilePushExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [platform, setPlatform] = useState<"apns" | "fcm" | "adm">("apns")
 
   const steps = [
@@ -1002,20 +916,15 @@ export function SNSMobilePushExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const platforms = {
     apns: { name: "Apple Push (APNS)", color: "bg-slate-500", icon: "🍎" },
     fcm: { name: "Firebase Cloud Messaging", color: "bg-green-500", icon: "🔥" },
     adm: { name: "Amazon Device Messaging", color: "bg-orange-500", icon: "📱" }
   }
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1066,10 +975,10 @@ export function SNSMobilePushExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -1089,8 +998,8 @@ export function SNSMobilePushExplainer() {
 // SNS SMS EXPLAINER (Light)
 // ============================================================================
 export function SNSSMSExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [smsType, setSmsType] = useState<"transactional" | "promotional">("transactional")
 
   const steps = [
@@ -1112,14 +1021,9 @@ export function SNSSMSExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1182,10 +1086,10 @@ export function SNSSMSExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -1205,8 +1109,8 @@ export function SNSSMSExplainer() {
 // SNS DLQ EXPLAINER (Medium)
 // ============================================================================
 export function SNSDLQExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     {
@@ -1227,14 +1131,9 @@ export function SNSDLQExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1304,10 +1203,10 @@ export function SNSDLQExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">

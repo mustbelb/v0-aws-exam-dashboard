@@ -9,7 +9,12 @@
     "start": "next start",
     "topic-tag:dry-run": "DRY_RUN=true npx tsx scripts/topic-tagging/classify-questions.ts",
     "topic-tag:run": "DRY_RUN=false npx tsx scripts/topic-tagging/classify-questions.ts",
-    "topic-tag:test": "npx tsx scripts/topic-tagging/test-classification.ts"
+    "topic-tag:test": "npx tsx scripts/topic-tagging/test-classification.ts",
+    "test:playback": "node tests/playback.cjs",
+    "typecheck": "tsc --noEmit",
+    "test:routes": "node tests/route-guards.cjs",
+    "test:generation": "node tests/generated-question.cjs && node tests/generation-client.cjs && node scripts/deployment/build-generator.cjs && node tests/lambda-generator.mjs",
+    "test:issuance": "node tests/question-issuance.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "latest",

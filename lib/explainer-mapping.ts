@@ -5,43 +5,39 @@ export const serviceToExplainerMap: Record<string, string> = {
   // Compute
   "lambda": "lambda-concurrency",
   "ec2": "ec2-instance-types",
-  "ecs": "ecs-task-definitions",
-  "fargate": "ecs-fargate-vs-ec2",
-  
+  "ecs": "task-definitions",
+  "fargate": "ecs-vs-fargate",
+
   // Storage & Databases
   "s3": "s3-storage-classes",
   "dynamodb": "dynamodb-partition-keys",
-  "rds": "rds-multi-az-read-replicas",
+  "rds": "multi-az-deployments",
   "aurora": "aurora-architecture",
-  "elasticache": "elasticache-redis-vs-memcached",
-  
+
   // Networking
-  "vpc": "vpc-subnets-azs",
+  "vpc": "vpc-subnets",
   "api-gateway": "rest-vs-http-apis",
-  "cloudfront": "cloudfront-origins-behaviors",
+  "cloudfront": "cloudfront-distributions",
   "route53": "route53-routing-policies",
-  "elb": "alb-vs-nlb",
-  
+  "elb": "load-balancer-types",
+
   // Messaging
   "sqs": "sqs-visibility-timeout",
-  "sns": "sns-topics-subscriptions",
-  "eventbridge": "eventbridge-rules-patterns",
-  "kinesis": "kinesis-streams-vs-firehose",
-  "step-functions": "step-functions-state-types",
-  
+  "sns": "sns-topics",
+  "eventbridge": "eventbridge-rules",
+  "kinesis": "streaming-comparison",
+  "step-functions": "step-functions-state-machine",
+
   // Security & Identity
   "iam": "iam-policy-evaluation",
-  "cognito": "cognito-user-pools-identity-pools",
-  "secrets-manager": "secrets-manager-vs-parameter-store",
-  "kms": "kms-key-types",
-  
+  "cognito": "cognito-user-pools",
+  "secrets-manager": "secrets-vs-parameter",
+  "kms": "kms-keys",
+
   // Monitoring & DevOps
-  "cloudwatch": "cloudwatch-metrics-alarms",
-  "cloudformation": "cloudformation-template-anatomy",
-  "x-ray": "xray-tracing-segments",
-  "codepipeline": "codepipeline-stages",
-  "codebuild": "codebuild-buildspec",
-  "codedeploy": "codedeploy-deployment-types",
+  "cloudwatch": "cloudwatch-alarms",
+  "cloudformation": "template-structure",
+  "x-ray": "xray-segments",
 }
 
 // Get the default explainer for a service
@@ -57,7 +53,7 @@ export const serviceExplainerGroups: Record<string, string[]> = {
     "lambda-vpc-access",
     "lambda-versions-aliases",
     "lambda-layers",
-    "lambda-destinations-dlq",
+    "lambda-destinations",
     "lambda-event-source-mappings",
     "lambda-environment-config"
   ],
@@ -73,10 +69,10 @@ export const serviceExplainerGroups: Record<string, string[]> = {
   ],
   "s3": [
     "s3-storage-classes",
-    "s3-lifecycle-policies",
+    "s3-lifecycle",
     "s3-versioning",
     "s3-encryption",
-    "s3-bucket-policies-acls",
+    "s3-bucket-policies",
     "s3-presigned-urls",
     "s3-replication",
     "s3-event-notifications"
@@ -89,13 +85,13 @@ export const serviceExplainerGroups: Record<string, string[]> = {
     "sqs-message-batching"
   ],
   "sns": [
-    "sns-topics-subscriptions",
+    "sns-topics",
     "sns-message-filtering",
     "sns-fanout-pattern",
     "sns-mobile-push"
   ],
   "vpc": [
-    "vpc-subnets-azs",
+    "vpc-subnets",
     "vpc-security-groups-nacls",
     "vpc-nat-gateway",
     "vpc-endpoints",
@@ -127,7 +123,7 @@ export const serviceExplainerGroups: Record<string, string[]> = {
     "ec2-launch-templates"
   ],
   "rds": [
-    "rds-multi-az-read-replicas",
+    "multi-az-deployments",
     "rds-backup-restore",
     "rds-encryption",
     "aurora-architecture",
@@ -135,41 +131,41 @@ export const serviceExplainerGroups: Record<string, string[]> = {
     "rds-proxy"
   ],
   "ecs": [
-    "ecs-task-definitions",
-    "ecs-fargate-vs-ec2",
+    "task-definitions",
+    "ecs-vs-fargate",
     "ecs-service-discovery",
     "ecr-lifecycle-policies"
   ],
   "cloudwatch": [
-    "cloudwatch-metrics-alarms",
+    "cloudwatch-alarms",
     "cloudwatch-logs-insights",
     "cloudwatch-dashboards",
-    "xray-tracing-segments",
+    "xray-segments",
     "cloudwatch-contributor-insights"
   ],
   "cloudformation": [
-    "cloudformation-template-anatomy",
+    "template-structure",
     "cloudformation-intrinsic-functions",
     "cloudformation-drift-detection",
     "sam-template-basics"
   ],
   "kinesis": [
-    "kinesis-streams-vs-firehose",
+    "streaming-comparison",
     "kinesis-shards-scaling",
     "kinesis-enhanced-fan-out"
   ],
   "step-functions": [
-    "step-functions-state-types",
+    "step-functions-state-machine",
     "step-functions-error-handling",
     "step-functions-standard-vs-express"
   ],
   "cognito": [
-    "cognito-user-pools-identity-pools",
+    "cognito-user-pools",
     "cognito-authentication-flows",
     "cognito-lambda-triggers"
   ],
   "secrets-manager": [
-    "secrets-manager-vs-parameter-store",
+    "secrets-vs-parameter",
     "secrets-manager-rotation"
   ]
 }
@@ -182,72 +178,72 @@ export function getExplainersForService(serviceId: string): string[] {
 // Topic metadata for display
 export const explainerMetadata: Record<string, { title: string; description: string; difficulty: 'basic' | 'intermediate' | 'advanced' }> = {
   // Lambda
-  "lambda-concurrency": { 
-    title: "Lambda Concurrency", 
+  "lambda-concurrency": {
+    title: "Lambda Concurrency",
     description: "How Lambda scales and handles concurrent requests",
     difficulty: "intermediate"
   },
-  "lambda-cold-starts": { 
-    title: "Cold Starts", 
+  "lambda-cold-starts": {
+    title: "Cold Starts",
     description: "Why first requests are slow and how to mitigate",
     difficulty: "intermediate"
   },
-  "lambda-vpc-access": { 
-    title: "Lambda in VPC", 
+  "lambda-vpc-access": {
+    title: "Lambda in VPC",
     description: "Connecting Lambda to private resources",
     difficulty: "advanced"
   },
-  
+
   // DynamoDB
-  "dynamodb-partition-keys": { 
-    title: "Partition Keys", 
+  "dynamodb-partition-keys": {
+    title: "Partition Keys",
     description: "Designing effective partition keys for scalability",
     difficulty: "intermediate"
   },
-  "dynamodb-ttl": { 
-    title: "Time to Live (TTL)", 
+  "dynamodb-ttl": {
+    title: "Time to Live (TTL)",
     description: "Automatic item expiration",
     difficulty: "basic"
   },
-  
+
   // S3
-  "s3-storage-classes": { 
-    title: "Storage Classes", 
+  "s3-storage-classes": {
+    title: "Storage Classes",
     description: "Choosing the right storage tier for your data",
     difficulty: "basic"
   },
-  
+
   // SQS
-  "sqs-visibility-timeout": { 
-    title: "Visibility Timeout", 
+  "sqs-visibility-timeout": {
+    title: "Visibility Timeout",
     description: "Preventing duplicate message processing",
     difficulty: "intermediate"
   },
-  
+
   // API Gateway
-  "rest-vs-http-apis": { 
-    title: "REST vs HTTP APIs", 
+  "rest-vs-http-apis": {
+    title: "REST vs HTTP APIs",
     description: "Choosing the right API Gateway type",
     difficulty: "basic"
   },
-  "authentication-methods": { 
-    title: "Authentication Methods", 
+  "authentication-methods": {
+    title: "Authentication Methods",
     description: "Securing your APIs with different auth options",
     difficulty: "intermediate"
   },
-  
+
   // Architecture
-  "serverless-architecture": { 
-    title: "Serverless Architecture", 
+  "serverless-architecture": {
+    title: "Serverless Architecture",
     description: "Building applications without managing servers",
     difficulty: "intermediate"
   },
-  "disaster-recovery-patterns": { 
-    title: "Disaster Recovery", 
+  "disaster-recovery-patterns": {
+    title: "Disaster Recovery",
     description: "Strategies for regional failure recovery",
     difficulty: "advanced"
   },
-  
+
   // Add more as needed...
 }
 

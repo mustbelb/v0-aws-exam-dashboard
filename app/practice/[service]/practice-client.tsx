@@ -1,5 +1,7 @@
 "use client"
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
+import { streamQuestionGeneration } from "@/lib/question-generation-client"
+import { parseIssuedQuestion } from "@/lib/generated-question"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
@@ -32,6 +34,7 @@ interface PracticeClientProps {
 }
 
 interface Question {
+  issuanceId: string
   questionId?: string
   question: string
   options: {
@@ -84,17 +87,17 @@ export function PracticeClient({
   const [correctCount, setCorrectCount] = useState(
     Math.round((serviceProgress.correctRate / 100) * serviceProgress.questionsAnswered)
   )
-  
+
   // Bank exhausted state
   const [bankExhausted, setBankExhausted] = useState(false)
   const [showExhaustedMessage, setShowExhaustedMessage] = useState(false)
   const [useStreamingMode, setUseStreamingMode] = useState(false)
   const [totalQuestionsInBank, setTotalQuestionsInBank] = useState(0)
-  
+
   // NEW: Explainer modal state
   const [showExplainer, setShowExplainer] = useState(false)
   const [currentExplainerId, setCurrentExplainerId] = useState<string | null>(null)
-  
+
   const startTimeRef = useRef<number>(0)
 
   // ===========================================
@@ -107,7 +110,7 @@ export function PracticeClient({
     setShowFeedback(false)
     setSelectedAnswer("")
     setShowExplainer(false)  // NEW: Reset explainer state
-    
+
     try {
       const params = new URLSearchParams({
         service: service.id,
@@ -135,12 +138,13 @@ export function PracticeClient({
       }
 
       setCurrentQuestion({
+        issuanceId: data.issuanceId,
         questionId: data.questionId,
         question: data.question,
         options: data.options,
-        correct: data.correct,
-        explanation: data.explanation,
-        examTip: data.examTip,
+        correct: "",
+        explanation: {correct: ""},
+        examTip: "",
         topic: data.topic  // Include topic for targeted explainer
       })
       startTimeRef.current = Date.now()
@@ -155,120 +159,9 @@ export function PracticeClient({
   // ===========================================
   // FALLBACK: Stream question from AI (when bank exhausted)
   // ===========================================
-  
-  const parsePartialJSON = (text: string): PartialQuestion => {
-    const partial: PartialQuestion = {}
-    
-    const questionMatch = text.match(/"question"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-    if (questionMatch) {
-      partial.question = questionMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-    }
-    
-    partial.options = {}
-    
-    const optionAMatch = text.match(/"A"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-    if (optionAMatch) {
-      partial.options.A = optionAMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-    }
-    
-    const optionBMatch = text.match(/"B"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-    if (optionBMatch) {
-      partial.options.B = optionBMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-    }
-    
-    const optionCMatch = text.match(/"C"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-    if (optionCMatch) {
-      partial.options.C = optionCMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-    }
-    
-    const optionDMatch = text.match(/"D"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-    if (optionDMatch) {
-      partial.options.D = optionDMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-    }
-    
-    return partial
-  }
 
-  const parsePlainTextQuestion = (text: string): Question | null => {
-    try {
-      const extractSection = (label: string): string => {
-        const regex = new RegExp(
-          `${label}[:\\s]*\\n?([\\s\\S]*?)(?=\\n(?:QUESTION|OPTION_[A-D]|CORRECT|EXPLANATION_(?:CORRECT|[A-D])|EXAM_TIP)[:\\s]|$)`,
-          'i'
-        )
-        const match = text.match(regex)
-        return match ? match[1].trim() : ''
-      }
-
-      const question = extractSection('QUESTION')
-      const optionA = extractSection('OPTION_A')
-      const optionB = extractSection('OPTION_B')
-      const optionC = extractSection('OPTION_C')
-      const optionD = extractSection('OPTION_D')
-      const correctRaw = extractSection('CORRECT')
-      const correct = correctRaw.toUpperCase().trim().charAt(0)
-      const explanationCorrect = extractSection('EXPLANATION_CORRECT')
-      const explanationA = extractSection('EXPLANATION_A')
-      const explanationB = extractSection('EXPLANATION_B')
-      const explanationC = extractSection('EXPLANATION_C')
-      const explanationD = extractSection('EXPLANATION_D')
-      const examTip = extractSection('EXAM_TIP')
-
-      if (!question || !optionA || !optionB || !optionC || !optionD || !correct) {
-        return null
-      }
-
-      return {
-        question,
-        options: { A: optionA, B: optionB, C: optionC, D: optionD },
-        correct,
-        explanation: {
-          correct: explanationCorrect,
-          A: explanationA,
-          B: explanationB,
-          C: explanationC,
-          D: explanationD
-        },
-        examTip
-      }
-    } catch (e) {
-      console.error('[PlainTextParser] Error:', e)
-      return null
-    }
-  }
-
-  const parsePartialPlainText = (text: string): PartialQuestion => {
-    const partial: PartialQuestion = {}
-    
-    const questionMatch = text.match(/QUESTION[:\s]*\n?([\s\S]*?)(?=\nOPTION_A[:\s]|$)/i)
-    if (questionMatch) {
-      partial.question = questionMatch[1].trim()
-    }
-    
-    partial.options = {}
-    
-    const optionAMatch = text.match(/OPTION_A[:\s]*\n?([\s\S]*?)(?=\nOPTION_B[:\s]|$)/i)
-    if (optionAMatch) {
-      partial.options.A = optionAMatch[1].trim()
-    }
-    
-    const optionBMatch = text.match(/OPTION_B[:\s]*\n?([\s\S]*?)(?=\nOPTION_C[:\s]|$)/i)
-    if (optionBMatch) {
-      partial.options.B = optionBMatch[1].trim()
-    }
-    
-    const optionCMatch = text.match(/OPTION_C[:\s]*\n?([\s\S]*?)(?=\nOPTION_D[:\s]|$)/i)
-    if (optionCMatch) {
-      partial.options.C = optionCMatch[1].trim()
-    }
-    
-    const optionDMatch = text.match(/OPTION_D[:\s]*\n?([\s\S]*?)(?=\nCORRECT[:\s]|$)/i)
-    if (optionDMatch) {
-      partial.options.D = optionDMatch[1].trim()
-    }
-    
-    return partial
-  }
+  const activeStream = useRef<AbortController | null>(null)
+  useEffect(() => () => { activeStream.current?.abort(); activeStream.current = null }, [])
 
   const generateQuestionStreaming = useCallback(async () => {
     setIsLoading(true)
@@ -280,222 +173,35 @@ export function PracticeClient({
     setSelectedAnswer("")
     setShowExplainer(false)  // NEW: Reset explainer state
 
-    const params = new URLSearchParams({
-      service: service.id,
-      userId: user.id,
-      certification: certification
-    })
-
+    activeStream.current?.abort()
+    const controller = new AbortController()
+    activeStream.current = controller
+    const timeout = setTimeout(() => controller.abort(), 120000)
     try {
-      const streamUrl = `/api/question/generate?${params.toString()}`
-      console.log('[Practice] Starting stream:', streamUrl)
-      
-      const eventSource = new EventSource(streamUrl)
-      let accumulated = ""
-
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data)
-
-          switch (data.type) {
-            case "character":
-              accumulated += data.character
-              let partial: PartialQuestion
-              if (accumulated.trim().startsWith('{')) {
-                partial = parsePartialJSON(accumulated)
-              } else {
-                partial = parsePartialPlainText(accumulated)
-              }
-              setPartialQuestion(partial)
-              
-              if (!currentQuestion && partial.question && 
-                  partial.options?.A && partial.options?.B && 
-                  partial.options?.C && partial.options?.D) {
-                
-                let correctAnswer = ''
-                if (accumulated.trim().startsWith('{')) {
-                  const correctMatch = accumulated.match(/"correct"\s*:\s*"([A-Da-d])"/i)
-                  if (correctMatch) {
-                    correctAnswer = correctMatch[1].toUpperCase()
-                  }
-                } else {
-                  const correctMatch = accumulated.match(/\nCORRECT[:\s]*\n?([A-Da-d])/i)
-                  if (correctMatch) {
-                    correctAnswer = correctMatch[1].toUpperCase()
-                  }
-                }
-                
-                if (correctAnswer) {
-                  const earlyQuestion: Question = {
-                    question: partial.question,
-                    options: {
-                      A: partial.options.A,
-                      B: partial.options.B,
-                      C: partial.options.C,
-                      D: partial.options.D
-                    },
-                    correct: correctAnswer,
-                    explanation: { correct: '', A: '', B: '', C: '', D: '' },
-                    examTip: ''
-                  }
-                  setCurrentQuestion(earlyQuestion)
-                  setPartialQuestion(null)
-                  setIsStreaming(false)
-                  setIsLoading(false)
-                  startTimeRef.current = Date.now()
-                }
-              }
-              break
-
-            case "chunk":
-              accumulated += data.content
-              let partialChunk: PartialQuestion
-              if (accumulated.trim().startsWith('{')) {
-                partialChunk = parsePartialJSON(accumulated)
-              } else {
-                partialChunk = parsePartialPlainText(accumulated)
-              }
-              setPartialQuestion(partialChunk)
-              
-              if (!currentQuestion && partialChunk.question && 
-                  partialChunk.options?.A && partialChunk.options?.B && 
-                  partialChunk.options?.C && partialChunk.options?.D) {
-                
-                let correctAnswer = ''
-                if (accumulated.trim().startsWith('{')) {
-                  const correctMatch = accumulated.match(/"correct"\s*:\s*"([A-Da-d])"/i)
-                  if (correctMatch) {
-                    correctAnswer = correctMatch[1].toUpperCase()
-                  }
-                } else {
-                  const correctMatch = accumulated.match(/\nCORRECT[:\s]*\n?([A-Da-d])/i)
-                  if (correctMatch) {
-                    correctAnswer = correctMatch[1].toUpperCase()
-                  }
-                }
-                
-                if (correctAnswer) {
-                  const earlyQuestion: Question = {
-                    question: partialChunk.question,
-                    options: {
-                      A: partialChunk.options.A,
-                      B: partialChunk.options.B,
-                      C: partialChunk.options.C,
-                      D: partialChunk.options.D
-                    },
-                    correct: correctAnswer,
-                    explanation: { correct: '', A: '', B: '', C: '', D: '' },
-                    examTip: ''
-                  }
-                  setCurrentQuestion(earlyQuestion)
-                  setPartialQuestion(null)
-                  setIsStreaming(false)
-                  setIsLoading(false)
-                  startTimeRef.current = Date.now()
-                }
-              }
-              break
-
-            case "complete":
-              eventSource.close()
-              setIsStreaming(false)
-              setIsLoading(false)
-
-              try {
-                let cleanContent = accumulated.trim()
-                
-                if (cleanContent.startsWith("```json")) {
-                  cleanContent = cleanContent.slice(7)
-                }
-                if (cleanContent.startsWith("```")) {
-                  cleanContent = cleanContent.slice(3)
-                }
-                if (cleanContent.endsWith("```")) {
-                  cleanContent = cleanContent.slice(0, -3)
-                }
-                cleanContent = cleanContent.trim()
-
-                let fullQuestion: Question | null = null
-
-                if (cleanContent.startsWith('{')) {
-                  const parsed = JSON.parse(cleanContent)
-                  
-                  if (parsed.question && parsed.options && parsed.correct) {
-                    fullQuestion = {
-                      question: parsed.question,
-                      options: {
-                        A: parsed.options.A || parsed.options.a || '',
-                        B: parsed.options.B || parsed.options.b || '',
-                        C: parsed.options.C || parsed.options.c || '',
-                        D: parsed.options.D || parsed.options.d || ''
-                      },
-                      correct: parsed.correct.toUpperCase(),
-                      explanation: {
-                        correct: parsed.explanation?.correct || '',
-                        A: parsed.explanation?.A || parsed.explanation?.a || '',
-                        B: parsed.explanation?.B || parsed.explanation?.b || '',
-                        C: parsed.explanation?.C || parsed.explanation?.c || '',
-                        D: parsed.explanation?.D || parsed.explanation?.d || ''
-                      },
-                      examTip: parsed.examTip || parsed.exam_tip || ''
-                    }
-                  }
-                } else {
-                  fullQuestion = parsePlainTextQuestion(cleanContent)
-                }
-
-                if (fullQuestion) {
-                  setCurrentQuestion(fullQuestion)
-                  setPartialQuestion(null)
-                  if (startTimeRef.current === 0) {
-                    startTimeRef.current = Date.now()
-                  }
-                } else if (!currentQuestion) {
-                  throw new Error('Failed to parse question from response')
-                }
-              } catch (parseError) {
-                console.error('[Practice] Parse failed:', parseError)
-                if (!currentQuestion) {
-                  setError("Failed to parse question. Please try again.")
-                }
-              }
-              break
-
-            case "error":
-              eventSource.close()
-              setIsStreaming(false)
-              setIsLoading(false)
-              setError(data.error || "An error occurred")
-              break
-          }
-        } catch (e) {
-          console.error("Event parse error:", e)
-        }
-      }
-
-      eventSource.onerror = (error) => {
-        console.error('[Practice] EventSource error:', error)
-        eventSource.close()
-        setIsStreaming(false)
-        setIsLoading(false)
-        setError("Connection error. Please try again.")
-      }
-
-      setTimeout(() => {
-        if (eventSource.readyState !== EventSource.CLOSED) {
-          eventSource.close()
+      await streamQuestionGeneration({service:service.id, certification}, data => {
+        if (data.type === 'partial') {
+          setPartialQuestion(data.question as PartialQuestion)
+        } else if (data.type === 'complete') {
+          const question = parseIssuedQuestion(data.question)
+          if (!question) throw new Error('The generated question was incomplete. Please try again.')
+          setCurrentQuestion({...question, correct:'', explanation:{correct:''}, examTip:''})
+          setPartialQuestion(null)
           setIsStreaming(false)
           setIsLoading(false)
-          setError("Request timed out. Please try again.")
+          startTimeRef.current = Date.now()
         }
-      }, 120000)
-
-    } catch (e) {
+      }, controller.signal)
+    } catch (error) {
+      if (activeStream.current !== controller) return
       setIsStreaming(false)
       setIsLoading(false)
-      setError("Failed to start question generation")
+      setPartialQuestion(null)
+      setError(controller.signal.aborted ? 'Generation stopped. Please try again.' : error instanceof Error ? error.message : 'Generation failed. Please try again.')
+    } finally {
+      clearTimeout(timeout)
     }
-  }, [service.id, user.id, certification, currentQuestion])
+
+  }, [service.id, user.id, certification])
 
   // ===========================================
   // Main function to get next question
@@ -525,16 +231,31 @@ export function PracticeClient({
     if (!currentQuestion) return
 
     const timeTaken = Math.round((Date.now() - startTimeRef.current) / 1000)
-    const correct = answer.toLowerCase() === currentQuestion.correct.toLowerCase()
 
-    setSelectedAnswer(answer)
+    const response = await fetch("/api/question/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          issuanceId: currentQuestion.issuanceId,
+          userAnswer: answer,
+          timeTakenSeconds: timeTaken
+        })
+      })
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}))
+      throw new Error(result.error || "Your answer could not be saved. Please try again.")
+    }
+
+    const result = await response.json()
+    setCurrentQuestion({...currentQuestion, correct: result.correctAnswer, explanation: result.explanation, examTip: result.examTip})
+    const correct = result.answeredCorrectly === true
+    const totals = (result.serviceProgress as Array<{ service: string; attempted: number; correct: number }>)
+      .filter(row => row.service === service.id)
+    setSelectedAnswer(result.userAnswer.toLowerCase())
     setIsCorrect(correct)
     setShowFeedback(true)
-
-    setQuestionsAnswered(prev => prev + 1)
-    if (correct) {
-      setCorrectCount(prev => prev + 1)
-    }
+    setQuestionsAnswered(totals.reduce((sum, row) => sum + row.attempted, 0))
+    setCorrectCount(totals.reduce((sum, row) => sum + row.correct, 0))
 
     // Set up explainer for wrong answers - use question's topic if available
     if (!correct) {
@@ -554,24 +275,6 @@ export function PracticeClient({
       }
     }
 
-    try {
-      await fetch("/api/question/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: currentQuestion.questionId,
-          service: service.id,
-          certification: certification,
-          topic: null,
-          questionText: currentQuestion.question,
-          correctAnswer: currentQuestion.correct,
-          userAnswer: answer,
-          timeTakenSeconds: timeTaken
-        })
-      })
-    } catch (e) {
-      console.error("Failed to submit answer:", e)
-    }
   }
 
   // NEW: Handle showing explainer
@@ -620,7 +323,7 @@ export function PracticeClient({
     : 0
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background practice-surface">
       <Header user={user} />
 
       <main className="container mx-auto px-4 py-8">
@@ -636,7 +339,7 @@ export function PracticeClient({
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
-              {certification === 'SAA-C03' ? '🏗️ Solutions Architect' : '💻 Developer'} Associate
+              {certification === 'SAA-C03' ? 'Solutions Architect' : 'Developer'} Associate
             </span>
             {useStreamingMode && (
               <span className="text-xs font-medium px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-600 flex items-center gap-1">
@@ -653,7 +356,7 @@ export function PracticeClient({
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           {/* Main Content */}
           <div>
             {/* Initial state - no question yet */}
@@ -662,9 +365,15 @@ export function PracticeClient({
                 <p className="text-muted-foreground mb-4">
                   Ready to test your {service.name} knowledge?
                 </p>
-                <Button onClick={getNextQuestion} size="lg">
-                  Start Practice
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button onClick={getNextQuestion} size="lg">
+                    Start Practice
+                  </Button>
+                  <Button onClick={handleContinueWithStreaming} variant="outline" size="lg">
+                    <Zap className="mr-2 h-4 w-4" />
+                    Generate a new question
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -683,28 +392,35 @@ export function PracticeClient({
               <Card className="border-2 border-primary/20 bg-primary/5">
                 <CardContent className="pt-6 text-center">
                   <PartyPopper className="h-12 w-12 mx-auto mb-4 text-primary" />
-                  
+
                   <h3 className="text-xl font-semibold mb-2">
-                    🎉 You've completed all {totalQuestionsInBank} {service.name} questions!
+                    You've completed all {totalQuestionsInBank} {service.name} questions!
                   </h3>
-                  
+
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Questions will now be generated in real-time until the next batch 
+                    Questions will now be generated in real-time until the next batch
                     update. This may take a few seconds per question.
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button onClick={handleContinueWithStreaming} className="gap-2">
                       <Zap className="h-4 w-4" />
                       Continue with Live Questions
                     </Button>
-                    
+
                     <Button variant="outline" onClick={handleTryAnotherService} className="gap-2">
                       Try Another Service
                     </Button>
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {isStreaming && !partialQuestion && (
+              <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground" role="status">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating your question…
+              </div>
             )}
 
             {/* Streaming state - show progressive question card */}
@@ -730,13 +446,13 @@ export function PracticeClient({
                     const nextLetter = letter === 'A' ? 'B' : letter === 'B' ? 'C' : letter === 'C' ? 'D' : null
                     const hasNextOption = nextLetter ? partialQuestion.options?.[nextLetter as 'A' | 'B' | 'C' | 'D'] : true
                     const isCurrentlyStreaming = isStreaming && optionText && !hasNextOption
-                    
+
                     return (
                       <div
                         key={letter}
                         className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                          optionText 
-                            ? 'border-border bg-card' 
+                          optionText
+                            ? 'border-border bg-card'
                             : 'border-dashed border-muted bg-muted/30'
                         }`}
                       >
@@ -752,7 +468,7 @@ export function PracticeClient({
                       </div>
                     )
                   })}
-                  
+
                   <Button disabled className="w-full mt-4" size="lg">
                     Waiting for options...
                   </Button>
@@ -804,7 +520,7 @@ export function PracticeClient({
                   examTip={currentQuestion.examTip}
                   onNextQuestion={handleNextQuestion}
                 />
-                
+
                 {/* NEW: Learn More button for wrong answers */}
                 {!isCorrect && currentExplainerId && (
                   <Card className="border-2 border-yellow-500/30 bg-yellow-500/5">
@@ -821,7 +537,7 @@ export function PracticeClient({
                             </p>
                           </div>
                         </div>
-                        <Button 
+                        <Button
                           onClick={handleShowExplainer}
                           variant="outline"
                           className="border-yellow-500/50 hover:bg-yellow-500/10"

@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useExplainerPlayback } from "@/hooks/use-explainer-playback"
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react"
 
 // ============================================================================
 // S3 STORAGE CLASSES EXPLAINER (Rich)
 // ============================================================================
 export function S3StorageClassesExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [selectedClass, setSelectedClass] = useState("standard")
 
   const steps = [
@@ -30,6 +31,8 @@ export function S3StorageClassesExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const storageClasses = [
     { id: "standard", name: "Standard", cost: 0.023, retrieval: "ms", durability: "11 9s", availability: "99.99%", useCase: "Frequent access" },
     { id: "intelligent", name: "Intelligent-Tiering", cost: 0.023, retrieval: "ms", durability: "11 9s", availability: "99.9%", useCase: "Unknown/changing patterns" },
@@ -42,14 +45,7 @@ export function S3StorageClassesExplainer() {
 
   const selected = storageClasses.find(c => c.id === selectedClass)!
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const classByStep = ["standard", "intelligent", "standard-ia", "glacier-instant"]
@@ -137,10 +133,10 @@ export function S3StorageClassesExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -163,8 +159,8 @@ export function S3StorageClassesExplainer() {
 // S3 LIFECYCLE EXPLAINER (Medium)
 // ============================================================================
 export function S3LifecycleExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [daysSinceCreation, setDaysSinceCreation] = useState(0)
 
   const steps = [
@@ -186,6 +182,8 @@ export function S3LifecycleExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const getStorageClass = (days: number) => {
     if (days >= 365) return { name: "Glacier Deep Archive", color: "bg-purple-500" }
     if (days >= 90) return { name: "Glacier Flexible", color: "bg-blue-500" }
@@ -195,14 +193,7 @@ export function S3LifecycleExplainer() {
 
   const currentClass = getStorageClass(daysSinceCreation)
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const daysByStep = [0, 60, 120, 365]
@@ -291,10 +282,10 @@ export function S3LifecycleExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -317,8 +308,8 @@ export function S3LifecycleExplainer() {
 // S3 VERSIONING EXPLAINER (Medium)
 // ============================================================================
 export function S3VersioningExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [versioningEnabled, setVersioningEnabled] = useState(true)
   const [versions, setVersions] = useState([
     { id: "v3", content: "Latest content", isLatest: true, isDeleted: false },
@@ -345,6 +336,8 @@ export function S3VersioningExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const addDeleteMarker = () => {
     setVersions([
       { id: "delete-marker", content: "DELETE MARKER", isLatest: true, isDeleted: true },
@@ -352,14 +345,7 @@ export function S3VersioningExplainer() {
     ])
   }
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const baseVersions = [
@@ -462,10 +448,10 @@ export function S3VersioningExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -488,8 +474,8 @@ export function S3VersioningExplainer() {
 // S3 ENCRYPTION EXPLAINER (Medium)
 // ============================================================================
 export function S3EncryptionExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [encryptionType, setEncryptionType] = useState<"sse-s3" | "sse-kms" | "sse-c" | "client">("sse-s3")
 
   const steps = [
@@ -511,6 +497,8 @@ export function S3EncryptionExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const encryptionOptions = {
     "sse-s3": { name: "SSE-S3", keyMgmt: "AWS Managed", audit: "No", cost: "Free", header: "x-amz-server-side-encryption: AES256" },
     "sse-kms": { name: "SSE-KMS", keyMgmt: "KMS CMK", audit: "Yes", cost: "KMS charges", header: "x-amz-server-side-encryption: aws:kms" },
@@ -520,14 +508,7 @@ export function S3EncryptionExplainer() {
 
   const selected = encryptionOptions[encryptionType]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const typeByStep: Array<"sse-s3" | "sse-kms" | "sse-c" | "client"> = ["sse-s3", "sse-s3", "sse-kms", "sse-c"]
@@ -653,10 +634,10 @@ export function S3EncryptionExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -679,8 +660,8 @@ export function S3EncryptionExplainer() {
 // S3 BUCKET POLICIES EXPLAINER (Medium)
 // ============================================================================
 export function S3BucketPoliciesExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [policyType, setPolicyType] = useState<"public" | "cross-account" | "vpc" | "encryption">("public")
 
   const steps = [
@@ -701,6 +682,8 @@ export function S3BucketPoliciesExplainer() {
       description: "Public read, cross-account access, VPC-only access, enforce encryption."
     }
   ]
+
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
 
   const policies = {
     public: {
@@ -753,14 +736,7 @@ export function S3BucketPoliciesExplainer() {
     }
   }
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const typeByStep: Array<"public" | "cross-account" | "vpc" | "encryption"> = ["public", "cross-account", "vpc", "encryption"]
@@ -808,10 +784,10 @@ export function S3BucketPoliciesExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -834,8 +810,8 @@ export function S3BucketPoliciesExplainer() {
 // S3 PRESIGNED URLS EXPLAINER (Medium)
 // ============================================================================
 export function S3PresignedURLsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [urlExpiry, setUrlExpiry] = useState(3600)
   const [timeElapsed, setTimeElapsed] = useState(0)
 
@@ -858,16 +834,11 @@ export function S3PresignedURLsExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const isExpired = timeElapsed > urlExpiry
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const elapsedByStep = [0, 600, 1800, 7200]
@@ -972,10 +943,10 @@ export function S3PresignedURLsExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -998,8 +969,8 @@ export function S3PresignedURLsExplainer() {
 // S3 REPLICATION EXPLAINER (Medium)
 // ============================================================================
 export function S3ReplicationExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [replicationType, setReplicationType] = useState<"crr" | "srr">("crr")
 
   const steps = [
@@ -1021,14 +992,9 @@ export function S3ReplicationExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   useEffect(() => {
     const typeByStep: Array<"crr" | "srr"> = ["crr", "crr", "srr", "crr"]
@@ -1131,10 +1097,10 @@ export function S3ReplicationExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -1157,8 +1123,8 @@ export function S3ReplicationExplainer() {
 // S3 EVENT NOTIFICATIONS EXPLAINER (Light)
 // ============================================================================
 export function S3EventNotificationsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [eventType, setEventType] = useState<"put" | "delete" | "restore">("put")
 
   const steps = [
@@ -1180,14 +1146,9 @@ export function S3EventNotificationsExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   useEffect(() => {
     const typeByStep: Array<"put" | "delete" | "restore"> = ["put", "delete", "put", "restore"]
@@ -1265,10 +1226,10 @@ export function S3EventNotificationsExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -1291,8 +1252,8 @@ export function S3EventNotificationsExplainer() {
 // S3 TRANSFER ACCELERATION EXPLAINER (Light)
 // ============================================================================
 export function S3TransferAccelerationExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [accelerationEnabled, setAccelerationEnabled] = useState(true)
 
   const steps = [
@@ -1314,14 +1275,9 @@ export function S3TransferAccelerationExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   useEffect(() => {
     const enabledByStep = [false, true, true, false]
@@ -1422,10 +1378,10 @@ export function S3TransferAccelerationExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -1448,8 +1404,8 @@ export function S3TransferAccelerationExplainer() {
 // S3 SELECT EXPLAINER (Light)
 // ============================================================================
 export function S3SelectExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [useSelect, setUseSelect] = useState(true)
 
   const steps = [
@@ -1471,14 +1427,9 @@ export function S3SelectExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   useEffect(() => {
     const selectByStep = [true, true, true, false]
@@ -1559,10 +1510,10 @@ export function S3SelectExplainer() {
 
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       {/* Exam Takeaways */}
@@ -1585,8 +1536,8 @@ export function S3SelectExplainer() {
 // S3 ACCESS POINTS EXPLAINER (Medium)
 // ============================================================================
 export function S3AccessPointsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [accessPoint, setAccessPoint] = useState<"finance" | "analytics" | "public">("finance")
 
   const steps = [
@@ -1608,20 +1559,15 @@ export function S3AccessPointsExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const accessPoints = {
     finance: { name: "finance-reports-ap", vpc: "vpc-finance", policy: "Finance team only" },
     analytics: { name: "analytics-data-ap", vpc: "vpc-analytics", policy: "Read-only analytics" },
     public: { name: "public-assets-ap", vpc: "Internet", policy: "GetObject only" }
   }
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const apByStep: Array<"finance" | "analytics" | "public"> = ["finance", "analytics", "finance", "public"]
@@ -1680,10 +1626,10 @@ export function S3AccessPointsExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -1703,8 +1649,8 @@ export function S3AccessPointsExplainer() {
 // S3 OBJECT LOCK EXPLAINER (Medium)
 // ============================================================================
 export function S3ObjectLockExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [lockMode, setLockMode] = useState<"governance" | "compliance">("governance")
 
   const steps = [
@@ -1726,14 +1672,9 @@ export function S3ObjectLockExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   useEffect(() => {
     const modeByStep: Array<"governance" | "compliance"> = ["governance", "compliance", "compliance", "governance"]
@@ -1802,10 +1743,10 @@ export function S3ObjectLockExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -1825,8 +1766,8 @@ export function S3ObjectLockExplainer() {
 // S3 MULTIPART UPLOAD EXPLAINER (Medium)
 // ============================================================================
 export function S3MultipartUploadExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [uploadProgress, setUploadProgress] = useState(0)
 
   const steps = [
@@ -1848,6 +1789,8 @@ export function S3MultipartUploadExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const parts = [
     { id: 1, size: "5 GB", status: uploadProgress >= 25 ? "complete" : uploadProgress >= 10 ? "uploading" : "pending" },
     { id: 2, size: "5 GB", status: uploadProgress >= 50 ? "complete" : uploadProgress >= 30 ? "uploading" : "pending" },
@@ -1855,14 +1798,7 @@ export function S3MultipartUploadExplainer() {
     { id: 4, size: "3 GB", status: uploadProgress >= 100 ? "complete" : uploadProgress >= 80 ? "uploading" : "pending" },
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const progressByStep = [0, 40, 75, 100]
@@ -1930,10 +1866,10 @@ export function S3MultipartUploadExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -1953,8 +1889,8 @@ export function S3MultipartUploadExplainer() {
 // S3 CORS EXPLAINER (Light)
 // ============================================================================
 export function S3CORSExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [corsEnabled, setCorsEnabled] = useState(true)
 
   const steps = [
@@ -1976,14 +1912,9 @@ export function S3CORSExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   useEffect(() => {
     const enabledByStep = [false, true, true, true]
@@ -2055,10 +1986,10 @@ export function S3CORSExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -2078,8 +2009,8 @@ export function S3CORSExplainer() {
 // S3 BATCH OPERATIONS EXPLAINER (Medium)
 // ============================================================================
 export function S3BatchOperationsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [operation, setOperation] = useState<"copy" | "tag" | "acl" | "restore">("copy")
 
   const steps = [
@@ -2101,6 +2032,8 @@ export function S3BatchOperationsExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const operations = {
     copy: { name: "Copy", icon: "📋", desc: "Copy objects across buckets/accounts" },
     tag: { name: "Replace Tags", icon: "🏷️", desc: "Update tags on all objects" },
@@ -2108,14 +2041,7 @@ export function S3BatchOperationsExplainer() {
     restore: { name: "Restore", icon: "📦", desc: "Restore from Glacier at scale" }
   }
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     const opByStep: Array<"copy" | "tag" | "acl" | "restore"> = ["copy", "tag", "acl", "restore"]
@@ -2194,10 +2120,10 @@ export function S3BatchOperationsExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">

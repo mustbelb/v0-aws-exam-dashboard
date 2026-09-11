@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
+import { streamQuestionGeneration } from "@/lib/question-generation-client"
+import { parseIssuedQuestion } from "@/lib/generated-question"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
@@ -32,6 +34,7 @@ interface RandomPracticeClientProps {
 }
 
 interface Question {
+  issuanceId: string
   questionId?: string
   question: string
   options: {
@@ -87,14 +90,14 @@ export function RandomPracticeClient({
   const [correctCount, setCorrectCount] = useState(
     Math.round((categoryProgress.correctRate / 100) * categoryProgress.questionsAnswered)
   )
-  
+
   // Current service being shown (for random mode)
   const [currentService, setCurrentService] = useState<{
     id: string
     name: string
     icon: string
   } | null>(null)
-  
+
   // Bank exhausted state
   const [bankExhausted, setBankExhausted] = useState(false)
   const [showExhaustedMessage, setShowExhaustedMessage] = useState(false)
@@ -152,12 +155,13 @@ export function RandomPracticeClient({
 
       // Success - instant question!
       setCurrentQuestion({
+        issuanceId: data.issuanceId,
         questionId: data.questionId,
         question: data.question,
         options: data.options,
-        correct: data.correct,
-        explanation: data.explanation,
-        examTip: data.examTip,
+        correct: "",
+        explanation: {correct: ""},
+        examTip: "",
         service: data.service,
         serviceName: data.serviceName,
         serviceIcon: data.serviceIcon,
@@ -174,9 +178,17 @@ export function RandomPracticeClient({
   }, [category.id, certification])
 
   // Streaming fallback (same as practice-client.tsx)
+  const activeStream = useRef<AbortController | null>(null)
+  useEffect(() => () => { activeStream.current?.abort(); activeStream.current = null }, [])
+
   const generateQuestionStreaming = useCallback(async () => {
     // Pick a random service from the category
     const randomService = servicesInCategory[Math.floor(Math.random() * servicesInCategory.length)]
+
+    if (!randomService) {
+      setError("No services are available in this category.")
+      return
+    }
 
     setIsLoading(true)
     setIsStreaming(true)
@@ -193,101 +205,34 @@ export function RandomPracticeClient({
       icon: randomService.icon
     })
 
-    const params = new URLSearchParams({
-      service: randomService.id,
-      userId: user.id,
-      certification: certification
-    })
-
+    activeStream.current?.abort()
+    const controller = new AbortController()
+    activeStream.current = controller
+    const timeout = setTimeout(() => controller.abort(), 120000)
     try {
-      const streamUrl = `/api/question/generate?${params.toString()}`
-      const eventSource = new EventSource(streamUrl)
-      let accumulated = ""
-
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data)
-
-          switch (data.type) {
-            case "character":
-            case "chunk":
-              accumulated += data.character || data.content || ""
-              // Parse partial question (simplified)
-              const partial: PartialQuestion = {}
-              const questionMatch = accumulated.match(/QUESTION[:\s]*\n?([\s\S]*?)(?=\nOPTION_A[:\s]|$)/i)
-              if (questionMatch) partial.question = questionMatch[1].trim()
-              
-              partial.options = {}
-              const optAMatch = accumulated.match(/OPTION_A[:\s]*\n?([\s\S]*?)(?=\nOPTION_B[:\s]|$)/i)
-              if (optAMatch) partial.options.A = optAMatch[1].trim()
-              const optBMatch = accumulated.match(/OPTION_B[:\s]*\n?([\s\S]*?)(?=\nOPTION_C[:\s]|$)/i)
-              if (optBMatch) partial.options.B = optBMatch[1].trim()
-              const optCMatch = accumulated.match(/OPTION_C[:\s]*\n?([\s\S]*?)(?=\nOPTION_D[:\s]|$)/i)
-              if (optCMatch) partial.options.C = optCMatch[1].trim()
-              const optDMatch = accumulated.match(/OPTION_D[:\s]*\n?([\s\S]*?)(?=\nCORRECT[:\s]|$)/i)
-              if (optDMatch) partial.options.D = optDMatch[1].trim()
-              
-              setPartialQuestion(partial)
-              
-              // Check if ready for interaction
-              if (partial.question && partial.options?.A && partial.options?.B && partial.options?.C && partial.options?.D) {
-                const correctMatch = accumulated.match(/\nCORRECT[:\s]*\n?([A-Da-d])/i)
-                if (correctMatch) {
-                  const earlyQuestion: Question = {
-                    question: partial.question,
-                    options: {
-                      A: partial.options.A,
-                      B: partial.options.B,
-                      C: partial.options.C,
-                      D: partial.options.D
-                    },
-                    correct: correctMatch[1].toUpperCase(),
-                    explanation: { correct: '' },
-                    examTip: '',
-                    service: randomService.id,
-                    serviceName: randomService.name,
-                    serviceIcon: randomService.icon
-                  }
-                  setCurrentQuestion(earlyQuestion)
-                  setPartialQuestion(null)
-                  setIsStreaming(false)
-                  setIsLoading(false)
-                  startTimeRef.current = Date.now()
-                }
-              }
-              break
-
-            case "complete":
-              eventSource.close()
-              setIsStreaming(false)
-              setIsLoading(false)
-              // Parse full response if not already done
-              break
-
-            case "error":
-              eventSource.close()
-              setIsStreaming(false)
-              setIsLoading(false)
-              setError(data.error || "An error occurred")
-              break
-          }
-        } catch (e) {
-          console.error("Event parse error:", e)
+      await streamQuestionGeneration({service:randomService.id, certification}, data => {
+        if (data.type === 'partial') {
+          setPartialQuestion(data.question as PartialQuestion)
+        } else if (data.type === 'complete') {
+          const question = parseIssuedQuestion(data.question)
+          if (!question) throw new Error('The generated question was incomplete. Please try again.')
+          setCurrentQuestion({...question, correct:'', explanation:{correct:''}, examTip:'', service: randomService.id, serviceName: randomService.name, serviceIcon: randomService.icon})
+          setPartialQuestion(null)
+          setIsStreaming(false)
+          setIsLoading(false)
+          startTimeRef.current = Date.now()
         }
-      }
-
-      eventSource.onerror = () => {
-        eventSource.close()
-        setIsStreaming(false)
-        setIsLoading(false)
-        setError("Connection error. Please try again.")
-      }
-
-    } catch (e) {
+      }, controller.signal)
+    } catch (error) {
+      if (activeStream.current !== controller) return
       setIsStreaming(false)
       setIsLoading(false)
-      setError("Failed to start question generation")
+      setPartialQuestion(null)
+      setError(controller.signal.aborted ? 'Generation stopped. Please try again.' : error instanceof Error ? error.message : 'Generation failed. Please try again.')
+    } finally {
+      clearTimeout(timeout)
     }
+
   }, [servicesInCategory, user.id, certification])
 
   const getNextQuestion = useCallback(() => {
@@ -329,15 +274,31 @@ export function RandomPracticeClient({
     if (!currentQuestion) return
 
     const timeTaken = Math.round((Date.now() - startTimeRef.current) / 1000)
-    const correct = answer.toLowerCase() === currentQuestion.correct.toLowerCase()
 
-    setSelectedAnswer(answer)
+    const response = await fetch("/api/question/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          issuanceId: currentQuestion.issuanceId,
+          userAnswer: answer,
+          timeTakenSeconds: timeTaken
+        })
+      })
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}))
+      throw new Error(result.error || "Your answer could not be saved. Please try again.")
+    }
+
+    const result = await response.json()
+    setCurrentQuestion({...currentQuestion, correct: result.correctAnswer, explanation: result.explanation, examTip: result.examTip})
+    const correct = result.answeredCorrectly === true
+    const totals = (result.serviceProgress as Array<{ service: string; attempted: number; correct: number }>)
+      .filter(row => servicesInCategory.some(service => service.id === row.service))
+    setSelectedAnswer(result.userAnswer.toLowerCase())
     setIsCorrect(correct)
     setShowFeedback(true)
-    setQuestionsAnswered(prev => prev + 1)
-    if (correct) {
-      setCorrectCount(prev => prev + 1)
-    }
+    setQuestionsAnswered(totals.reduce((sum, row) => sum + row.attempted, 0))
+    setCorrectCount(totals.reduce((sum, row) => sum + row.correct, 0))
 
     // Set up explainer for wrong answers - use question's topic if available
     if (!correct) {
@@ -357,24 +318,6 @@ export function RandomPracticeClient({
       }
     }
 
-    try {
-      await fetch("/api/question/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: currentQuestion.questionId,
-          service: currentService?.id || currentQuestion.service,
-          certification: certification,
-          topic: null,
-          questionText: currentQuestion.question,
-          correctAnswer: currentQuestion.correct,
-          userAnswer: answer,
-          timeTakenSeconds: timeTaken
-        })
-      })
-    } catch (e) {
-      console.error("Failed to submit answer:", e)
-    }
   }
 
   const formattedOptions = currentQuestion
@@ -403,7 +346,7 @@ export function RandomPracticeClient({
     : 0
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background practice-surface">
       <Header user={user} />
 
       <main className="container mx-auto px-4 py-8">
@@ -417,7 +360,7 @@ export function RandomPracticeClient({
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
-              {certification === 'SAA-C03' ? '🏗️ Solutions Architect' : '💻 Developer'} Associate
+              {certification === 'SAA-C03' ? 'Solutions Architect' : 'Developer'} Associate
             </span>
             <span className="text-xs font-medium px-2 py-1 rounded-full bg-purple-500/10 text-purple-600 flex items-center gap-1">
               <Shuffle className="h-3 w-3" />
@@ -439,7 +382,7 @@ export function RandomPracticeClient({
           </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             {/* Current Service Indicator */}
             {currentService && !showFeedback && currentQuestion && (
@@ -456,9 +399,15 @@ export function RandomPracticeClient({
                 <p className="text-muted-foreground mb-4">
                   Ready to test your {category.name} knowledge across all services?
                 </p>
-                <Button onClick={getNextQuestion} size="lg">
-                  Start Random Practice
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button onClick={getNextQuestion} size="lg">
+                    Start Random Practice
+                  </Button>
+                  <Button onClick={handleContinueWithStreaming} variant="outline" size="lg">
+                    <Zap className="mr-2 h-4 w-4" />
+                    Generate a new question
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -477,28 +426,35 @@ export function RandomPracticeClient({
               <Card className="border-2 border-primary/20 bg-primary/5">
                 <CardContent className="pt-6 text-center">
                   <PartyPopper className="h-12 w-12 mx-auto mb-4 text-primary" />
-                  
+
                   <h3 className="text-xl font-semibold mb-2">
-                    🎉 You've completed all {category.name} questions!
+                    You've completed all {category.name} questions!
                   </h3>
-                  
+
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Questions will now be generated in real-time until the next batch 
+                    Questions will now be generated in real-time until the next batch
                     update. This may take a few seconds per question.
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button onClick={handleContinueWithStreaming} className="gap-2">
                       <Zap className="h-4 w-4" />
                       Continue with Live Questions
                     </Button>
-                    
+
                     <Button variant="outline" onClick={handleTryAnotherCategory} className="gap-2">
                       Try Another Category
                     </Button>
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {isStreaming && !partialQuestion && (
+              <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground" role="status">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating your question…
+              </div>
             )}
 
             {/* Streaming state */}
@@ -655,16 +611,16 @@ export function RandomPracticeClient({
                     <p className="text-sm text-muted-foreground">Accuracy</p>
                   </div>
                 </div>
-                
+
                 <div className="pt-4 border-t">
                   <p className="text-sm font-medium mb-2">Services in this category:</p>
                   <div className="flex flex-wrap gap-2">
                     {servicesInCategory.map(service => (
-                      <span 
-                        key={service.id} 
+                      <span
+                        key={service.id}
                         className={`text-xs px-2 py-1 rounded-full ${
-                          currentService?.id === service.id 
-                            ? 'bg-primary text-primary-foreground' 
+                          currentService?.id === service.id
+                            ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                         }`}
                       >

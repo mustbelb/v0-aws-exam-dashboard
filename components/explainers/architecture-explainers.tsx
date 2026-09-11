@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useExplainerPlayback } from "@/hooks/use-explainer-playback"
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Layers, RefreshCw, Globe, Shield, Zap, Database, Cloud, Server, ArrowRight, GitBranch, CircleAlert, DollarSign, Repeat, Lock, HardDrive, Copy } from "lucide-react"
 
 // 1. Serverless Architecture Explainer (Rich)
 export function ServerlessArchitectureExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [requestCount, setRequestCount] = useState(0)
 
   const steps = [
@@ -17,20 +18,20 @@ export function ServerlessArchitectureExplainer() {
     { title: "Managed Services", description: "Use DynamoDB, S3, SNS, SQS for a fully serverless stack" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   // Simulate requests
+  useEffect(() => setRequestCount(0), [resetKey])
+
   useEffect(() => {
+    if (!isPlaying) return
     const interval = setInterval(() => {
       setRequestCount(c => (c + Math.floor(Math.random() * 5)) % 100)
     }, 500)
     return () => clearInterval(interval)
-  }, [])
+  }, [isPlaying])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -361,16 +362,16 @@ export function ServerlessArchitectureExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -391,8 +392,8 @@ export function ServerlessArchitectureExplainer() {
 
 // 2. Microservices Architecture Explainer (Rich)
 export function MicroservicesArchitectureExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [selectedService, setSelectedService] = useState<string | null>(null)
 
   const steps = [
@@ -403,12 +404,9 @@ export function MicroservicesArchitectureExplainer() {
     { title: "Service Mesh", description: "Use App Mesh for service-to-service communication" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   const services = [
     { name: "User Service", color: "blue", icon: "👤" },
@@ -630,16 +628,16 @@ export function MicroservicesArchitectureExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -660,8 +658,8 @@ export function MicroservicesArchitectureExplainer() {
 
 // 3. Event-Driven Architecture Explainer (Rich)
 export function EventDrivenArchitectureExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [eventCount, setEventCount] = useState(0)
 
   const steps = [
@@ -672,20 +670,20 @@ export function EventDrivenArchitectureExplainer() {
     { title: "Event Sourcing", description: "Store all changes as a sequence of events" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   // Simulate events
+  useEffect(() => setEventCount(0), [resetKey])
+
   useEffect(() => {
+    if (!isPlaying) return
     const interval = setInterval(() => {
       setEventCount(c => c + 1)
     }, 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [isPlaying])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -933,16 +931,16 @@ export function EventDrivenArchitectureExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -963,8 +961,8 @@ export function EventDrivenArchitectureExplainer() {
 
 // 4. Multi-Tier Architecture Explainer (Medium)
 export function MultiTierArchitectureExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Multi-Tier Architecture", description: "Classic 3-tier: presentation, application, data" },
@@ -974,12 +972,9 @@ export function MultiTierArchitectureExplainer() {
     { title: "High Availability", description: "Distribute across AZs with load balancers" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1195,16 +1190,16 @@ export function MultiTierArchitectureExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -1225,8 +1220,8 @@ export function MultiTierArchitectureExplainer() {
 
 // 5. Disaster Recovery Patterns Explainer (Rich)
 export function DisasterRecoveryPatternsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [pattern, setPattern] = useState<"backup" | "pilot" | "warm" | "hot">("warm")
 
   const steps = [
@@ -1237,12 +1232,9 @@ export function DisasterRecoveryPatternsExplainer() {
     { title: "Multi-Site Active/Active", description: "Full capacity in multiple regions (most expensive)" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   // Sync pattern with step for animation
   useEffect(() => {
@@ -1383,16 +1375,16 @@ export function DisasterRecoveryPatternsExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -1413,8 +1405,8 @@ export function DisasterRecoveryPatternsExplainer() {
 
 // 6. Well-Architected Pillars Explainer (Medium)
 export function WellArchitectedPillarsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [selectedPillar, setSelectedPillar] = useState(0)
 
   const steps = [
@@ -1427,12 +1419,9 @@ export function WellArchitectedPillarsExplainer() {
     { title: "Sustainability", description: "Minimize environmental impact" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   // Sync pillar with step for animation
   useEffect(() => {
@@ -1515,16 +1504,16 @@ export function WellArchitectedPillarsExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -1545,8 +1534,8 @@ export function WellArchitectedPillarsExplainer() {
 
 // 7. Blue-Green Deployment Explainer
 export function BlueGreenDeploymentExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [activeEnv, setActiveEnv] = useState<"blue" | "green">("blue")
 
   const steps = [
@@ -1557,12 +1546,9 @@ export function BlueGreenDeploymentExplainer() {
     { title: "Rollback", description: "If issues, switch back to blue immediately" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   // Sync environment with step for animation
   useEffect(() => {
@@ -1658,16 +1644,16 @@ export function BlueGreenDeploymentExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -1687,8 +1673,8 @@ export function BlueGreenDeploymentExplainer() {
 
 // 8. Canary Deployment Explainer
 export function CanaryDeploymentExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [canaryPercent, setCanaryPercent] = useState(10)
 
   const steps = [
@@ -1699,12 +1685,9 @@ export function CanaryDeploymentExplainer() {
     { title: "Rollback", description: "Route back to 100% old version if issues detected" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   // Sync canary percentage with step for animation
   useEffect(() => {
@@ -1791,16 +1774,16 @@ export function CanaryDeploymentExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -1820,8 +1803,8 @@ export function CanaryDeploymentExplainer() {
 
 // 9. Fan-Out Pattern Explainer
 export function FanOutPatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [messageCount, setMessageCount] = useState(0)
 
   const steps = [
@@ -1832,19 +1815,19 @@ export function FanOutPatternExplainer() {
     { title: "Decoupling", description: "Publisher doesn't know about subscribers" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
+
+  useEffect(() => setMessageCount(0), [resetKey])
 
   useEffect(() => {
+    if (!isPlaying) return
     const interval = setInterval(() => {
       setMessageCount(c => c + 1)
     }, 2000)
     return () => clearInterval(interval)
-  }, [])
+  }, [isPlaying])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2115,16 +2098,16 @@ export function FanOutPatternExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -2144,8 +2127,8 @@ export function FanOutPatternExplainer() {
 
 // 10. Static Website Hosting Explainer
 export function StaticWebsiteHostingExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Static Website Hosting", description: "Host static websites on S3 with CloudFront CDN" },
@@ -2155,12 +2138,9 @@ export function StaticWebsiteHostingExplainer() {
     { title: "Origin Access Control", description: "Secure S3 so only CloudFront can access" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2440,16 +2420,16 @@ export function StaticWebsiteHostingExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -2469,8 +2449,8 @@ export function StaticWebsiteHostingExplainer() {
 
 // 11. Cache-Aside Pattern Explainer
 export function CacheAsidePatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [cacheHit, setCacheHit] = useState(true)
 
   const steps = [
@@ -2481,12 +2461,9 @@ export function CacheAsidePatternExplainer() {
     { title: "TTL Expiration", description: "Cache entries expire, ensuring data freshness" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2735,16 +2712,16 @@ export function CacheAsidePatternExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -2764,8 +2741,8 @@ export function CacheAsidePatternExplainer() {
 
 // 12. Read Replica Pattern Explainer
 export function ReadReplicaPatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Read Replica Pattern", description: "Scale read operations with asynchronous replicas" },
@@ -2775,12 +2752,9 @@ export function ReadReplicaPatternExplainer() {
     { title: "Cross-Region", description: "Replicas can be in different regions for DR" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3035,16 +3009,16 @@ export function ReadReplicaPatternExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -3064,8 +3038,8 @@ export function ReadReplicaPatternExplainer() {
 
 // 13. Decoupled Architecture Explainer
 export function DecoupledArchitectureExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [queueDepth, setQueueDepth] = useState(5)
 
   const steps = [
@@ -3076,12 +3050,9 @@ export function DecoupledArchitectureExplainer() {
     { title: "Scaling", description: "Scale consumers independently based on queue depth" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3337,16 +3308,16 @@ export function DecoupledArchitectureExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -3366,8 +3337,8 @@ export function DecoupledArchitectureExplainer() {
 
 // 14. Global Architecture Explainer
 export function GlobalArchitectureExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Global Architecture", description: "Serve users worldwide with low latency" },
@@ -3377,12 +3348,9 @@ export function GlobalArchitectureExplainer() {
     { title: "DNS Routing", description: "Route 53 latency or geolocation routing" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3597,16 +3565,16 @@ export function GlobalArchitectureExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -3626,8 +3594,8 @@ export function GlobalArchitectureExplainer() {
 
 // 15. Hybrid Architecture Explainer
 export function HybridArchitectureExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Hybrid Architecture", description: "Connect on-premises infrastructure with AWS cloud" },
@@ -3637,12 +3605,9 @@ export function HybridArchitectureExplainer() {
     { title: "Outposts", description: "AWS infrastructure on-premises" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3827,16 +3792,16 @@ export function HybridArchitectureExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -3856,8 +3821,8 @@ export function HybridArchitectureExplainer() {
 
 // 16. Cost Optimization Explainer
 export function CostOptimizationExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [currentView, setCurrentView] = useState<0 | 1 | 2 | 3 | 4>(0)
 
   const steps = [
@@ -3868,12 +3833,9 @@ export function CostOptimizationExplainer() {
     { title: "Storage Tiering", description: "Move data to cheaper storage classes over time" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   // Sync current view with step: 0 overview, 1 right-size (On-Demand), 2 Reserved, 3 Spot, 4 S3 tiering
   useEffect(() => {
@@ -3942,16 +3904,16 @@ export function CostOptimizationExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -3971,8 +3933,8 @@ export function CostOptimizationExplainer() {
 
 // 17. Circuit Breaker Pattern Explainer
 export function CircuitBreakerPatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [circuitState, setCircuitState] = useState<"closed" | "open" | "half-open">("closed")
 
   const steps = [
@@ -3983,12 +3945,9 @@ export function CircuitBreakerPatternExplainer() {
     { title: "Implementation", description: "Use Step Functions, Lambda, or application code" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -4253,16 +4212,16 @@ export function CircuitBreakerPatternExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -4282,8 +4241,8 @@ export function CircuitBreakerPatternExplainer() {
 
 // 18. Strangler Fig Pattern Explainer
 export function StranglerFigPatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [migrationProgress, setMigrationProgress] = useState(30)
 
   const steps = [
@@ -4294,12 +4253,9 @@ export function StranglerFigPatternExplainer() {
     { title: "Retire Monolith", description: "Eventually replace completely" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -4545,16 +4501,16 @@ export function StranglerFigPatternExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -4574,8 +4530,8 @@ export function StranglerFigPatternExplainer() {
 
 // 19. CQRS Pattern Explainer
 export function CqrsPatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "CQRS Pattern", description: "Command Query Responsibility Segregation - separate read and write models" },
@@ -4585,12 +4541,9 @@ export function CqrsPatternExplainer() {
     { title: "Benefits", description: "Scale reads and writes independently" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -4660,16 +4613,16 @@ export function CqrsPatternExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -4689,8 +4642,8 @@ export function CqrsPatternExplainer() {
 
 // 20. Saga Pattern Explainer
 export function SagaPatternExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [sagaStep, setSagaStep] = useState(0)
 
   const steps = [
@@ -4701,12 +4654,9 @@ export function SagaPatternExplainer() {
     { title: "Choreography", description: "Services communicate via events (SNS/EventBridge)" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   const sagaSteps = [
     { name: "Create Order", status: sagaStep >= 1 ? "done" : "pending" },
@@ -4887,16 +4837,16 @@ export function SagaPatternExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>

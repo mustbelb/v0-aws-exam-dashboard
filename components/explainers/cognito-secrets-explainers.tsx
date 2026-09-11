@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useExplainerPlayback } from "@/hooks/use-explainer-playback"
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Users, Key, Lock, Shield } from "lucide-react"
 
 // 1. Cognito User Pools Explainer (Rich)
 export function CognitoUserPoolsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [authFlow, setAuthFlow] = useState<"signup" | "signin" | "mfa">("signin")
 
   const steps = [
@@ -17,12 +18,9 @@ export function CognitoUserPoolsExplainer() {
     { title: "Customization", description: "Lambda triggers for pre/post authentication, custom messages, etc." }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -311,16 +309,16 @@ export function CognitoUserPoolsExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -341,8 +339,8 @@ export function CognitoUserPoolsExplainer() {
 
 // 2. Cognito Identity Pools Explainer (Medium)
 export function CognitoIdentityPoolsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [authType, setAuthType] = useState<"authenticated" | "unauthenticated">("authenticated")
 
   const steps = [
@@ -352,12 +350,9 @@ export function CognitoIdentityPoolsExplainer() {
     { title: "AWS Credentials", description: "Get temporary credentials to access AWS services directly" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -579,16 +574,16 @@ export function CognitoIdentityPoolsExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -609,8 +604,8 @@ export function CognitoIdentityPoolsExplainer() {
 
 // 3. Secrets Manager Explainer (Medium)
 export function SecretsManagerExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [showRotation, setShowRotation] = useState(false)
 
   const steps = [
@@ -620,12 +615,9 @@ export function SecretsManagerExplainer() {
     { title: "Integration", description: "Native integration with Lambda, ECS, RDS, and more" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -887,16 +879,16 @@ export function SecretsManagerExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -917,8 +909,8 @@ export function SecretsManagerExplainer() {
 
 // 4. SSM Parameter Store Explainer (Medium)
 export function ParameterStoreExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [paramType, setParamType] = useState<"string" | "securestring" | "stringlist">("securestring")
 
   const steps = [
@@ -928,12 +920,9 @@ export function ParameterStoreExplainer() {
     { title: "Free Tier", description: "Standard parameters are free (up to 10,000)" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   const paramTypes = {
     string: { name: "String", icon: "📝", value: "my-app-config", encrypted: false },
@@ -1165,16 +1154,16 @@ export function ParameterStoreExplainer() {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -1195,8 +1184,8 @@ export function ParameterStoreExplainer() {
 
 // 5. KMS Keys Explainer
 export function KmsKeysExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [keyType, setKeyType] = useState<"aws" | "customer" | "external">("customer")
 
   const steps = [
@@ -1207,12 +1196,9 @@ export function KmsKeysExplainer() {
     { title: "Grants", description: "Delegate key usage without modifying key policy" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   const keyTypes = {
     aws: { name: "AWS Managed", icon: "🔑", control: "AWS", cost: "Free", rotation: "Automatic (3 years)" },
@@ -1455,10 +1441,10 @@ export function KmsKeysExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-yellow-900/50 to-orange-900/50 rounded-xl p-4 border border-yellow-500/30">
@@ -1476,8 +1462,8 @@ export function KmsKeysExplainer() {
 
 // 6. KMS Encryption Operations Explainer
 export function KmsEncryptionExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [operation, setOperation] = useState<"encrypt" | "decrypt" | "envelope">("envelope")
 
   const steps = [
@@ -1488,12 +1474,9 @@ export function KmsEncryptionExplainer() {
     { title: "Client-Side vs Server-Side", description: "Choose based on control and performance needs" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1734,10 +1717,10 @@ export function KmsEncryptionExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/30">
@@ -1755,8 +1738,8 @@ export function KmsEncryptionExplainer() {
 
 // 7. Cognito Lambda Triggers Explainer
 export function CognitoTriggersExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [selectedTrigger, setSelectedTrigger] = useState("preSignUp")
 
   const steps = [
@@ -1767,12 +1750,9 @@ export function CognitoTriggersExplainer() {
     { title: "Custom Message", description: "Customize verification and MFA messages" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   const triggers = {
     preSignUp: { name: "Pre Sign-Up", use: "Validate email domain, auto-confirm" },
@@ -2030,10 +2010,10 @@ throw new Error("User is not allowed to sign in");`}
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-cyan-900/50 to-blue-900/50 rounded-xl p-4 border border-cyan-500/30">
@@ -2051,8 +2031,8 @@ throw new Error("User is not allowed to sign in");`}
 
 // 8. ACM Certificate Manager Explainer
 export function AcmExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "ACM Certificates", description: "Provision, manage, and deploy SSL/TLS certificates" },
@@ -2062,12 +2042,9 @@ export function AcmExplainer() {
     { title: "Regional vs Global", description: "CloudFront requires us-east-1, ALB uses regional" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2246,10 +2223,10 @@ export function AcmExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-green-900/50 to-teal-900/50 rounded-xl p-4 border border-green-500/30">
@@ -2267,8 +2244,8 @@ export function AcmExplainer() {
 
 // 9. WAF Explainer
 export function WafExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "AWS WAF", description: "Web Application Firewall to protect against common web exploits" },
@@ -2278,12 +2255,9 @@ export function WafExplainer() {
     { title: "Rate Limiting", description: "Block IPs exceeding request threshold" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2472,10 +2446,10 @@ export function WafExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-red-900/50 to-orange-900/50 rounded-xl p-4 border border-red-500/30">
@@ -2493,8 +2467,8 @@ export function WafExplainer() {
 
 // 10. Shield Explainer
 export function ShieldExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [tier, setTier] = useState<"standard" | "advanced">("standard")
 
   const steps = [
@@ -2505,12 +2479,9 @@ export function ShieldExplainer() {
     { title: "Integration", description: "Works with WAF, CloudFront, Route 53, Global Accelerator" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2695,10 +2666,10 @@ export function ShieldExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 rounded-xl p-4 border border-blue-500/30">
@@ -2716,8 +2687,8 @@ export function ShieldExplainer() {
 
 // 11. GuardDuty Explainer
 export function GuardDutyExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "GuardDuty", description: "Intelligent threat detection using ML and anomaly detection" },
@@ -2727,12 +2698,9 @@ export function GuardDutyExplainer() {
     { title: "Multi-Account", description: "Centralized management via AWS Organizations" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2928,10 +2896,10 @@ export function GuardDutyExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 rounded-xl p-4 border border-orange-500/30">
@@ -2949,8 +2917,8 @@ export function GuardDutyExplainer() {
 
 // 12. Macie Explainer
 export function MacieExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Amazon Macie", description: "ML-powered service to discover and protect sensitive data in S3" },
@@ -2960,12 +2928,9 @@ export function MacieExplainer() {
     { title: "Integration", description: "EventBridge for automated remediation" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3184,10 +3149,10 @@ export function MacieExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-pink-600 hover:bg-pink-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-pink-600 hover:bg-pink-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-pink-900/50 to-purple-900/50 rounded-xl p-4 border border-pink-500/30">
@@ -3205,8 +3170,8 @@ export function MacieExplainer() {
 
 // 13. Cognito Hosted UI Explainer
 export function CognitoHostedUIExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Hosted UI", description: "Pre-built customizable sign-in pages hosted by Cognito" },
@@ -3216,12 +3181,9 @@ export function CognitoHostedUIExplainer() {
     { title: "SAML/OIDC", description: "Enterprise identity provider federation" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3428,10 +3390,10 @@ export function CognitoHostedUIExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 rounded-xl p-4 border border-indigo-500/30">
@@ -3449,8 +3411,8 @@ export function CognitoHostedUIExplainer() {
 
 // 14. Secrets Manager vs Parameter Store Explainer
 export function SecretsVsParameterExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "Choosing the Right Service", description: "Both store configuration, but with different capabilities" },
@@ -3460,12 +3422,9 @@ export function SecretsVsParameterExplainer() {
     { title: "Integration", description: "Both integrate with Lambda, ECS, CloudFormation" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3698,10 +3657,10 @@ export function SecretsVsParameterExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-teal-900/50 to-cyan-900/50 rounded-xl p-4 border border-teal-500/30">
@@ -3719,8 +3678,8 @@ export function SecretsVsParameterExplainer() {
 
 // 15. KMS Key Rotation Explainer
 export function KmsRotationExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
 
   const steps = [
     { title: "KMS Key Rotation", description: "Regularly rotate cryptographic material for security" },
@@ -3730,12 +3689,9 @@ export function KmsRotationExplainer() {
     { title: "Imported Keys", description: "Manual rotation only for BYOK keys" }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) setIsPlaying(false)
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3966,10 +3922,10 @@ export function KmsRotationExplainer() {
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><RotateCcw className="w-4 h-4" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronLeft className="w-4 h-4" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white">{isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white"><ChevronRight className="w-4 h-4" /></button>
       </div>
 
       <div className="bg-gradient-to-r from-amber-900/50 to-yellow-900/50 rounded-xl p-4 border border-amber-500/30">

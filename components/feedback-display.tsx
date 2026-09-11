@@ -32,22 +32,22 @@ export function FeedbackDisplay({
   onNextQuestion,
 }: FeedbackDisplayProps) {
   return (
-    <Card>
+    <Card className="rounded-2xl shadow-none">
       <CardHeader>
         <div className="flex items-center gap-3">
           {isCorrect ? (
             <>
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
+              <CheckCircle2 className="h-8 w-8 text-primary" />
               <div>
-                <CardTitle className="text-green-500">Correct!</CardTitle>
-                <p className="text-sm text-muted-foreground">Great job!</p>
+                <CardTitle className="text-primary">Correct!</CardTitle>
+                <p className="text-sm text-muted-foreground">Your reasoning is on track.</p>
               </div>
             </>
           ) : (
             <>
               <XCircle className="h-8 w-8 text-destructive" />
               <div>
-                <CardTitle className="text-destructive">Incorrect</CardTitle>
+                <CardTitle className="text-destructive">A chance to learn</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   The correct answer was{" "}
                   <Badge variant="outline" className="ml-1">
@@ -66,7 +66,7 @@ export function FeedbackDisplay({
           <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
             Why {correctAnswer.toUpperCase()} is correct
           </h4>
-          <p className="text-sm leading-relaxed">{explanations.correct}</p>
+          <p className="text-base leading-relaxed">{explanations.correct}</p>
         </div>
 
         {/* Wrong Answer Explanations */}
@@ -81,7 +81,7 @@ export function FeedbackDisplay({
                   {explanations.wrongAnswers.map((wrong) => (
                     <div key={wrong.id} className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Badge 
+                        <Badge
                           variant={wrong.id === selectedAnswer.toLowerCase() ? "destructive" : "outline"}
                           className="font-mono"
                         >

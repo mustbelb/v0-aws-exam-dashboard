@@ -3,6 +3,8 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  if (process.env.DESIGN_PREVIEW === 'true' && request.nextUrl.pathname === '/design-preview') return NextResponse.next()
+
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -33,7 +35,7 @@ export async function middleware(request: NextRequest) {
 
   // Protect dashboard and practice routes
   const protectedPaths = ['/dashboard', '/practice']
-  const isProtectedPath = protectedPaths.some(path => 
+  const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
 
@@ -46,7 +48,7 @@ export async function middleware(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages
   const authPaths = ['/auth/login', '/auth/signup']
-  const isAuthPath = authPaths.some(path => 
+  const isAuthPath = authPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
 

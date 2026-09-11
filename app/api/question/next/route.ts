@@ -1,19 +1,17 @@
+export const dynamic = 'force-dynamic'
 // app/api/question/next/route.ts
 // Fetches a random unseen question from the DynamoDB question bank
 // Supports both specific service and random category mode
 
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { issueQuestion } from "@/lib/issued-question"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb"
-import { getServicesInCategory, getRandomServiceFromCategory, type CertificationType } from "@/lib/services"
+import { getServiceById, getServicesInCategory, getRandomServiceFromCategory, type CertificationType } from "@/lib/services"
 
 const dynamoClient = new DynamoDBClient({
-  region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
+  region: process.env.DYNAMODB_REGION || process.env.AWS_REGION || "us-east-2",
 })
 
 const docClient = DynamoDBDocumentClient.from(dynamoClient)
@@ -26,7 +24,12 @@ export async function GET(request: NextRequest) {
     const service = searchParams.get("service")
     const category = searchParams.get("category")  // NEW: for random mode
     const certification = (searchParams.get("certification") || "DVA-C02") as CertificationType
-    
+
+    if (!["DVA-C02", "SAA-C03"].includes(certification) || (service && category)
+      || (service && !getServiceById(service)?.certifications.includes(certification))) {
+      return NextResponse.json({error: "Invalid service or certification"}, {status:400})
+    }
+
     // Validate - need either service or category
     if (!service && !category) {
       return NextResponse.json(
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
     // Get authenticated user
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -53,49 +56,55 @@ export async function GET(request: NextRequest) {
       // Random mode - pick a random service from the category
       isRandomMode = true
       const randomService = getRandomServiceFromCategory(category, certification)
-      
+
       if (!randomService) {
         return NextResponse.json(
           { error: "No services available in this category for this certification" },
           { status: 404 }
         )
       }
-      
+
       selectedService = randomService.id
     } else {
       selectedService = service!
     }
 
     // Get user's seen question IDs for this service
-    const { data: seenQuestions } = await supabase
+    const { data: seenQuestions, error: historyError } = await supabase
       .from("user_question_history")
       .select("question_id")
       .eq("user_id", user.id)
       .eq("service", selectedService)
       .eq("certification", certification)
 
+    if (historyError) throw historyError
     const seenIds = new Set(seenQuestions?.map(q => q.question_id) || [])
-    
+
     // Fetch all questions for this service from DynamoDB
     const questions = await getQuestionsFromDynamo(certification, selectedService)
-    
+
     if (questions.length === 0) {
       // If in random mode and this service has no questions, try another service
       if (isRandomMode) {
         const servicesInCategory = getServicesInCategory(category!, certification)
-        
+
         for (const svc of servicesInCategory) {
           if (svc.id === selectedService) continue
-          
+
           const altQuestions = await getQuestionsFromDynamo(certification, svc.id)
-          const unseenAlt = altQuestions.filter(q => !seenIds.has(q.questionId))
-          
+          const { data: altSeen, error: altHistoryError } = await supabase
+            .from("user_question_history").select("question_id")
+            .eq("user_id", user.id).eq("service", svc.id).eq("certification", certification)
+          if (altHistoryError) throw altHistoryError
+          const altSeenIds = new Set(altSeen?.map(q => q.question_id) || [])
+          const unseenAlt = altQuestions.filter(q => !altSeenIds.has(q.questionId))
+
           if (unseenAlt.length > 0) {
             const randomIndex = Math.floor(Math.random() * unseenAlt.length)
             const question = unseenAlt[randomIndex]
-            
+
             return NextResponse.json({
-              ...question,
+              ...await issueQuestion(user.id, svc.id, certification, question),
               service: svc.id,
               serviceName: svc.name,
               serviceIcon: svc.icon,
@@ -106,7 +115,7 @@ export async function GET(request: NextRequest) {
             })
           }
         }
-        
+
         // All services in category exhausted
         return NextResponse.json({
           bankExhausted: true,
@@ -115,11 +124,11 @@ export async function GET(request: NextRequest) {
           message: "You've completed all available questions in this category"
         })
       }
-      
+
       return NextResponse.json(
-        { 
+        {
           error: "No questions available for this service",
-          bankEmpty: true 
+          bankEmpty: true
         },
         { status: 404 }
       )
@@ -127,33 +136,34 @@ export async function GET(request: NextRequest) {
 
     // Filter out seen questions
     const unseenQuestions = questions.filter(q => !seenIds.has(q.questionId))
-    
+
     // Check if bank is exhausted for this user
     if (unseenQuestions.length === 0) {
       if (isRandomMode) {
         // Try other services in the category
         const servicesInCategory = getServicesInCategory(category!, certification)
-        
+
         for (const svc of servicesInCategory) {
           if (svc.id === selectedService) continue
-          
-          const { data: svcSeenQuestions } = await supabase
+
+          const { data: svcSeenQuestions, error: svcHistoryError } = await supabase
             .from("user_question_history")
             .select("question_id")
             .eq("user_id", user.id)
             .eq("service", svc.id)
             .eq("certification", certification)
-          
+
+          if (svcHistoryError) throw svcHistoryError
           const svcSeenIds = new Set(svcSeenQuestions?.map(q => q.question_id) || [])
           const altQuestions = await getQuestionsFromDynamo(certification, svc.id)
           const unseenAlt = altQuestions.filter(q => !svcSeenIds.has(q.questionId))
-          
+
           if (unseenAlt.length > 0) {
             const randomIndex = Math.floor(Math.random() * unseenAlt.length)
             const question = unseenAlt[randomIndex]
-            
+
             return NextResponse.json({
-              ...question,
+              ...await issueQuestion(user.id, svc.id, certification, question),
               service: svc.id,
               serviceName: svc.name,
               serviceIcon: svc.icon,
@@ -164,7 +174,7 @@ export async function GET(request: NextRequest) {
             })
           }
         }
-        
+
         // All services in category exhausted
         return NextResponse.json({
           bankExhausted: true,
@@ -173,7 +183,7 @@ export async function GET(request: NextRequest) {
           message: "You've completed all available questions in this category"
         })
       }
-      
+
       return NextResponse.json({
         bankExhausted: true,
         totalQuestions: questions.length,
@@ -198,7 +208,7 @@ export async function GET(request: NextRequest) {
     } : {}
 
     return NextResponse.json({
-      ...question,
+      ...await issueQuestion(user.id, selectedService, certification, question),
       ...serviceInfo,
       remainingQuestions: unseenQuestions.length,
       totalQuestions: questions.length,
@@ -233,7 +243,7 @@ async function getQuestionsFromDynamo(
     })
 
     const response = await docClient.send(command)
-    
+
     if (response.Items) {
       for (const item of response.Items) {
         questions.push({

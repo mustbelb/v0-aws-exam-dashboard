@@ -1,31 +1,19 @@
-// app/auth/signup/page.tsx
-import { SignupForm } from "./signup-form"
-
+import { SignupForm } from "./signup-form";
+import { AuthShell } from "@/components/auth-shell";
+import Link from "next/link";
 export default function SignupPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-lg">
-              AWS
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-muted-foreground mt-2">
-            Start your AWS certification journey today
-          </p>
-        </div>
-        
-        <SignupForm />
-        
-        <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <a href="/auth/login" className="text-primary hover:underline">
-            Sign in
-          </a>
-        </p>
-      </div>
-    </div>
-  )
+    <AuthShell
+      title="Make space to learn."
+      description="Create your account and start exploring your certification path."
+    >
+      <SignupForm />
+      <p className="text-sm text-muted-foreground mt-7">
+        Already have an account?{" "}
+        <Link className="text-primary font-medium" href="/auth/login">
+          Sign in
+        </Link>
+      </p>
+    </AuthShell>
+  );
 }

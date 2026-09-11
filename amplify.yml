@@ -1,0 +1,25 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - corepack enable
+        - corepack prepare pnpm@11.19.0 --activate
+        - pnpm install --frozen-lockfile
+    build:
+      commands:
+        - node scripts/hosting/write-env.cjs
+        - pnpm typecheck
+        - pnpm test:playback
+        - pnpm test:routes
+        - pnpm test:generation
+        - pnpm test:issuance
+        - pnpm build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*

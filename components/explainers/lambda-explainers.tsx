@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useExplainerPlayback } from "@/hooks/use-explainer-playback"
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react"
 
 // ============================================================================
 // LAMBDA CONCURRENCY EXPLAINER (Rich)
 // ============================================================================
 export function LambdaConcurrencyExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [concurrentRequests, setConcurrentRequests] = useState(5)
   const [reservedConcurrency, setReservedConcurrency] = useState(100)
   const [provisionedConcurrency, setProvisionedConcurrency] = useState(0)
@@ -36,14 +37,9 @@ export function LambdaConcurrencyExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   const activeInstances = Math.min(concurrentRequests, reservedConcurrency || 1000)
   const throttled = Math.max(0, concurrentRequests - (reservedConcurrency || 1000))
@@ -287,26 +283,26 @@ export function LambdaConcurrencyExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -350,8 +346,8 @@ export function LambdaConcurrencyExplainer() {
 // LAMBDA COLD STARTS EXPLAINER (Rich)
 // ============================================================================
 export function LambdaColdStartsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [runtime, setRuntime] = useState<"nodejs" | "python" | "java" | "dotnet">("nodejs")
   const [memorySize, setMemorySize] = useState(512)
   const [vpcEnabled, setVpcEnabled] = useState(false)
@@ -380,6 +376,8 @@ export function LambdaColdStartsExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const coldStartTimes = {
     nodejs: { base: 100, init: 50 },
     python: { base: 120, init: 60 },
@@ -395,14 +393,7 @@ export function LambdaColdStartsExplainer() {
     return Math.round(total)
   }
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   useEffect(() => {
     setShowTimeline(true)
@@ -632,26 +623,26 @@ export function LambdaColdStartsExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -695,8 +686,8 @@ export function LambdaColdStartsExplainer() {
 // LAMBDA VPC ACCESS EXPLAINER (Medium)
 // ============================================================================
 export function LambdaVPCAccessExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [hasNatGateway, setHasNatGateway] = useState(false)
   const [hasVpcEndpoint, setHasVpcEndpoint] = useState(false)
 
@@ -719,14 +710,9 @@ export function LambdaVPCAccessExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -916,26 +902,26 @@ export function LambdaVPCAccessExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -975,8 +961,8 @@ export function LambdaVPCAccessExplainer() {
 // LAMBDA VERSIONS AND ALIASES EXPLAINER (Medium)
 // ============================================================================
 export function LambdaVersionsAliasesExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [prodWeight, setProdWeight] = useState(90)
 
   const steps = [
@@ -998,14 +984,9 @@ export function LambdaVersionsAliasesExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1193,26 +1174,26 @@ export function LambdaVersionsAliasesExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -1252,8 +1233,8 @@ export function LambdaVersionsAliasesExplainer() {
 // LAMBDA LAYERS EXPLAINER (Light)
 // ============================================================================
 export function LambdaLayersExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [showLayers, setShowLayers] = useState(true)
 
   const steps = [
@@ -1275,14 +1256,9 @@ export function LambdaLayersExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1456,26 +1432,26 @@ export function LambdaLayersExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -1515,8 +1491,8 @@ export function LambdaLayersExplainer() {
 // LAMBDA DESTINATIONS EXPLAINER (Medium)
 // ============================================================================
 export function LambdaDestinationsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [invocationResult, setInvocationResult] = useState<"success" | "failure">("success")
 
   const steps = [
@@ -1538,14 +1514,9 @@ export function LambdaDestinationsExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -1719,26 +1690,26 @@ export function LambdaDestinationsExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -1778,8 +1749,8 @@ export function LambdaDestinationsExplainer() {
 // LAMBDA EVENT SOURCE MAPPINGS EXPLAINER (Medium)
 // ============================================================================
 export function LambdaEventSourceMappingsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [batchSize, setBatchSize] = useState(10)
   const [sourceType, setSourceType] = useState<"sqs" | "kinesis" | "dynamodb">("sqs")
 
@@ -1802,14 +1773,9 @@ export function LambdaEventSourceMappingsExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   const sourceConfig = {
     sqs: { maxBatch: 10000, icon: "📬", label: "SQS Queue" },
@@ -1991,26 +1957,26 @@ export function LambdaEventSourceMappingsExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -2050,8 +2016,8 @@ export function LambdaEventSourceMappingsExplainer() {
 // LAMBDA ENVIRONMENT CONFIG EXPLAINER (Light)
 // ============================================================================
 export function LambdaEnvironmentConfigExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [encrypted, setEncrypted] = useState(false)
 
   const steps = [
@@ -2073,14 +2039,9 @@ export function LambdaEnvironmentConfigExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2248,26 +2209,26 @@ export function LambdaEnvironmentConfigExplainer() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mb-6">
         <button
-          onClick={() => { setStep(0); setIsPlaying(false) }}
+          onClick={reset} aria-label="Reset lesson"
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
+          aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))}
           disabled={step === 0}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
+          onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"}
           className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
+          aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
           disabled={step === steps.length - 1}
           className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors disabled:opacity-50"
         >
@@ -2307,8 +2268,8 @@ export function LambdaEnvironmentConfigExplainer() {
 // LAMBDA PERMISSIONS EXPLAINER (Medium)
 // ============================================================================
 export function LambdaPermissionsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [permissionType, setPermissionType] = useState<"execution" | "resource">("execution")
 
   const steps = [
@@ -2330,14 +2291,9 @@ export function LambdaPermissionsExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2422,10 +2378,10 @@ export function LambdaPermissionsExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -2445,8 +2401,8 @@ export function LambdaPermissionsExplainer() {
 // LAMBDA INVOCATION TYPES EXPLAINER (Medium)
 // ============================================================================
 export function LambdaInvocationTypesExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [invocationType, setInvocationType] = useState<"sync" | "async" | "event">("sync")
 
   const steps = [
@@ -2468,20 +2424,15 @@ export function LambdaInvocationTypesExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const invocationTypes = {
     sync: { name: "Synchronous", services: ["API Gateway", "ALB", "SDK", "Cognito"], retries: "Caller handles", response: "Wait for result" },
     async: { name: "Asynchronous", services: ["S3", "SNS", "EventBridge", "CloudWatch Events"], retries: "2 automatic retries", response: "202 Accepted" },
     event: { name: "Event Source Mapping", services: ["SQS", "Kinesis", "DynamoDB Streams", "Kafka"], retries: "Until success/expiry", response: "N/A (polling)" }
   }
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   const current = invocationTypes[invocationType]
 
@@ -2544,10 +2495,10 @@ export function LambdaInvocationTypesExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -2567,8 +2518,8 @@ export function LambdaInvocationTypesExplainer() {
 // LAMBDA ERROR HANDLING EXPLAINER (Medium)
 // ============================================================================
 export function LambdaErrorHandlingExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [errorType, setErrorType] = useState<"handled" | "unhandled" | "timeout">("handled")
 
   const steps = [
@@ -2590,14 +2541,9 @@ export function LambdaErrorHandlingExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2669,10 +2615,10 @@ export function LambdaErrorHandlingExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -2692,8 +2638,8 @@ export function LambdaErrorHandlingExplainer() {
 // LAMBDA MEMORY AND TIMEOUT EXPLAINER (Light)
 // ============================================================================
 export function LambdaMemoryTimeoutExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [memory, setMemory] = useState(512)
   const [timeout, setTimeout_] = useState(30)
 
@@ -2716,18 +2662,13 @@ export function LambdaMemoryTimeoutExplainer() {
     }
   ]
 
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
   const cpuShare = Math.min(6, Math.floor(memory / 1769))
   const estimatedDuration = Math.max(100, 5000 - (memory * 3))
   const cost = ((memory / 1024) * (estimatedDuration / 1000) * 0.0000166667).toFixed(6)
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2791,10 +2732,10 @@ export function LambdaMemoryTimeoutExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -2814,8 +2755,8 @@ export function LambdaMemoryTimeoutExplainer() {
 // LAMBDA CONTAINER IMAGES EXPLAINER (Light)
 // ============================================================================
 export function LambdaContainerImagesExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [deploymentType, setDeploymentType] = useState<"zip" | "container">("container")
 
   const steps = [
@@ -2837,14 +2778,9 @@ export function LambdaContainerImagesExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -2922,10 +2858,10 @@ export function LambdaContainerImagesExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -2945,8 +2881,8 @@ export function LambdaContainerImagesExplainer() {
 // LAMBDA SNAPSTART EXPLAINER (Light)
 // ============================================================================
 export function LambdaSnapStartExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [snapStartEnabled, setSnapStartEnabled] = useState(true)
 
   const steps = [
@@ -2968,14 +2904,9 @@ export function LambdaSnapStartExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3047,10 +2978,10 @@ export function LambdaSnapStartExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">
@@ -3070,8 +3001,8 @@ export function LambdaSnapStartExplainer() {
 // LAMBDA FUNCTION URLS EXPLAINER (Light)
 // ============================================================================
 export function LambdaFunctionURLsExplainer() {
-  const [step, setStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+
+
   const [authType, setAuthType] = useState<"none" | "iam">("none")
 
   const steps = [
@@ -3093,14 +3024,9 @@ export function LambdaFunctionURLsExplainer() {
     }
   ]
 
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (step >= steps.length - 1) {
-      setIsPlaying(false)
-    }
-  }, [isPlaying, step, steps.length])
+  const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -3173,10 +3099,10 @@ export function LambdaFunctionURLsExplainer() {
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
-        <button onClick={() => { setStep(0); setIsPlaying(false) }} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
-        <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={reset} aria-label="Reset lesson" className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"><RotateCcw className="w-5 h-5" /></button>
+        <button aria-label="Previous step" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+        <button onClick={togglePlayback} aria-label={isPlaying ? "Pause lesson" : step === steps.length - 1 ? "Replay lesson" : "Play lesson"} className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">{isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}</button>
+        <button aria-label="Next step" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} disabled={step === steps.length - 1} className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="bg-slate-800/50 rounded-xl p-4">

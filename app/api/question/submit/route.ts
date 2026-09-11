@@ -1,98 +1,36 @@
-// app/api/question/submit/route.ts
 import { createClient } from '@/lib/supabase/server'
 import { type NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    let body
+    try { body = await request.json() } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
-
-    const body = await request.json()
-    const { 
-      questionId,
-      service, 
-      certification = 'DVA-C02',
-      topic, 
-      questionText, 
-      correctAnswer, 
-      userAnswer, 
-      timeTakenSeconds 
-    } = body
-
-    if (!service || !questionText || !correctAnswer || !userAnswer) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return NextResponse.json({ error: 'Invalid answer' }, { status: 400 })
+    const { issuanceId, userAnswer, timeTakenSeconds } = body
+    if (Object.keys(body).some(key => !['issuanceId','userAnswer','timeTakenSeconds'].includes(key))
+      || typeof issuanceId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(issuanceId)
+      || typeof userAnswer !== 'string' || !/^[A-D]$/i.test(userAnswer)
+      || (timeTakenSeconds != null && (!Number.isInteger(timeTakenSeconds) || timeTakenSeconds < 0 || timeTakenSeconds > 86400))) {
+      return NextResponse.json({ error: 'Invalid answer parameters' }, { status: 400 })
     }
-
-    const questionHash = crypto
-      .createHash('sha256')
-      .update(questionText)
-      .digest('hex')
-      .substring(0, 32)
-
-    const answeredCorrectly = userAnswer.toUpperCase() === correctAnswer.toUpperCase()
-
-    const { error: insertError } = await supabase
-      .from('user_question_history')
-      .insert({
-        user_id: user.id,
-        question_id: questionId || questionHash,
-        service,
-        certification,
-        topic: topic || null,
-        question_hash: questionHash,
-        question_text: questionText,
-        correct_answer: correctAnswer,
-        user_answer: userAnswer,
-        answered_correctly: answeredCorrectly,
-        time_taken_seconds: timeTakenSeconds || null
-      })
-
-    if (insertError) {
-      if (insertError.code === '23505') {
-        console.log('User already answered this question')
-      } else {
-        console.error('Insert error:', insertError)
-        return NextResponse.json(
-          { error: 'Failed to save answer' },
-          { status: 500 }
-        )
-      }
-    }
-
-    const { error: progressError } = await supabase.rpc('increment_progress', {
-      p_user_id: user.id,
-      p_service: service,
-      p_certification: certification,
-      p_correct: answeredCorrectly
+    const { data, error } = await supabase.rpc('submit_issued_answer', {
+      p_issuance_id: issuanceId, p_user_answer: userAnswer.toUpperCase(),
+      p_time_taken_seconds: timeTakenSeconds ?? null
     })
-
-    if (progressError) {
-      console.error('Progress update error:', progressError)
+    if (error) {
+      if (error.code === 'P0002') return NextResponse.json({error:'Question not found. Please load a new question.'},{status:404})
+      if (error.code === '22023') return NextResponse.json({error:'This question has expired or the answer is invalid. Please load a new question.'},{status:400})
+      console.error('Answer transaction failed:', error.code)
+      return NextResponse.json({ error: 'Your answer could not be saved. Please try again.' }, { status: 500 })
     }
-
-    return NextResponse.json({
-      success: true,
-      answeredCorrectly,
-      questionHash
-    })
-
-  } catch (error) {
-    console.error('Submit error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    if (!data?.success || !Array.isArray(data.serviceProgress)) throw new Error('Invalid save response')
+    return NextResponse.json(data)
+  } catch {
+    return NextResponse.json({ error: 'Your answer could not be saved. Please try again.' }, { status: 500 })
   }
 }

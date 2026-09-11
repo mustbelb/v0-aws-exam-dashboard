@@ -1,74 +1,58 @@
-"use client"
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-
-interface ServiceSidebarProps {
-  serviceName: string
-  icon: string
-  description?: string
-  stats: {
-    questionsAnswered: number
-    correctRate: number
-    averageTime: string
-  }
-}
-
-export function ServiceSidebar({ 
-  serviceName, 
-  icon, 
+"use client";
+import { BookOpen, Target } from "lucide-react";
+export function ServiceSidebar({
+  serviceName,
   description,
-  stats 
-}: ServiceSidebarProps) {
+  stats,
+}: {
+  serviceName: string;
+  icon: string;
+  description?: string;
+  stats: {
+    questionsAnswered: number;
+    correctRate: number;
+    averageTime: string;
+  };
+}) {
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <span className="text-4xl" role="img" aria-label={serviceName}>
-              {icon}
-            </span>
-            <CardTitle>{serviceName}</CardTitle>
+    <aside className="space-y-5">
+      <div className="study-panel p-6">
+        <Target size={21} className="text-primary mb-4" />
+        <p className="eyebrow mb-4">Your practice</p>
+        <h3 className="text-xl mb-6 font-medium">{serviceName}</h3>
+        <dl className="space-y-4 text-sm">
+          <div className="flex justify-between">
+            <dt className="text-muted-foreground">Questions answered</dt>
+            <dd className="font-semibold tabular-nums">
+              {stats.questionsAnswered}
+            </dd>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Progress</span>
-              <span className="font-semibold">{stats.correctRate}%</span>
-            </div>
-            <Progress value={stats.correctRate} className="h-2" />
+          <div className="flex justify-between">
+            <dt className="text-muted-foreground">Accuracy</dt>
+            <dd className="font-semibold tabular-nums">
+              {stats.questionsAnswered ? `${stats.correctRate}%` : "—"}
+            </dd>
           </div>
-
-          <div className="space-y-3 pt-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Questions Answered</span>
-              <span className="font-semibold">{stats.questionsAnswered}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Correct Rate</span>
-              <span className="font-semibold">{stats.correctRate}%</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Avg. Time</span>
-              <span className="font-semibold">{stats.averageTime}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
+        </dl>
+        <div className="h-1.5 bg-muted rounded-full mt-5 overflow-hidden">
+          <div
+            className="bg-primary h-full rounded-full"
+            style={{ width: `${stats.correctRate}%` }}
+          />
+        </div>
+      </div>
       {description && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">About {serviceName}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {description}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="p-6 border rounded-2xl">
+          <BookOpen size={19} className="text-muted-foreground mb-3" />
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+        </div>
       )}
-    </div>
-  )
+      <p className="text-xs leading-relaxed text-muted-foreground px-2">
+        Review the explanation after each answer. Knowing why matters more than
+        getting it right.
+      </p>
+    </aside>
+  );
 }

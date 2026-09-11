@@ -1,14 +1,15 @@
+export const dynamic = 'force-dynamic'
 // app/api/progress/route.ts
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = await createClient()
-    
+
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -16,12 +17,18 @@ export async function GET() {
       )
     }
 
-    // Get progress for all services
-    const { data: progress, error: progressError } = await supabase
+    const certification = new URL(request.url).searchParams.get('certification')
+    if (certification && !['SAA-C03', 'DVA-C02'].includes(certification)) return NextResponse.json({error: 'Invalid certification'}, {status:400})
+
+    // Get progress for the selected certification
+    let query = supabase
       .from('user_progress')
       .select('*')
       .eq('user_id', user.id)
       .order('last_practiced_at', { ascending: false })
+
+    if (certification) query = query.eq('certification', certification)
+    const { data: progress, error: progressError } = await query
 
     if (progressError) {
       console.error('Progress fetch error:', progressError)
@@ -34,7 +41,7 @@ export async function GET() {
     // Calculate overall stats
     const totalAttempted = progress?.reduce((sum, p) => sum + p.questions_attempted, 0) || 0
     const totalCorrect = progress?.reduce((sum, p) => sum + p.questions_correct, 0) || 0
-    const overallAccuracy = totalAttempted > 0 
+    const overallAccuracy = totalAttempted > 0
       ? Math.round((totalCorrect / totalAttempted) * 100)
       : 0
 
@@ -43,7 +50,7 @@ export async function GET() {
       service: row.service,
       attempted: row.questions_attempted,
       correct: row.questions_correct,
-      accuracy: row.questions_attempted > 0 
+      accuracy: row.questions_attempted > 0
         ? Math.round((row.questions_correct / row.questions_attempted) * 100)
         : 0,
       lastPracticed: row.last_practiced_at
@@ -61,7 +68,7 @@ export async function GET() {
     if (streakData && streakData.length > 0) {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      
+
       let checkDate = new Date(today)
       const practiceDays = new Set(
         streakData.map(d => {
@@ -82,7 +89,7 @@ export async function GET() {
         if (!practiceDays.has(todayStr)) {
           checkDate = yesterday
         }
-        
+
         // Count consecutive days
         while (practiceDays.has(checkDate.toISOString())) {
           streak++

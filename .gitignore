@@ -48,3 +48,7 @@ Thumbs.db
 
 # Report files
 scripts/topic-tagging/report-*.json
+
+# Isolated validation build
+.next-validation/
+.env.production
