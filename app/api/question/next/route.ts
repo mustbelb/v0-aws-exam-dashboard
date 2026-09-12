@@ -246,6 +246,9 @@ async function getQuestionsFromDynamo(
 
     if (response.Items) {
       for (const item of response.Items) {
+        // Legacy rows have no publication status. Explicit drafts/retirements
+        // must never be issued, including through random-mode fallbacks.
+        if (item.publicationStatus !== undefined && item.publicationStatus !== "published") continue
         questions.push({
           questionId: item.questionId,
           question: item.question,
