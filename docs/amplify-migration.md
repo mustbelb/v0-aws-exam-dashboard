@@ -1,5 +1,15 @@
 # Amplify migration preparation
 
+## Production cutover completed — September 12, 2026 UTC
+
+Production uses https://codex-aws-integration.d33uz7aibh12e5.amplifyapp.com (app d33uz7aibh12e5, branch codex/aws-integration, stage PRODUCTION). Deployed application/Lambda source is df68320. Supabase Site URL matches that origin and its exact /auth/callback is allowed. Email delivery and confirmation have not been newly exercised.
+
+Vercel CDN rule 5ad0087b-4045-4425-8fb6-05ca85a4bdc6 redirects only v0-aws-exam-dashboard.vercel.app with HTTP307. Source pattern /:path* uses destination https://codex-aws-integration.d33uz7aibh12e5.amplifyapp.com/:path (no trailing asterisk in the destination). Live root, dashboard, and practice/query checks verified exact destinations. Vercel and the Supabase marketplace resource remain intact. Reverting only the redirect will not restore old-client saving after lockdown.
+
+Final cutover SQL passed rollback-only live validation and was applied. Post-commit checks confirm anon/authenticated writes and MAINTAIN denied, legacy save/increment execution denied, authenticated issued submission allowed, anonymous submission denied, and service-role issuance retained. A hosted SAA Lambda answer saved and persisted after reload (service36→37). Existing records were not rewritten. Migration001–004 history remains unbaselined; do not blindly replay it.
+
+Generated-content accuracy and remaining lesson visual QA still need review. The same-model consistency screen is not factual certification. Resource retirement and Supabase organization/billing transfer have not occurred. The sections below are historical preparation notes, superseded by this checkpoint where they conflict.
+
 The repository now includes an Amplify build specification. This is preparation, not a completed deployment or a claim that live generation works on Amplify.
 
 ## Required configuration

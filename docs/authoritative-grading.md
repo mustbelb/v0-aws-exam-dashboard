@@ -1,5 +1,11 @@
 # Trusted question issuance and grading
 
+## Live cutover status — September 12, 2026 UTC
+
+Final privilege lockdown is applied to rbquwmbthcuvxmowtwej following the approved Vercel-to-Amplify redirect. SQL revokes PostgreSQL17+ MAINTAIN, checks table and column write access, and verifies required submission/read/issuance permissions before committing. Live rollback-only validation, independent post-commit permission reads, and signed-in answer/feedback/reload verification passed. Legacy clients can no longer write progress/history or call old save/increment RPCs. The service-role key remains privileged and server-only.
+
+Production URL: https://codex-aws-integration.d33uz7aibh12e5.amplifyapp.com . See amplify-migration.md for redirect details and rollback implications. Older status notes below are historical and superseded by this checkpoint.
+
 The updated app issues a private database record for each question. The browser receives its UUID, question text, options, and optional topic. Answer keys, explanations, and exam tips stay private until submission. `POST /api/question/submit` accepts only `issuanceId`, `userAnswer`, and optional `timeTakenSeconds`; client-provided grading or service/exam fields are rejected.
 
 `submit_issued_answer` looks up the record using the authenticated database identity, grades from its stored answer, and calls the existing atomic saver internally. First submissions expire after 24 hours. Retries of saved questions return their original answer even after expiry. Existing certification/service/hash and ID uniqueness continue to prevent duplicate increments. Answer keys in old saved history are unchanged.
