@@ -48,6 +48,9 @@ export function getExplainerForService(serviceId: string): string | null {
 // Individually reviewed bank questions. Keep the service/topic guard so a retagged
 // question does not silently retain an old review. Do not add a topic-wide alias.
 const reviewedQuestionExplainers: Record<string, { service: string; topic: string; explainer: string }> = {
+  "d9fa4f8d-2e63-5a6a-bf8a-ecc16e82ad4d": { service: "ecs", topic: "ecs-task-definitions", explainer: "task-definitions" },
+  "0be5b89a-cd0f-5906-89fe-13b5c432317b": { service: "ecs", topic: "ecs-task-definitions", explainer: "task-definitions" },
+  "6b9b9dc3-94b2-5aef-aadc-cd7af7eb0b4b": { service: "ecs", topic: "ecs-task-definitions", explainer: "task-definitions" },
   "28c7e66e-9cf4-5480-a98c-1fb81fc240b6": { service: "ec2", topic: "ec2-ami", explainer: "ec2-amis" },
   "2e03566e-5539-5087-af2f-ad2df39072fd": { service: "ec2", topic: "ec2-ami", explainer: "ec2-amis" },
 }

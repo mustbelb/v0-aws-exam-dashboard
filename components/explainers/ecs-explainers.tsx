@@ -263,13 +263,12 @@ export function EcsVsFargateExplainer() {
 export function TaskDefinitionsExplainer() {
 
 
-  const [selectedSection, setSelectedSection] = useState<"container" | "task" | "network">("container")
 
   const steps = [
     { title: "What is a Task Definition?", description: "Blueprint for running containers - like a docker-compose file for ECS" },
     { title: "Container Definitions", description: "Image, memory, CPU, port mappings, environment variables" },
     { title: "Task-Level Settings", description: "Task role, execution role, network mode, volumes" },
-    { title: "Task vs Execution Role", description: "Task role = container permissions, Execution role = ECS agent permissions" },
+    { title: "Task vs Execution Role", description: "Identify the caller: application SDK calls use taskRoleArn; ECS/Fargate agent operations use executionRoleArn. The application does not inherit execution-role credentials." },
     { title: "Revisions", description: "Task definitions are versioned - create new revisions for updates" }
   ]
 
@@ -287,15 +286,16 @@ export function TaskDefinitionsExplainer() {
       {/* Section Selector */}
       <div className="flex gap-2 mb-6">
         {[
-          { key: "container", label: "Container Config" },
-          { key: "task", label: "Task Settings" },
-          { key: "network", label: "Network Mode" }
+          { key: 1, label: "Container Config" },
+          { key: 2, label: "Task Settings" },
+          { key: 3, label: "IAM Roles" }
         ].map(({ key, label }) => (
           <button
             key={key}
-            onClick={() => setSelectedSection(key as typeof selectedSection)}
+            onClick={() => setStep(key)}
+            aria-pressed={step === key}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              selectedSection === key ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              step === key ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
           >
             {label}
@@ -373,25 +373,27 @@ export function TaskDefinitionsExplainer() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-green-900/30 border border-green-600/30 rounded-lg p-4">
                 <div className="text-green-400 font-semibold mb-2">Task Role</div>
-                <div className="text-sm text-gray-300 mb-2">Permissions for your application</div>
+                <div className="text-sm text-gray-300 mb-2">Application code · taskRoleArn</div>
                 <ul className="text-xs text-gray-400 space-y-1">
-                  <li>• Access S3 buckets</li>
-                  <li>• Call DynamoDB</li>
-                  <li>• Send SQS messages</li>
-                  <li>• Invoke Lambda</li>
+                  <li>• Download S3 objects in application code</li>
+                  <li>• Call DynamoDB through an SDK</li>
+                  <li>• Call CloudWatch Logs directly through an SDK</li>
+                  <li>• Read secrets through application API calls</li>
                 </ul>
               </div>
               <div className="bg-purple-900/30 border border-purple-600/30 rounded-lg p-4">
                 <div className="text-purple-400 font-semibold mb-2">Execution Role</div>
-                <div className="text-sm text-gray-300 mb-2">Permissions for ECS agent</div>
+                <div className="text-sm text-gray-300 mb-2">ECS/Fargate agent · executionRoleArn</div>
                 <ul className="text-xs text-gray-400 space-y-1">
-                  <li>• Pull images from ECR</li>
-                  <li>• Write CloudWatch logs</li>
-                  <li>• Fetch secrets</li>
-                  <li>• Access SSM params</li>
+                  <li>• Pull ECR images for Fargate tasks</li>
+                  <li>• Send stdout/stderr through Fargate’s awslogs driver</li>
+                  <li>• Retrieve secrets referenced in the task definition</li>
+                  <li>• Retrieve S3 environmentFiles for the task</li>
                 </ul>
               </div>
             </div>
+            <p className="text-sm text-gray-300">Startup timing does not change the caller. An entrypoint downloading an S3 object is application code and needs s3:GetObject in the task role. ECS retrieving environmentFiles uses execution permissions.</p>
+            <p className="text-sm text-gray-300">Scope each role to the actions and resources its caller needs. On EC2, log-driver permissions also depend on the container-instance role and agent configuration; the awslogs example above is for Fargate.</p>
           </div>
         )}
 
@@ -409,15 +411,15 @@ export function TaskDefinitionsExplainer() {
               </div>
               <div className="bg-gray-700/50 rounded-lg p-3 flex items-center justify-between">
                 <span className="text-gray-400">my-app:2</span>
-                <span className="bg-gray-600 text-gray-300 text-xs px-2 py-1 rounded">Inactive</span>
+                <span className="bg-gray-600 text-gray-300 text-xs px-2 py-1 rounded">Deregistered</span>
               </div>
               <div className="bg-gray-700/50 rounded-lg p-3 flex items-center justify-between">
                 <span className="text-gray-400">my-app:1</span>
-                <span className="bg-gray-600 text-gray-300 text-xs px-2 py-1 rounded">Inactive</span>
+                <span className="bg-gray-600 text-gray-300 text-xs px-2 py-1 rounded">Deregistered</span>
               </div>
             </div>
             <div className="text-xs text-gray-400 text-center mt-3">
-              Create new revision for updates - cannot modify existing
+              Create a new revision for updates. Older revisions remain ACTIVE until deregistered; the older examples above were explicitly deregistered.
             </div>
           </div>
         )}
