@@ -53,3 +53,6 @@ scripts/topic-tagging/report-*.json
 # Isolated validation build
 .next-validation/
 .env.production
+
+# Synthetic staging credentials
+.staging-test-users.json
