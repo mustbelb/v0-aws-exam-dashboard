@@ -14,6 +14,7 @@ frontend:
         - pnpm test:routes
         - pnpm test:generation
         - pnpm test:issuance
+        - pnpm test:staging
         - pnpm build
   artifacts:
     baseDirectory: .next

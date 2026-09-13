@@ -9,13 +9,21 @@ const fixture={questionId:'bank-id',question:'A trusted question',options:{A:'a'
  assert.equal(inserted.user_id,'user');assert.equal(inserted.correct_answer,'B');assert.equal(publicQuestion.questionId,'bank-id');assert.ok(!('correct' in publicQuestion));assert.ok(!('explanation' in publicQuestion));assert.ok(!('examTip' in publicQuestion));
  let authenticated=true, questions={},seen={},issueCalls=[],questionPages=null;
  const services=[{id:'lambda',name:'Lambda',icon:'L',certifications:['DVA-C02','SAA-C03']},{id:'s3',name:'S3',icon:'S',certifications:['DVA-C02','SAA-C03']}];
- const supabase={auth:{getUser:async()=>({data:{user:authenticated?{id:'real-user'}:null}})},from:()=>{const filters={};const chain={select:()=>chain,eq:(key,value)=>{filters[key]=value;return chain},then:resolve=>resolve({data:(seen[filters.service]||[]).map(question_id=>({question_id}))})};return chain}};
- const route=load('app/api/question/next/route.ts',{'@/lib/supabase/server':{createClient:async()=>supabase},'@/lib/issued-question':{issueQuestion:async(...args)=>{issueCalls.push(args);return publicQuestion}},'@/lib/services':{getServiceById:id=>services.find(s=>s.id===id),getServicesInCategory:()=>services,getRandomServiceFromCategory:()=>services[0]},'@aws-sdk/client-dynamodb':{DynamoDBClient:class{}},'@aws-sdk/lib-dynamodb':{QueryCommand:class {constructor(input){this.input=input}},DynamoDBDocumentClient:{from:()=>({send:async command=>{
-  if(questionPages){const page=command.input.ExclusiveStartKey?.page||0;return {Items:questionPages[page],LastEvaluatedKey:page+1<questionPages.length?{page:page+1}:undefined};}
-  return {Items:questions[command.input.ExpressionAttributeValues[':pk'].split('#').at(-1)]||[]};
- }})}},'next/server':{NextResponse:{json:Response.json}}});
+ const supabase={auth:{getUser:async()=>({data:{user:authenticated?{id:'real-user'}:null}})},from:()=>{const filters={};const chain={not:()=>chain,order:()=>chain,limit:()=>chain,gt:(key,value)=>{filters.after=value;return chain},select:()=>chain,eq:(key,value)=>{filters[key]=value;return chain},then:resolve=>resolve({data:(seen[filters.service]||[]).filter(id=>!filters.after||id>filters.after).sort().slice(0,100).map(question_id=>({question_id}))})};return chain}};
+ const bankMocks={'server-only':{},'@aws-sdk/client-dynamodb':{DynamoDBClient:class{}},'@aws-sdk/lib-dynamodb':{QueryCommand:class {constructor(input){this.input=input}},DynamoDBDocumentClient:{from:()=>({send:async command=>{
+  const input=command.input;
+  const rows=questionPages?questionPages.flat():questions[input.ExpressionAttributeValues[':pk'].split('#').at(-1)]||[];
+  if (input.ExpressionAttributeValues[':sk']) return {Items:rows.filter(q=>q.questionId===input.ExpressionAttributeValues[':sk'])};
+  if(questionPages){const page=input.ExclusiveStartKey?.page||0;return {Items:questionPages[page].map(q=>({...q,SK:q.questionId})),LastEvaluatedKey:page+1<questionPages.length?{page:page+1}:undefined};}
+  return {Items:rows.map(q=>({...q,SK:q.questionId}))};
+ }})}}};
+ // Isolate route cases from the process-local catalog; cache behavior has its own suite.
+ const route=load('app/api/question/next/route.ts',{'@/lib/question-bank':{
+   getSeenQuestionIds:(...args)=>load('lib/question-bank.ts',bankMocks).getSeenQuestionIds(...args),
+   selectBankQuestion:(...args)=>load('lib/question-bank.ts',bankMocks).selectBankQuestion(...args),
+ },'@/lib/supabase/server':{createClient:async()=>supabase},'@/lib/issued-question':{issueQuestion:async(...args)=>{issueCalls.push(args);return publicQuestion}},'@/lib/services':{getServiceById:id=>services.find(s=>s.id===id),getServicesInCategory:()=>services,getRandomServiceFromCategory:()=>services[0]},'next/server':{NextResponse:{json:Response.json}}});
  const request=params=>({nextUrl:new URL('https://local/api/question/next?certification=DVA-C02&'+params)});
- questions={lambda:[fixture]};let result=await route.GET(request('service=lambda'));assert.equal(result.status,200);assert.equal((await result.json()).issuanceId,publicQuestion.issuanceId);assert.equal(issueCalls.at(-1)[0],'real-user');
+ questions={lambda:[fixture]};let result=await route.GET(request('service=lambda'));assert.equal(result.status,200);assert.equal(result.headers.get('cache-control'),'private, no-store');assert.equal((await result.json()).issuanceId,publicQuestion.issuanceId);assert.equal(issueCalls.at(-1)[0],'real-user');
  // Empty selected service falls back to another service with its own history.
  questions={s3:[fixture]};seen={lambda:['bank-id']};await route.GET(request('category=compute'));assert.equal(issueCalls.at(-1)[1],'s3');
  // Exhausted selected service follows the same trusted issuance path.

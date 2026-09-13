@@ -16,6 +16,8 @@ function load(path, mocks, extra = {}) {
  assert.equal((await generation.json()).endpoint,'https://test.lambda-url.us-east-2.on.aws/');assert.equal(calls,0);
  assert.equal((await generate.GET({...request,nextUrl:new URL('https://local/?service=invalid')})).status,400);
  assert.equal((await generate.GET({...request,nextUrl:new URL('https://local/?service=lambda&certification=SAA-C03')})).status,200);
+ const staging=load('app/api/question/generate/route.ts',mocks,{process:{env:{APP_ENVIRONMENT:'staging',AUTHENTICATED_GENERATOR_URL:'https://test.lambda-url.us-east-2.on.aws/'}}});
+ assert.equal((await staging.GET(request)).status,503);
  const unavailable=load('app/api/question/generate/route.ts',mocks,{process:{env:{}}});
  assert.equal((await unavailable.GET(request)).status,503);
  const submit=load('app/api/question/submit/route.ts',mocks);
