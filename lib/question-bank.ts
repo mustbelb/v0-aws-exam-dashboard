@@ -60,15 +60,20 @@ export async function getSeenQuestionIds(
 ): Promise<Set<string>> {
   const seen = new Set<string>()
   let after: string | undefined
+  let expectedRows: number | undefined
   for (;;) {
-    let query = supabase.from('user_question_history').select('question_id')
+    let query = supabase.from('user_question_history').select('question_id', after === undefined ? { count: 'exact' } : undefined)
       .eq('user_id', userId).eq('certification', certification).eq('service', service)
       .not('question_id', 'is', null).order('question_id', { ascending: true }).limit(100)
     if (after !== undefined) query = query.gt('question_id', after)
-    const { data, error } = await query
+    const { data, error, count } = await query
     if (error) throw error
+    if (after === undefined && typeof count === 'number' && Number.isSafeInteger(count) && count >= 0) expectedRows = count
     if (!data?.length) return seen
     for (const row of data) seen.add(row.question_id as string)
+    // The first response counts the same user/exam/service scope, independent of
+    // the server row cap. Missing counts retain the empty-page fallback.
+    if (expectedRows !== undefined && seen.size >= expectedRows) return seen
     const next = data[data.length - 1].question_id as string
     if (next === after) throw new Error('Question history pagination did not advance')
     after = next

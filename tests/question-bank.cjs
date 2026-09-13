@@ -40,5 +40,16 @@ function load(){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFi
  const ids=Array.from({length:1205},(_,i)=>String(i).padStart(5,'0'));let calls=0;
  const supabase={from:table=>{assert.equal(table,'user_question_history');let after='';const filters={};const chain={select:()=>chain,eq:(k,v)=>{filters[k]=v;return chain},not:()=>chain,order:()=>chain,limit:()=>chain,gt:(k,v)=>{after=v;return chain},then:resolve=>{calls++;assert.equal(filters.user_id,'user-1');assert.equal(filters.certification,'SAA-C03');assert.equal(filters.service,'config');resolve({data:ids.filter(id=>id>after).slice(0,73).map(question_id=>({question_id}))})}};return chain}};
  const seen=await bank.getSeenQuestionIds(supabase,'user-1','SAA-C03','config');assert.equal(seen.size,1205);assert.ok(seen.has('01204'));assert.ok(calls>16);
+ // An exact scoped count removes only the terminal empty request, never capped pages.
+ async function historyCase(size, cap, suppliedCount) {
+  const all=Array.from({length:size},(_,i)=>String(i).padStart(5,'0'));let requests=0;
+  const api={from:()=>{let after='',opts;const q={select:(field,options)=>{assert.equal(field,'question_id');opts=options;return q},eq:()=>q,not:()=>q,order:()=>q,limit:()=>q,gt:(k,v)=>{after=v;return q},then:resolve=>{requests++;assert.equal(opts?.count,after ? undefined : 'exact');resolve({data:all.filter(id=>id>after).slice(0,cap).map(question_id=>({question_id})),count:after?null:suppliedCount})}};return q}};
+  const result=await bank.getSeenQuestionIds(api,'user-1','SAA-C03','config');assert.equal(result.size,size);return requests;
+ }
+ assert.equal(await historyCase(4,100,4),1);
+ assert.equal(await historyCase(1205,73,1205),17);
+ assert.equal(await historyCase(146,73,146),2);
+ assert.equal(await historyCase(4,100,null),2);
+ assert.equal(await historyCase(0,100,0),1);
  console.log('PASS: shared metadata refresh, warm single-item reads, retirement/deletion checks, TTL publication visibility, failure recovery, and 1,205-row scoped history pagination.');
 })().catch(e=>{console.error(e);process.exitCode=1});
