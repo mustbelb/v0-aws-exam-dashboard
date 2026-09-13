@@ -1,5 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ts=require('typescript');
-function load(path,mocks={}) {const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2021}}).outputText,{exports,require:name=>name in mocks?mocks[name]:require(name),Response,console:{error(){}},process:{env:{}}});return exports;}
+const runtimeEnv = {};
+function load(path,mocks={}) {const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2021}}).outputText,{exports,require:name=>name in mocks?mocks[name]:require(name),Response,console:{error(){}},process:{env:runtimeEnv}});return exports;}
 const parser=load('lib/generated-question.ts');
 const fixture={questionId:'bank-id',question:'A trusted question',options:{A:'a',B:'b',C:'c',D:'d'},correct:'B',explanation:{correct:'Private feedback'},examTip:'Private tip',topic:'lambda-topic'};
 (async()=>{
@@ -24,6 +25,13 @@ const fixture={questionId:'bank-id',question:'A trusted question',options:{A:'a'
  },'@/lib/supabase/server':{createClient:async()=>supabase},'@/lib/issued-question':{issueQuestion:async(...args)=>{issueCalls.push(args);return publicQuestion}},'@/lib/services':{getServiceById:id=>services.find(s=>s.id===id),getServicesInCategory:()=>services,getRandomServiceFromCategory:()=>services[0]},'next/server':{NextResponse:{json:Response.json}}});
  const request=params=>({nextUrl:new URL('https://local/api/question/next?certification=DVA-C02&'+params)});
  questions={lambda:[fixture]};let result=await route.GET(request('service=lambda'));assert.equal(result.status,200);assert.equal(result.headers.get('cache-control'),'private, no-store');assert.equal((await result.json()).issuanceId,publicQuestion.issuanceId);assert.equal(issueCalls.at(-1)[0],'real-user');
+ assert.equal(result.headers.get('server-timing'),null,'Production must not expose diagnostic timing');
+ runtimeEnv.APP_ENVIRONMENT='staging';
+ const diagnostic=await route.GET(request('service=lambda'));
+ const spans=diagnostic.headers.get('server-timing').split(', ');
+ assert.equal(spans.length,6);
+ for(const span of spans) assert.match(span,/^(auth|history|catalog|item|issuance|total);dur=\d+$/,'Only allowlisted names and numeric durations');
+ delete runtimeEnv.APP_ENVIRONMENT;
  // Empty selected service falls back to another service with its own history.
  questions={s3:[fixture]};seen={lambda:['bank-id']};await route.GET(request('category=compute'));assert.equal(issueCalls.at(-1)[1],'s3');
  // Exhausted selected service follows the same trusted issuance path.
