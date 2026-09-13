@@ -10,6 +10,18 @@ import { getSeenQuestionIds, selectBankQuestion } from "@/lib/question-bank"
 import { getServiceById, getServicesInCategory, getRandomServiceFromCategory, type CertificationType } from "@/lib/services"
 
 export async function GET(request: NextRequest) {
+  const started = Date.now()
+  const timings: Record<string, number> = {}
+  const measure = process.env.APP_ENVIRONMENT === 'staging'
+    ? (name: string, ms: number) => { timings[name] = (timings[name] || 0) + ms }
+    : undefined
+  // Numeric durations only; no learner, question, token, or database identifiers.
+  const respond = (body: unknown, init?: {status?: number; headers?: Record<string, string>}) => {
+    measure?.('total', Date.now() - started)
+    return NextResponse.json(body, {...init, headers: {...init?.headers,
+      ...(measure ? {'Server-Timing': Object.entries(timings).map(([name, ms]) => `${name};dur=${ms}`).join(', ')} : {}),
+    }})
+  }
   try {
     const searchParams = request.nextUrl.searchParams
     const service = searchParams.get("service")
@@ -18,23 +30,26 @@ export async function GET(request: NextRequest) {
 
     if (!["DVA-C02", "SAA-C03"].includes(certification) || (service && category)
       || (service && !getServiceById(service)?.certifications.includes(certification))) {
-      return NextResponse.json({error: "Invalid service or certification"}, {status:400})
+      return respond({error: "Invalid service or certification"}, {status:400})
     }
 
     // Validate - need either service or category
     if (!service && !category) {
-      return NextResponse.json(
+      return respond(
         { error: "Missing required parameter: service or category" },
         { status: 400 }
       )
     }
 
     // Get authenticated user
+    const authStart = Date.now()
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    measure?.('auth', Date.now() - authStart)
+
     if (authError || !user) {
-      return NextResponse.json(
+      return respond(
         { error: "Unauthorized" },
         { status: 401 }
       )
@@ -49,7 +64,7 @@ export async function GET(request: NextRequest) {
       const randomService = getRandomServiceFromCategory(category, certification)
 
       if (!randomService) {
-        return NextResponse.json(
+        return respond(
           { error: "No services available in this category for this certification" },
           { status: 404 }
         )
@@ -66,14 +81,19 @@ export async function GET(request: NextRequest) {
       : [selectedService]
 
     for (const serviceId of services) {
+      const historyStart = Date.now()
       const seen = await getSeenQuestionIds(supabase, user.id, certification, serviceId)
+      measure?.('history', Date.now() - historyStart)
       const { question, remainingQuestions, totalQuestions } =
-        await selectBankQuestion(certification, serviceId, seen)
+        await selectBankQuestion(certification, serviceId, seen, measure)
 
       if (question) {
         const info = getServiceById(serviceId)
-        return NextResponse.json({
-          ...await issueQuestion(user.id, serviceId, certification, question),
+        const issueStart = Date.now()
+        const issued = await issueQuestion(user.id, serviceId, certification, question)
+        measure?.('issuance', Date.now() - issueStart)
+        return respond({
+          ...issued,
           ...(isRandomMode ? {
             service: serviceId, serviceName: info?.name, serviceIcon: info?.icon,
             isRandomMode: true,
@@ -84,23 +104,23 @@ export async function GET(request: NextRequest) {
 
       if (!isRandomMode) {
         if (totalQuestions === 0) {
-          return NextResponse.json({ error: "No questions available for this service", bankEmpty: true },
+          return respond({ error: "No questions available for this service", bankEmpty: true },
             { status: 404, headers: { "Cache-Control": "private, no-store" } })
         }
-        return NextResponse.json({
+        return respond({
           bankExhausted: true, totalQuestions, questionsCompleted: seen.size,
           message: "You've completed all available questions for this service",
         }, { headers: { "Cache-Control": "private, no-store" } })
       }
     }
-    return NextResponse.json({
+    return respond({
       bankExhausted: true, isRandomMode: true, category,
       message: "You've completed all available questions in this category",
     }, { headers: { "Cache-Control": "private, no-store" } })
 
   } catch (error) {
     console.error("Error fetching question:", error)
-    return NextResponse.json(
+    return respond(
       { error: "Failed to fetch question" },
       { status: 500 }
     )

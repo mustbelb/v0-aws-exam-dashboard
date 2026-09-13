@@ -76,9 +76,13 @@ export async function getSeenQuestionIds(
   }
 }
 
-export async function selectBankQuestion(certification: string, service: string, seen: Set<string>) {
+export async function selectBankQuestion(certification: string, service: string, seen: Set<string>,
+  timing?: (name: 'catalog' | 'item', milliseconds: number) => void,
+) {
   const pk = `CERT#${certification}#SERVICE#${service}`
+  const catalogStart = Date.now()
   const candidates = await getCatalog(pk)
+  timing?.('catalog', Date.now() - catalogStart)
   const unseen = candidates.filter(candidate => !seen.has(candidate.questionId))
   let totalQuestions = candidates.length
   while (unseen.length) {
@@ -86,12 +90,14 @@ export async function selectBankQuestion(certification: string, service: string,
     const candidate = unseen[index]
     // Exact-key Query preserves the existing Query-only IAM permission. Recheck
     // the latest body/status even on a cache hit; never trust cached eligibility.
+    const itemStart = Date.now()
     const response = await client.send(new QueryCommand({
       TableName: table,
       KeyConditionExpression: 'PK = :pk AND SK = :sk',
       ExpressionAttributeValues: { ':pk': pk, ':sk': candidate.SK },
       ConsistentRead: true,
     }))
+    timing?.('item', Date.now() - itemStart)
     const item = response.Items?.[0]
     if (item && isPublished(item) && item.questionId === candidate.questionId) {
       return { question: item as BankQuestion, remainingQuestions: unseen.length, totalQuestions }
