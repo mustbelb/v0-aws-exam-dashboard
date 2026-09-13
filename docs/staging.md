@@ -24,6 +24,7 @@ Amplify omits empty-string branch environment overrides. Until configuration is 
 ## Checks
 
 - `npm run test:staging`: configuration isolation guards.
+- `node scripts/deployment/test-staging-session.cjs`: hosted missing/invalid/valid-session and expired-session refresh checks using a synthetic account. Returns refreshed cookies to the private test credential file.
 - `npm run test:issuance`: question selection, cache/publication checks, and history pagination.
 - `npm run test:selection-concurrency`: local synthetic adapters only; not hosted capacity.
 - `node scripts/deployment/test-staging.cjs 1 1`: one authenticated synthetic learner; bank retrieval, answer save, and retry invariants.

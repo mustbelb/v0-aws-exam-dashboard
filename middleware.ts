@@ -2,7 +2,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// These Route Handlers validate getUser() and can write refreshed cookies themselves.
+// Keep page/session-refresh middleware for everything else, including future API routes.
+const authenticatedApiRoutes = new Set([
+  '/api/question/next', '/api/question/submit', '/api/question/generate', '/api/progress',
+])
+
 export async function middleware(request: NextRequest) {
+  if (authenticatedApiRoutes.has(request.nextUrl.pathname)) return NextResponse.next({ request })
   if (process.env.DESIGN_PREVIEW === 'true' && request.nextUrl.pathname === '/design-preview') return NextResponse.next()
 
   let supabaseResponse = NextResponse.next({

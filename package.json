@@ -12,7 +12,7 @@
     "topic-tag:test": "npx tsx scripts/topic-tagging/test-classification.ts",
     "test:playback": "node tests/playback.cjs",
     "typecheck": "tsc --noEmit",
-    "test:routes": "node tests/route-guards.cjs",
+    "test:routes": "node tests/route-guards.cjs && node tests/middleware-auth.cjs",
     "test:generation": "node tests/generated-question.cjs && node tests/generation-client.cjs && node scripts/deployment/build-generator.cjs && node tests/lambda-generator.mjs",
     "test:issuance": "node tests/question-issuance.cjs && node tests/question-bank.cjs",
     "test:selection-concurrency": "node tests/question-selection-concurrency.cjs",
