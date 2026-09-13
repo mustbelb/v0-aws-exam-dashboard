@@ -3,6 +3,7 @@ const script=path.resolve('scripts/hosting/write-env.cjs');
 const base={APP_ENVIRONMENT:'staging',NEXT_PUBLIC_SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',NEXT_PUBLIC_SUPABASE_ANON_KEY:'synthetic-public-key',SUPABASE_SECRET_KEY:'synthetic-private-key',DYNAMODB_TABLE_NAME:'cert-galaxy-staging-questions',DYNAMODB_REGION:'us-east-2'};
 function run(overrides={}){const cwd=fs.mkdtempSync(path.join(os.tmpdir(),'staging-config-'));try{const result=spawnSync(process.execPath,[script],{cwd,env:{...base,...overrides},encoding:'utf8'});return {status:result.status,output:fs.existsSync(path.join(cwd,'.env.production'))?fs.readFileSync(path.join(cwd,'.env.production'),'utf8'):null}}finally{fs.rmSync(cwd,{recursive:true,force:true})}}
 assert.equal(run().status,0);
+assert.equal(run({AUTHENTICATED_GENERATOR_URL:'disabled'}).status,0);
 for(const overrides of [
  {NEXT_PUBLIC_SUPABASE_URL:'https://rbquwmbthcuvxmowtwej.supabase.co'},
  {NEXT_PUBLIC_SUPABASE_URL:'https://rerlbckqpphqhukasotw.supabase.co'},

@@ -11,7 +11,7 @@ if (process.env.APP_ENVIRONMENT === 'staging') {
   if (!/^https:\/\/[a-z]{20}\.supabase\.co$/.test(stagingUrl || '')
       || ['rbquwmbthcuvxmowtwej', 'rerlbckqpphqhukasotw'].some(id => stagingUrl.includes(id))
       || process.env.DYNAMODB_TABLE_NAME !== 'cert-galaxy-staging-questions'
-      || process.env.AUTHENTICATED_GENERATOR_URL) {
+      || (process.env.AUTHENTICATED_GENERATOR_URL && process.env.AUTHENTICATED_GENERATOR_URL !== 'disabled')) {
     throw new Error('Staging must use its isolated database/table and disable generation');
   }
   if (!process.env.SUPABASE_SECRET_KEY) throw new Error('Staging issuance key is missing');
