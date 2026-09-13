@@ -10,7 +10,7 @@ import { FeedbackDisplay } from "@/components/feedback-display"
 import { ServiceSidebar } from "@/components/service-sidebar"
 import { ExplainerModal } from "@/components/explainer-modal"
 import { allExplainers } from "@/components/explainers"
-import { getExplainerForService } from "@/lib/explainer-mapping"
+import { resolveQuestionExplainer } from "@/lib/explainer-mapping"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ArrowLeft, Loader2, PartyPopper, Zap, Lightbulb } from "lucide-react"
@@ -257,22 +257,8 @@ export function PracticeClient({
     setQuestionsAnswered(totals.reduce((sum, row) => sum + row.attempted, 0))
     setCorrectCount(totals.reduce((sum, row) => sum + row.correct, 0))
 
-    // Set up explainer for wrong answers - use question's topic if available
     if (!correct) {
-      // Try to use the question's specific topic first
-      let explainerId: string | null = null
-
-      if (currentQuestion.topic && allExplainers[currentQuestion.topic]) {
-        // Use the question's topic if it has a matching explainer
-        explainerId = currentQuestion.topic
-      } else {
-        // Fall back to service-level default explainer
-        explainerId = getExplainerForService(service.id)
-      }
-
-      if (explainerId) {
-        setCurrentExplainerId(explainerId)
-      }
+      setCurrentExplainerId(resolveQuestionExplainer(currentQuestion, service.id, allExplainers))
     }
 
   }

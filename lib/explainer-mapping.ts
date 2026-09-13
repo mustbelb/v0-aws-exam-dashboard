@@ -45,6 +45,32 @@ export function getExplainerForService(serviceId: string): string | null {
   return serviceToExplainerMap[serviceId] || null
 }
 
+// Individually reviewed bank questions. Keep the service/topic guard so a retagged
+// question does not silently retain an old review. Do not add a topic-wide alias.
+const reviewedQuestionExplainers: Record<string, { service: string; topic: string; explainer: string }> = {
+  "28c7e66e-9cf4-5480-a98c-1fb81fc240b6": { service: "ec2", topic: "ec2-ami", explainer: "ec2-amis" },
+  "2e03566e-5539-5087-af2f-ad2df39072fd": { service: "ec2", topic: "ec2-ami", explainer: "ec2-amis" },
+}
+
+// Both practice flows use the same precedence: reviewed question, exact topic,
+// then the existing service fallback. Only return registered components.
+export function resolveQuestionExplainer(
+  question: { questionId?: string; topic?: string },
+  serviceId: string | undefined,
+  registry: Readonly<Record<string, unknown>>,
+): string | null {
+  const registered = (id: string | undefined | null): id is string =>
+    !!id && Object.prototype.hasOwnProperty.call(registry, id) && !!registry[id]
+  const reviewed = question.questionId && Object.prototype.hasOwnProperty.call(reviewedQuestionExplainers, question.questionId)
+    ? reviewedQuestionExplainers[question.questionId] : undefined
+  if (reviewed && reviewed.service === serviceId && reviewed.topic === question.topic && registered(reviewed.explainer)) {
+    return reviewed.explainer
+  }
+  if (registered(question.topic)) return question.topic
+  const fallback = serviceId ? getExplainerForService(serviceId) : null
+  return registered(fallback) ? fallback : null
+}
+
 // Get all explainers related to a service (for Study Hub)
 export const serviceExplainerGroups: Record<string, string[]> = {
   "lambda": [

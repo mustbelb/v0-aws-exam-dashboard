@@ -10,7 +10,7 @@ import { QuestionCard } from "@/components/question-card"
 import { FeedbackDisplay } from "@/components/feedback-display"
 import { ExplainerModal } from "@/components/explainer-modal"
 import { allExplainers } from "@/components/explainers"
-import { getExplainerForService } from "@/lib/explainer-mapping"
+import { resolveQuestionExplainer } from "@/lib/explainer-mapping"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ArrowLeft, Loader2, PartyPopper, Zap, Shuffle, Lightbulb } from "lucide-react"
@@ -300,22 +300,8 @@ export function RandomPracticeClient({
     setQuestionsAnswered(totals.reduce((sum, row) => sum + row.attempted, 0))
     setCorrectCount(totals.reduce((sum, row) => sum + row.correct, 0))
 
-    // Set up explainer for wrong answers - use question's topic if available
     if (!correct) {
-      let explainerId: string | null = null
-      const serviceId = currentService?.id || currentQuestion.service
-
-      if (currentQuestion.topic && allExplainers[currentQuestion.topic]) {
-        // Use the question's topic if it has a matching explainer
-        explainerId = currentQuestion.topic
-      } else if (serviceId) {
-        // Fall back to service-level default explainer
-        explainerId = getExplainerForService(serviceId)
-      }
-
-      if (explainerId) {
-        setCurrentExplainerId(explainerId)
-      }
+      setCurrentExplainerId(resolveQuestionExplainer(currentQuestion, currentService?.id || currentQuestion.service, allExplainers))
     }
 
   }

@@ -950,8 +950,9 @@ export function EC2AMIExplainer() {
   const steps = [
     { title: "What is an AMI?", description: "Amazon Machine Image - template for root volume, launch permissions, and block device mapping." },
     { title: "AMI Sources", description: "AWS provided, Marketplace (vendor), Community (public), or create your own from existing instance." },
-    { title: "Creating Custom AMIs", description: "Launch instance, customize, create image. Includes EBS snapshots of attached volumes." },
-    { title: "AMI Region Scope", description: "AMIs are region-specific. Copy to other regions for multi-region deployments." }
+    { title: "Creating Custom AMIs", description: "For an EBS-backed AMI, customize an instance and create an image with snapshots of its EBS volumes. Instance-store data is not captured." },
+    { title: "AMI Region Scope", description: "Copy the AMI to the destination Region, then use the copy’s new AMI ID and destination network resources when launching." },
+    { title: "Approve Before Scale-Out", description: "Install software and patches, create the image, test instances launched from it, then approve that AMI version for the fleet. New instances avoid repeating installation at launch." }
   ]
 
   const { step, setStep, isPlaying, togglePlayback, reset, resetKey } = useExplainerPlayback(steps.length)
@@ -1054,9 +1055,9 @@ export function EC2AMIExplainer() {
         <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><span>💡</span> Exam Takeaways</h3>
         <ul className="space-y-2 text-sm text-slate-300">
           <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>AMIs are region-specific - copy for multi-region use</span></li>
-          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Custom AMIs include EBS snapshots (billed for storage)</span></li>
-          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Golden AMI pattern: pre-baked for faster boot</span></li>
-          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Can share AMIs with specific accounts or make public</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>EBS-backed AMIs use snapshots with storage charges; instance-store data is not captured</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Golden AMI: bake software and patches, test the image, then launch from the approved version</span></li>
+          <li className="flex items-start gap-2"><span className="text-green-400 mt-1">•</span><span>Share eligible AMIs with selected accounts; encrypted AMIs cannot be public</span></li>
         </ul>
       </div>
     </div>
